@@ -1,0 +1,50 @@
+---
+import { getImage } from "astro:assets";
+import Base from "@/layouts/Base.astro";
+import Hero from "@/components/Hero.tsx";
+import { getHome, getServices, assetUrl } from "@/lib/directus";
+
+// Runs at BUILD time. Content is baked into static HTML.
+const home = await getHome();
+const services = await getServices();
+
+// IMAGE: si Directus fournit une image, on la RAPATRIE + optimise au build.
+// getImage() (depuis localhost) émet un fichier local dans dist/_astro/ ;
+// `heroImageSrc` est donc un chemin LOCAL servi par le VPS, jamais l'URL Directus.
+// Si pas d'image (fallback / Directus hors ligne) → le hero reste en dégradé.
+let heroImageSrc: string | undefined;
+if (home.hero_image) {
+  const optimized = await getImage({
+    src: assetUrl(home.hero_image),
+    width: 1600,
+    format: "webp",
+  });
+  heroImageSrc = optimized.src;
+}
+---
+
+<Base>
+  {/* client:visible → la React island n'hydrate qu'au scroll. */}
+  <Hero
+    client:visible
+    eyebrow={home.hero_eyebrow}
+    title={home.hero_title}
+    subtitle={home.hero_subtitle}
+    ctaLabel={home.hero_cta_label}
+    ctaHref={home.hero_cta_href}
+    imageSrc={heroImageSrc}
+  />
+
+  <section class="mx-auto max-w-5xl px-6 py-20">
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        services.map((s) => (
+          <article class="rounded-2xl border border-border bg-card p-6 transition-transform hover:-translate-y-1">
+            <h3 class="text-lg font-semibold text-card-foreground">{s.title}</h3>
+            <p class="mt-2 text-sm text-muted-foreground">{s.description}</p>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+</Base>

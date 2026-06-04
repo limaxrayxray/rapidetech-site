@@ -1,0 +1,29 @@
+---
+import { ClientRouter } from "astro:transitions";
+import "@/styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "Rapidetech — Gestion TI, cybersécurité et dev web",
+  description = "MSP pour PME sur la Rive-Nord de Montréal et dans les Laurentides.",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="fr-CA" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <!-- Smooth, app-like page transitions (built into Astro 5) -->
+    <ClientRouter />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

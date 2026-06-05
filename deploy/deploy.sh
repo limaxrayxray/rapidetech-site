@@ -5,6 +5,7 @@ set -euo pipefail
 REPO_DIR="/opt/rapidetech-site"      # le clone git du site
 VPS_SSH="galx-dev-ssh@138.197.137.205"          # user SSH du site CloudPanel
 VPS_WEBROOT="/files/htdocs/dev.galx.ca"  # root du site statique CloudPanel
+SSH_KEY="$HOME/.ssh/galx_deploy"     # clé de déploiement dédiée (nom non standard → à préciser explicitement)
 
 cd "$REPO_DIR"
 
@@ -16,6 +17,6 @@ npm ci
 npm run build
 
 echo "→ push du dist/ vers le VPS"
-rsync -az --delete -e ssh dist/ "${VPS_SSH}:${VPS_WEBROOT}/"
+rsync -az --delete -e "ssh -i $SSH_KEY -o IdentitiesOnly=yes" dist/ "${VPS_SSH}:${VPS_WEBROOT}/"
 
 echo "✓ déployé"

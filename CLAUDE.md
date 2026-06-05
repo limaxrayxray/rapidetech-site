@@ -126,7 +126,15 @@ Dans `index.astro`, le helper `localizeImage(fileId, width)` enrobe `getImage({ 
 - `npm run preview` — sert le build localement.
 
 ## Déploiement (voir README.md)
-Site statique servi par Nginx via CloudPanel. Rebuild déclenché par webhook Directus → script `deploy.sh`.
+Site statique servi par Nginx via CloudPanel. Build local puis `rsync` vers le VPS (`deploy/deploy.sh`).
+
+### Déploiement automatique (webhook Directus → Flow)
+En Directus 11 les webhooks classiques = **Flows** ; l'op « Run Script » est sandboxée (pas de shell). Donc :
+1. **Récepteur** `deploy/webhook-listener.mjs` (Node natif) tourne en service systemd `rapidetech-deploy`, lié à **`172.18.0.1:8787`** (bridge Docker → joignable par le conteneur Directus + l'hôte, **pas exposé sur Internet**). Auth par secret Bearer (`/etc/rapidetech-deploy.env`, hors repo). Debounce 8 s + single-flight (pas de builds concurrents).
+2. **Flow Directus** « Déploiement auto du site » : trigger event (create/update/delete) sur les 7 collections de contenu → opération *request* qui POST `http://172.18.0.1:8787/deploy` avec le header `Authorization: Bearer <secret>`.
+- Service tourne en root (a besoin de `/root/.ssh/galx_deploy`, git, npm) ; le unit fixe `HOME=/root` et `PATH` (sinon `set -u` → `HOME: unbound variable`).
+- Logs : `journalctl -u rapidetech-deploy -f`. Réinstaller le unit : `cp deploy/rapidetech-deploy.service /etc/systemd/system/ && systemctl daemon-reload && systemctl restart rapidetech-deploy`.
+- Le secret n'est **jamais** dans le repo (dans `/etc/rapidetech-deploy.env` + dans le header du Flow stocké en base Directus).
 
 ## Versions cibles (la syntaxe a changé récemment — vise CELLES-CI)
 - Astro 5 (sortie statique ; ClientRouter pour les transitions ; image.domains)

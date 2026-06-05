@@ -1,0 +1,26 @@
+# Récepteur de déploiement Rapidetech (déclenché par un Flow Directus).
+# Installation :
+#   sudo cp deploy/rapidetech-deploy.service /etc/systemd/system/
+#   sudo install -m 600 deploy/webhook.env.example /etc/rapidetech-deploy.env  # puis éditer le secret
+#   sudo systemctl daemon-reload && sudo systemctl enable --now rapidetech-deploy
+[Unit]
+Description=Rapidetech — recepteur de deploiement (webhook Directus)
+After=network.target docker.service
+Wants=network.target
+
+[Service]
+Type=simple
+# Tourne en root : deploy.sh a besoin de /root/.ssh/galx_deploy, npm et git.
+# HOME/PATH explicites : systemd ne les hérite pas d'un shell de login (sinon
+# "HOME: unbound variable" avec set -u, et git/ssh/npm ne trouvent pas leur conf).
+Environment=HOME=/root
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+EnvironmentFile=/etc/rapidetech-deploy.env
+WorkingDirectory=/opt/rapidetech-site
+ExecStart=/usr/bin/node /opt/rapidetech-site/deploy/webhook-listener.mjs
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

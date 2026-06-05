@@ -1,6 +1,6 @@
-# CLAUDE.md — Site Rapidetech
+# aider.md — Site Rapidetech
 
-Contexte pour Claude Code. Lis ce fichier avant toute modification.
+Contexte pour aider. Lis ce fichier avant toute modification.
 
 ## Stack
 - **Astro 5** (sortie `static`) — front, build vers `./dist/`.
@@ -67,58 +67,12 @@ Ou mieux : après création de la collection, setter `meta.sort` sur le champ `s
 ### Vérifier après chaque PATCH
 Un appel PATCH qui retourne `200 OK` ne garantit pas que la valeur a persisté. Toujours enchaîner un GET de confirmation sur la ressource modifiée.
 
-### ⚠️ CAUSE RACINE : CACHE_AUTO_PURGE non activé
-Le conteneur tourne avec `CACHE_ENABLED=true` mais **sans** `CACHE_AUTO_PURGE` (défaut `false`). Directus ne vide donc JAMAIS son cache quand le contenu change → l'admin sert des listes vides / un schéma périmés. C'est l'origine de TOUS les symptômes « je crée un item/une collection mais je ne le vois pas ».
-Correctif permanent (à appliquer une fois) : dans `/data/compose/1/docker-compose.yml`, service `directus` → `environment:` ajouter `CACHE_AUTO_PURGE: "true"`, puis `docker compose up -d`.
-Tant que ce n'est pas fait : vider le cache (`POST /utils/cache/clear`) après chaque écriture, et redémarrer le conteneur si le schéma ne se rafraîchit pas.
-
-### Cache de schéma périmé après création via API
-Directus tourne avec Redis (`directus-cache-1`). Après création d'une collection/d'un champ via l'API REST, la **liste** `/collections` (et la navigation de l'admin) peut continuer à servir une version cachée SANS la nouveauté — même si `GET /collections/<nom>` répond 200 et que la table Postgres existe. Symptôme : « je ne vois pas la collection / le champ dans Directus ».
-Correctif : vider le cache puis hard refresh du navigateur.
-```
-POST /utils/cache/clear        # (avec le token admin)
-```
-⚠️ VÉCU : `POST /utils/cache/clear` n'a PAS suffi — le process Directus gardait le schéma en mémoire. Il a fallu **redémarrer le conteneur** pour que les nouvelles collections apparaissent dans la barre latérale de l'admin :
-```
-docker restart directus-directus-1
-```
-Réflexe : après création de collection(s)/champ(s) via API, flush le cache ; si l'utilisateur ne voit toujours rien après hard refresh → `docker restart directus-directus-1`.
-
-### Infra Directus (déploiement local)
-- Conteneurs Docker : `directus-directus-1` (app, tourne en uid **1000/node**), `directus-database-1` (postgres 16), `directus-cache-1` (redis 7).
-- Volume uploads : hôte `/data/compose/1/data/uploads` → conteneur `/directus/uploads`. Doit appartenir à l'uid **1000**, sinon upload = `EACCES` → erreur 500.
-- Logs utiles : `docker logs directus-directus-1 --tail 50`.
-
 ## Modèle de contenu Directus (état actuel)
-- **`home`** (singleton) : `hero_eyebrow`, `hero_title`, `hero_subtitle`, `hero_cta_label`, `hero_cta_href`, `hero_image` (uuid → directus_files), `services_title`, `differentiators_title`, `partners_title`, `partners_intro`, `cta_final_title`, `cta_final_body`, `cta_final_label`, `cta_final_href`.
+- **`home`** (singleton) : `hero_eyebrow`, `hero_title`, `hero_subtitle`, `hero_cta_label`, `hero_cta_href`, `hero_image` (uuid → directus_files), `differentiators_title`.
 - **`services`** (collection) : `title`, `description`, `icon` (nom d'icône Lucide), `sort`.
 - **`differentiators`** (collection) : `title`, `description`, `sort`.
-- **`testimonials`** (collection) : `name`, `detail`, `rating` (1-5, optionnel), `quote`, `sort`.
-- **`partners`** (collection) : `name`, `logo` (uuid → directus_files), `url`, `sort`.
-- **`about`** (singleton) : `name`, `role`, `bio`, `values` (JSON liste), `photo` (uuid → directus_files).
-- **`site_settings`** (singleton) : `company_name`, `phone`, `email`, `hours`, `city`, `service_area`, `google_reviews_url`, `footer_tagline`, `meta_title`, `meta_description`.
 - Crée un token statique **lecture seule** pour le build, mets-le dans `.env` (`DIRECTUS_TOKEN`).
-- Étends le modèle au besoin (réalisations, FAQ, etc.) — toujours : champ Directus → prop → composant.
-
-## Patterns front (établis — réutilise-les)
-
-### Champs de singleton vides → fallback champ par champ
-`getHome`/`getSiteSettings`/`getAbout` passent par `fillEmpty(data, FALLBACK)` dans `directus.ts` : tout champ `null`/`""` retombe sur le fallback. Indispensable car les items sont en lecture publique → un champ existant mais non rempli reviendrait vide et casserait l'UI (CTA/footer vides). Le `try/catch → FALLBACK` global, lui, ne couvre QUE Directus hors ligne. **Tout nouveau champ de singleton doit avoir une valeur dans le FALLBACK correspondant.**
-
-### Icônes Lucide pour les services (rendu statique, zéro JS)
-`src/components/ServiceIcon.tsx` = **dictionnaire explicite** clé→composant lucide + `DEFAULT_ICON` si clé inconnue. On ne devine jamais une icône depuis une string. Monté dans `.astro` SANS `client:*` → Astro le rend en SVG statique au build (zéro JS). Ajouter une icône = importer + une ligne dans la map. `lucide-react` est installé.
-
-### Token de build (lecture seule) — permissions requises
-La policy du token de build (`directus_users.token` → `DIRECTUS_TOKEN`) — ici **« Build — lecture seule »** (`062db0aa…`) — doit avoir `read` sur :
-- **chaque collection de contenu** lue par un getter (`home`, `services`, `differentiators`, `about`, `testimonials`, `partners`, `site_settings`, `directus_fields`) ;
-- **`directus_files`** — SANS ça, `/assets/<id>` renvoie **403** et aucune image ne se localise (les `/items` peuvent réussir alors que les fichiers échouent → symptôme « texte OK, images absentes »).
-⚠️ **Toute nouvelle collection lue au build → ajouter sa permission `read` à cette policy**, sinon fallback silencieux côté site. Ajout via API admin : `POST /permissions {policy, collection, action:"read", fields:["*"]}` puis flush cache.
-Le token est passé en `?access_token=` sur l'URL d'asset au build (voir `assetUrl`) — uniquement au build, jamais dans le HTML final.
-
-### Localisation d'images CMS tolérante aux pannes
-Dans `index.astro`, le helper `localizeImage(fileId, width)` enrobe `getImage({ src: assetUrl(id), inferSize: true, ... })` dans un try/catch :
-- `inferSize: true` est **obligatoire** pour un asset distant (sinon erreur `MissingImageDimension`).
-- L'asset binaire `/assets/...` de Directus exige un **token** (les /items sont en lecture publique, pas les fichiers). Tant que `DIRECTUS_TOKEN` n'est pas configuré, le fetch échoue → le try/catch dégrade en « pas d'image » et le **build reste vert**. Une fois le token en place, les images apparaissent sans changement de code.
+- Étends le modèle au besoin (réalisations, témoignages, FAQ, etc.) — toujours : champ Directus → prop → composant.
 
 ## Commandes
 - `npm run dev` — dev local.

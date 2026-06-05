@@ -1,0 +1,59 @@
+---
+// Pied de page (version texte). Contenu 100 % depuis site_settings.
+import type { SiteSettings } from "@/lib/directus";
+interface Props {
+  settings: SiteSettings;
+}
+const { settings } = Astro.props;
+const year = new Date().getFullYear();
+---
+
+<footer class="border-t border-border bg-card">
+  <div class="mx-auto max-w-5xl px-6 py-12">
+    <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+      <div>
+        <p class="text-base font-bold text-card-foreground">{settings.company_name}</p>
+        {settings.footer_tagline && (
+          <p class="mt-2 text-sm text-muted-foreground">{settings.footer_tagline}</p>
+        )}
+      </div>
+
+      <div class="space-y-1 text-sm text-muted-foreground">
+        {settings.phone && (
+          <p>
+            <a href={`tel:${settings.phone.replace(/[^0-9+]/g, "")}`} class="hover:text-foreground">
+              {settings.phone}
+            </a>
+          </p>
+        )}
+        {settings.email && (
+          <p>
+            <a href={`mailto:${settings.email}`} class="hover:text-foreground">{settings.email}</a>
+          </p>
+        )}
+      </div>
+
+      <div class="space-y-1 text-sm text-muted-foreground">
+        {settings.hours && <p class="whitespace-pre-line">{settings.hours}</p>}
+        {settings.service_area && <p>{settings.service_area}</p>}
+      </div>
+
+      <div class="text-sm">
+        {settings.google_reviews_url && settings.google_reviews_url !== "#" && (
+          <a
+            href={settings.google_reviews_url}
+            target="_blank"
+            rel="noopener"
+            class="font-semibold text-primary hover:opacity-90"
+          >
+            Voir nos avis Google
+          </a>
+        )}
+      </div>
+    </div>
+
+    <p class="mt-10 text-xs text-muted-foreground">
+      © {year} {settings.company_name}. Tous droits réservés.
+    </p>
+  </div>
+</footer>

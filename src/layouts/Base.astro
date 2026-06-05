@@ -1,15 +1,22 @@
 ---
 import { ClientRouter } from "astro:transitions";
 import "@/styles/global.css";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import { getSiteSettings } from "@/lib/directus";
 
 interface Props {
   title?: string;
   description?: string;
 }
 
+// Réglages globaux (build time). meta_title / meta_description pilotent le SEO
+// par défaut ; une page peut toujours surcharger via les props title/description.
+const settings = await getSiteSettings();
+
 const {
-  title = "Rapidetech — Gestion TI, cybersécurité et dev web",
-  description = "MSP pour PME sur la Rive-Nord de Montréal et dans les Laurentides.",
+  title = settings.meta_title,
+  description = settings.meta_description,
 } = Astro.props;
 ---
 
@@ -24,6 +31,8 @@ const {
     <ClientRouter />
   </head>
   <body>
+    <Header companyName={settings.company_name} phone={settings.phone} />
     <slot />
+    <Footer settings={settings} />
   </body>
 </html>

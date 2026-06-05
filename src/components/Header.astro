@@ -1,0 +1,25 @@
+---
+// En-tête (version texte — le graphisme viendra en phase 2).
+// Tout le contenu vient de site_settings (props), jamais en dur.
+interface Props {
+  companyName: string;
+  phone: string;
+}
+const { companyName, phone } = Astro.props;
+---
+
+<header class="border-b border-border">
+  <div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+    <a href="/" class="text-lg font-bold text-foreground">{companyName}</a>
+    {
+      phone && (
+        <a
+          href={`tel:${phone.replace(/[^0-9+]/g, "")}`}
+          class="text-sm font-semibold text-primary"
+        >
+          {phone}
+        </a>
+      )
+    }
+  </div>
+</header>

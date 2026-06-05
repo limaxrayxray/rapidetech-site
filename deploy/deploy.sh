@@ -2,9 +2,9 @@
 # Tourne SUR TA BOÎTE MAISON (LXC). Build local + push du statique vers le VPS.
 set -euo pipefail
 
-REPO_DIR="/home/alex/rapidetech-site"      # le clone git du site
-VPS_SSH="cluser@vps.rapidetech.ca"          # user SSH du site CloudPanel
-VPS_WEBROOT="/home/cluser/htdocs/rapidetech.ca"  # root du site statique CloudPanel
+REPO_DIR="/opt/rapidetech-site"      # le clone git du site
+VPS_SSH="galx-dev-ssh@138.197.137.205"          # user SSH du site CloudPanel
+VPS_WEBROOT="/files/htdocs/dev.galx.ca"  # root du site statique CloudPanel
 
 cd "$REPO_DIR"
 

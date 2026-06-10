@@ -1,0 +1,60 @@
+---
+// Page service dédiée — la VRAIE page indexable (URL propre, meta dédiées).
+// L'overlay de l'accueil affiche le même contenu (ServicePanel partagé) ;
+// Google et les visiteurs directs arrivent ici.
+import Base from "@/layouts/Base.astro";
+import ServicePanel from "@/components/ServicePanel.astro";
+import { getHome, getServices, getSiteSettings } from "@/lib/directus";
+
+export async function getStaticPaths() {
+  const services = await getServices();
+  return services.map((service, i) => ({
+    params: { slug: service.slug },
+    props: { service, num: i + 1 },
+  }));
+}
+
+const { service, num } = Astro.props;
+const home = await getHome();
+const settings = await getSiteSettings();
+const title = `${service.title} — ${settings.company_name}`;
+---
+
+<Base title={title} description={service.description}>
+  <main class="rt-svcpage">
+    <nav class="rt-svcpage-back" aria-label="Fil d'Ariane">
+      <a href="/">← {settings.company_name}</a>
+    </nav>
+    <ServicePanel
+      service={service}
+      num={num}
+      heading="h1"
+      ctaLabel={home.cta_final_label}
+      ctaHref="/#contact"
+    />
+  </main>
+</Base>
+
+<style>
+  .rt-svcpage {
+    position: relative;
+    z-index: 2;
+    padding: var(--section-pad);
+    max-width: 980px;
+  }
+  .rt-svcpage-back {
+    margin-bottom: 48px;
+  }
+  .rt-svcpage-back a {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color var(--dur-fast);
+  }
+  .rt-svcpage-back a:hover {
+    color: var(--text-primary);
+  }
+</style>

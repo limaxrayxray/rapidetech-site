@@ -6,12 +6,15 @@ interface Props {
   title: string;
   desc: string;
   href?: string;
+  /** Slug du <dialog> overlay à ouvrir sur l'accueil (progressive enhancement —
+      sans JS, le lien navigue normalement vers la page service). */
+  overlay?: string;
 }
-const { num, title, desc, href = "#contact" } = Astro.props;
+const { num, title, desc, href = "#contact", overlay } = Astro.props;
 const numLabel = `/ ${String(num).padStart(2, "0")}`;
 ---
 
-<a class="rt-svc" href={href}>
+<a class="rt-svc" href={href} data-overlay={overlay}>
   <span class="rt-svc-num">{numLabel}</span>
   <span class="rt-svc-title">{title}</span>
   <span class="rt-svc-desc">{desc}</span>

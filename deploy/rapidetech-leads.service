@@ -1,0 +1,25 @@
+# Relais formulaire de contact → courriel (Brevo) — tourne sur le VPS.
+# Installation (sur le VPS, où le repo est déployé) :
+#   sudo cp deploy/rapidetech-leads.service /etc/systemd/system/
+#   sudo install -m 600 deploy/leads.env.example /etc/rapidetech-leads.env  # puis éditer
+#   sudo systemctl daemon-reload && sudo systemctl enable --now rapidetech-leads
+# Puis dans le vhost Nginx (CloudPanel) :
+#   location /api/lead { proxy_pass http://127.0.0.1:8788/lead; }
+# Logs : journalctl -u rapidetech-leads -f
+[Unit]
+Description=Rapidetech — relais formulaire de contact (courriel via SMTP2GO)
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/rapidetech-leads.env
+ExecStart=/usr/bin/node /opt/rapidetech-site/deploy/lead-mailer.mjs
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+# Le service n'a besoin que d'écrire son journal de leads.
+ReadWritePaths=/var/log
+
+[Install]
+WantedBy=multi-user.target

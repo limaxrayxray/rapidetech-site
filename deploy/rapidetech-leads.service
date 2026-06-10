@@ -7,7 +7,7 @@
 #   location /api/lead { proxy_pass http://127.0.0.1:8788/lead; }
 # Logs : journalctl -u rapidetech-leads -f
 [Unit]
-Description=Rapidetech — relais formulaire de contact (courriel via Brevo)
+Description=Rapidetech — relais formulaire de contact (courriel via SMTP2GO)
 After=network.target
 Wants=network.target
 

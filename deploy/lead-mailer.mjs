@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Relais formulaire → courriel (tourne sur le VPS, derrière Nginx).
 // Reçoit POST /lead (JSON via fetch, ou form-encoded sans JS) et envoie un
-// courriel via l'API transactionnelle Brevo (HTTPS, clé API — plus simple et
-// plus robuste que SMTP brut, zéro dépendance npm).
+// courriel via l'API HTTP de SMTP2GO (compte existant, expéditeur déjà
+// vérifié — plus simple et plus robuste que SMTP brut, zéro dépendance npm).
 //
 // Solidité :
 //  - honeypot « entreprise » : rempli = bot → on répond succès sans envoyer ;
@@ -21,7 +21,7 @@ import { appendFile } from "node:fs/promises";
 
 const PORT = Number(process.env.LEAD_PORT || 8788);
 const BIND = process.env.LEAD_BIND || "127.0.0.1";
-const BREVO_API_KEY = process.env.BREVO_API_KEY || "";
+const SMTP2GO_API_KEY = process.env.SMTP2GO_API_KEY || "";
 const TO = process.env.LEAD_TO || "";
 const FROM = process.env.LEAD_FROM || "";
 const FROM_NAME = process.env.LEAD_FROM_NAME || "Site Rapidetech";
@@ -31,8 +31,8 @@ const MAX_BODY = 32 * 1024;
 const RATE_MAX = 5; // envois / fenêtre / IP
 const RATE_WINDOW_MS = 60 * 60 * 1000;
 
-if (!BREVO_API_KEY || !TO || !FROM) {
-  console.error("FATAL: BREVO_API_KEY, LEAD_TO et LEAD_FROM sont requis");
+if (!SMTP2GO_API_KEY || !TO || !FROM) {
+  console.error("FATAL: SMTP2GO_API_KEY, LEAD_TO et LEAD_FROM sont requis");
   process.exit(1);
 }
 
@@ -74,11 +74,23 @@ const esc = (s) =>
 
 async function sendEmail(lead, ip) {
   const payload = {
-    sender: { email: FROM, name: FROM_NAME },
-    to: [{ email: TO }],
-    replyTo: { email: lead.courriel, name: lead.nom },
+    sender: `${FROM_NAME} <${FROM}>`,
+    to: [TO],
     subject: `Nouveau lead — ${lead.nom}`,
-    htmlContent: `<h2>Nouveau message du site</h2>
+    custom_headers: [
+      { header: "Reply-To", value: `${lead.nom} <${lead.courriel}>` },
+    ],
+    text_body: `Nouveau message du site
+
+Nom : ${lead.nom}
+Courriel : ${lead.courriel}
+Téléphone : ${lead.telephone || "—"}
+
+${lead.message}
+
+—
+IP : ${ip} · ${new Date().toISOString()}`,
+    html_body: `<h2>Nouveau message du site</h2>
 <p><b>Nom :</b> ${esc(lead.nom)}<br>
 <b>Courriel :</b> ${esc(lead.courriel)}<br>
 <b>Téléphone :</b> ${esc(lead.telephone) || "—"}</p>
@@ -88,18 +100,23 @@ async function sendEmail(lead, ip) {
   };
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
-      const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+      const res = await fetch("https://api.smtp2go.com/v3/email/send", {
         method: "POST",
         headers: {
-          "api-key": BREVO_API_KEY,
+          "X-Smtp2go-Api-Key": SMTP2GO_API_KEY,
           "content-type": "application/json",
         },
         body: JSON.stringify(payload),
       });
-      if (res.ok) return true;
-      log(`✗ Brevo ${res.status} (tentative ${attempt})`, await res.text());
+      const body = await res.json().catch(() => ({}));
+      // SMTP2GO confirme par data.succeeded ≥ 1 (un 200 seul ne suffit pas).
+      if (res.ok && body?.data?.succeeded >= 1) return true;
+      log(
+        `✗ SMTP2GO ${res.status} (tentative ${attempt})`,
+        JSON.stringify(body?.data ?? body)
+      );
     } catch (err) {
-      log(`✗ Brevo injoignable (tentative ${attempt}):`, err.message);
+      log(`✗ SMTP2GO injoignable (tentative ${attempt}):`, err.message);
     }
     if (attempt < 3) await new Promise((r) => setTimeout(r, attempt * 2000));
   }
@@ -186,7 +203,7 @@ const server = http.createServer((req, res) => {
       } else {
         // Courriel KO mais lead journalisé sur disque → on accepte quand même
         // (le visiteur n'a pas à payer pour une panne SMTP).
-        log(`⚠ lead JOURNALISÉ SEULEMENT (Brevo KO) — ${lead.courriel}`);
+        log(`⚠ lead JOURNALISÉ SEULEMENT (SMTP2GO KO) — ${lead.courriel}`);
         respond(res, req, 200, { ok: true });
       }
     } catch (err) {

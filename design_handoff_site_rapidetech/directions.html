@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rapidetech — 3 Directions Artistiques</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:        #6BC31A;
+      --green-dim:    #4A8A12;
+      --green-forest: #162E14;
+      --black:        #0D0D0D;
+      --dark:         #161616;
+      --grey:         #888;
+      --cream:        #F0EAD6;
+      --cream2:       #F7F6F2;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: #080808; min-width: 900px; }
+
+    /* ── META NAV ── */
+    .meta-nav {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: #050505;
+      border-bottom: 1px solid #1a1a1a;
+      padding: 10px 40px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .meta-nav-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: #2e2e2e;
+      letter-spacing: 0.15em;
+      margin-right: 12px;
+    }
+    .meta-nav a {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #444;
+      text-decoration: none;
+      padding: 6px 16px;
+      border: 1px solid transparent;
+      border-radius: 3px;
+      letter-spacing: 0.1em;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+    .meta-nav a:hover {
+      color: var(--green);
+      border-color: rgba(107,195,26,0.25);
+      background: rgba(107,195,26,0.06);
+    }
+    .meta-nav-hint {
+      margin-left: auto;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: #252525;
+      letter-spacing: 0.1em;
+    }
+
+    /* ── DIRECTION WRAPPER ── */
+    .dir-section { position: relative; }
+    .dir-header {
+      background: #0A0A0A;
+      border-bottom: 1px solid #1a1a1a;
+      padding: 18px 40px;
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-wrap: wrap;
+    }
+    .dir-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: #2a2a2a;
+      letter-spacing: 0.12em;
+      margin-right: 14px;
+    }
+    .dir-name {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--green);
+      letter-spacing: 0.2em;
+      margin-right: 24px;
+    }
+    .dir-partis {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+    .dir-parti {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: #444;
+      letter-spacing: 0.04em;
+    }
+    .dir-parti strong {
+      color: #555;
+      font-weight: 500;
+    }
+    .dir-tags {
+      display: flex;
+      gap: 6px;
+      margin-left: auto;
+    }
+    .dir-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      color: #333;
+      border: 1px solid #222;
+      padding: 3px 9px;
+      border-radius: 2px;
+    }
+
+    /* ════════════════════════════════════════
+       DIRECTION 1 — CIRCUIT
+       Industriel sombre · rail vert vertical
+    ════════════════════════════════════════ */
+
+    /* Nav */
+    .c-nav {
+      background: var(--black);
+      height: 58px;
+      padding: 0 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #1c1c1c;
+    }
+    .c-logo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: 21px;
+      letter-spacing: 0.1em;
+      color: var(--green);
+      text-transform: uppercase;
+    }
+    .c-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+    .c-nav-links a {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #444;
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      transition: color 0.15s;
+    }
+    .c-nav-links a:hover { color: #888; }
+    .c-nav-cta {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--black) !important;
+      background: var(--green);
+      padding: 9px 18px;
+      border-radius: 2px;
+      text-decoration: none;
+      letter-spacing: 0.08em;
+    }
+
+    /* Hero */
+    .c-hero {
+      background: var(--black);
+      display: flex;
+      align-items: stretch;
+      min-height: 450px;
+      position: relative;
+      overflow: hidden;
+    }
+    /* Subtle circuit grid in background */
+    .c-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(107,195,26,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(107,195,26,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+    .c-hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 80% 50%, rgba(107,195,26,0.06) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    .c-rail {
+      width: 6px;
+      background: var(--green);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 2;
+    }
+    .c-hero-inner {
+      padding: 64px 64px 64px 58px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      z-index: 2;
+    }
+    .c-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--green);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 22px;
+    }
+    .c-h1 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: clamp(58px, 6.5vw, 94px);
+      line-height: 0.92;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+      color: #F2F2F2;
+      margin-bottom: 28px;
+    }
+    .c-h1 em {
+      color: var(--green);
+      font-style: normal;
+    }
+    .c-sub {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--grey);
+      line-height: 1.8;
+      max-width: 420px;
+      margin-bottom: 40px;
+    }
+    .c-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--green);
+      color: var(--black);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      padding: 15px 26px;
+      text-decoration: none;
+      border-radius: 2px;
+      width: fit-content;
+      transition: background 0.15s;
+    }
+    .c-cta::after { content: '→'; }
+
+    /* Services */
+    .c-services {
+      background: #0F0F0F;
+      padding: 44px 60px 56px 66px;
+      border-top: 1px solid #1c1c1c;
+    }
+    .c-services-hd {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.25em;
+      color: #333;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .c-services-hd::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #1e1e1e;
+    }
+    .c-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+    .c-card {
+      background: #161616;
+      padding: 30px 28px;
+      border-left: 3px solid var(--green);
+    }
+    .c-card-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--green);
+      letter-spacing: 0.12em;
+      margin-bottom: 18px;
+      display: block;
+    }
+    .c-card h3 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 24px;
+      letter-spacing: 0.04em;
+      color: #F0F0F0;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .c-card p {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #555;
+      line-height: 1.75;
+    }
+
+    /* ════════════════════════════════════════
+       DIRECTION 2 — NORD
+       Éditorial régional · typographie géante
+    ════════════════════════════════════════ */
+
+    /* Nav */
+    .n-nav {
+      background: var(--green-forest);
+      height: 60px;
+      padding: 0 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(0,0,0,0.3);
+    }
+    .n-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 17px;
+      letter-spacing: 0.12em;
+      color: var(--cream);
+    }
+    .n-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+    .n-nav-links a {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 13px;
+      color: rgba(240,234,214,0.45);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .n-nav-cta {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--cream) !important;
+      border: 1.5px solid rgba(240,234,214,0.35);
+      padding: 8px 20px;
+      border-radius: 100px;
+    }
+
+    /* Hero */
+    .n-hero {
+      background: var(--green-forest);
+      padding: 80px 48px 88px;
+      min-height: 460px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .n-hero::before {
+      content: '';
+      position: absolute;
+      bottom: -60px;
+      right: -60px;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      border: 1px solid rgba(120,210,80,0.08);
+      pointer-events: none;
+    }
+    .n-hero::after {
+      content: '';
+      position: absolute;
+      bottom: -120px;
+      right: -120px;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      border: 1px solid rgba(120,210,80,0.05);
+      pointer-events: none;
+    }
+    .n-eyebrow {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      color: rgba(240,234,214,0.38);
+      text-transform: uppercase;
+      margin-bottom: 36px;
+    }
+    .n-h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(64px, 9.5vw, 116px);
+      line-height: 0.88;
+      letter-spacing: -0.025em;
+      text-transform: uppercase;
+      color: var(--cream);
+      margin-bottom: 40px;
+    }
+    .n-h1 em {
+      color: #8CE055;
+      font-style: normal;
+    }
+    .n-sub {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 16px;
+      color: rgba(240,234,214,0.52);
+      line-height: 1.7;
+      max-width: 540px;
+      margin-bottom: 44px;
+    }
+    .n-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      border: 1.5px solid var(--cream);
+      color: var(--cream);
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 15px 30px;
+      text-decoration: none;
+      border-radius: 100px;
+      width: fit-content;
+      transition: background 0.15s, color 0.15s;
+    }
+    .n-cta::after { content: '→'; }
+
+    /* Services */
+    .n-services {
+      background: var(--cream);
+      padding: 52px 48px 64px;
+    }
+    .n-services-hd {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.28em;
+      color: #9a8c6c;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .n-rule { height: 1px; background: #c8bfa0; }
+    .n-service {
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      gap: 0 20px;
+      padding: 30px 0;
+      align-items: start;
+    }
+    .n-service-num {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      color: #b0a280;
+      padding-top: 6px;
+      letter-spacing: 0.06em;
+    }
+    .n-service h3 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 30px;
+      color: #1a1208;
+      margin-bottom: 10px;
+      letter-spacing: -0.015em;
+    }
+    .n-service p {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 14px;
+      color: #6a5e42;
+      line-height: 1.65;
+      max-width: 560px;
+    }
+
+    /* ════════════════════════════════════════
+       DIRECTION 3 — ATELIER
+       Précision technique · hero splitté 50/50
+    ════════════════════════════════════════ */
+
+    /* Nav */
+    .a-nav {
+      background: var(--cream2);
+      height: 56px;
+      padding: 0 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #e4e1d8;
+    }
+    .a-logo {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      color: #111;
+      text-transform: uppercase;
+    }
+    .a-logo em {
+      color: var(--green);
+      font-style: normal;
+    }
+    .a-nav-mid {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      color: #ccc;
+      text-transform: uppercase;
+    }
+    .a-nav-cta {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--green);
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: opacity 0.15s;
+    }
+    .a-nav-cta::after { content: '→'; }
+
+    /* Hero */
+    .a-hero {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 460px;
+    }
+    .a-hero-l {
+      background: #0F2010;
+      padding: 52px 52px 52px 56px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .a-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+    }
+    .a-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      color: var(--green);
+      border: 1px solid rgba(107,195,26,0.28);
+      padding: 4px 11px;
+      border-radius: 100px;
+    }
+    .a-h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(38px, 4vw, 56px);
+      line-height: 1.1;
+      color: var(--cream);
+      margin-bottom: 0;
+      flex: 1;
+    }
+    .a-h1 em {
+      color: #85D955;
+      font-style: italic;
+    }
+    .a-cta-l {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: rgba(240,234,214,0.7);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(240,234,214,0.2);
+      padding-bottom: 3px;
+      width: fit-content;
+      margin-top: 40px;
+    }
+    .a-cta-l::after { content: '→'; color: var(--green); }
+
+    .a-hero-r {
+      background: var(--cream2);
+      padding: 52px 52px 52px 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0;
+    }
+    .a-expertise-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.22em;
+      color: #ccc;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .a-expertise-label::before,
+    .a-expertise-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #e0ddd6;
+    }
+    .a-svc-item {
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+      padding: 18px 0;
+    }
+    .a-svc-rule { height: 1px; background: #e4e1d8; }
+    .a-svc-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      color: var(--green);
+      padding-top: 8px;
+      flex-shrink: 0;
+      width: 16px;
+    }
+    .a-svc-item h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 21px;
+      color: #111;
+      margin-bottom: 4px;
+      line-height: 1.15;
+    }
+    .a-svc-item p {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: #888;
+      line-height: 1.55;
+    }
+    .a-cta-r {
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid #e4e1d8;
+    }
+    .a-main-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #111;
+      color: var(--cream2);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      padding: 13px 22px;
+      text-decoration: none;
+      border-radius: 2px;
+    }
+    .a-main-cta::after { content: '→'; color: var(--green); }
+
+    /* Services */
+    .a-services {
+      background: var(--cream2);
+      border-top: 1px solid #e4e1d8;
+      padding: 40px 56px 56px;
+    }
+    .a-services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid #dddad2;
+    }
+    .a-svc-col {
+      padding: 28px 28px 28px 0;
+      border-right: 1px solid #dddad2;
+    }
+    .a-svc-col:last-child { border-right: none; padding-right: 0; }
+    .a-svc-col:not(:first-child) { padding-left: 28px; }
+    .a-svc-mono {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      color: var(--green);
+      margin-bottom: 14px;
+      text-transform: uppercase;
+    }
+    .a-svc-col h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 21px;
+      color: #111;
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+    .a-svc-col p {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: #888;
+      line-height: 1.62;
+    }
+
+    /* ── FOOTER ── */
+    .page-footer {
+      background: #050505;
+      padding: 32px 40px;
+      border-top: 1px solid #111;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .page-footer p {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: #252525;
+      letter-spacing: 0.1em;
+    }
+    .page-footer .choose-prompt {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--green);
+      letter-spacing: 0.12em;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- META NAV -->
+  <nav class="meta-nav" aria-label="Navigation directions">
+    <span class="meta-nav-label">DIRECTIONS //</span>
+    <a href="#circuit">01 — CIRCUIT</a>
+    <a href="#nord">02 — NORD</a>
+    <a href="#atelier">03 — ATELIER</a>
+    <span class="meta-nav-hint">↓ DÉFILER POUR COMPARER</span>
+  </nav>
+
+
+  <!-- ═══════════════════════════════════════════
+       DIRECTION 01 — CIRCUIT
+  ═══════════════════════════════════════════ -->
+  <section id="circuit" class="dir-section">
+    <div class="dir-header">
+      <span class="dir-num">01 //</span>
+      <span class="dir-name">CIRCUIT</span>
+      <div class="dir-partis">
+        <span class="dir-parti"><strong>TYPO :</strong> Barlow Condensed 900 + DM Mono</span>
+        <span class="dir-parti"><strong>GRILLE :</strong> Asymétrique, alignement gauche strict</span>
+        <span class="dir-parti"><strong>COULEUR :</strong> Noir charbon · Vert électrique · Gris acier</span>
+        <span class="dir-parti"><strong>SIGNATURE :</strong> Rail vert vertical 6 px ancré à gauche sur chaque section</span>
+      </div>
+      <div class="dir-tags">
+        <span class="dir-tag">DARK</span>
+        <span class="dir-tag">INDUSTRIEL</span>
+        <span class="dir-tag">CONDENSED</span>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="c-nav">
+      <span class="c-logo">RAPIDETECH</span>
+      <div class="c-nav-links">
+        <a href="#">Services</a>
+        <a href="#">Cybersécurité</a>
+        <a href="#">Dev web</a>
+        <a href="#" class="c-nav-cta">Parler à Alexandre</a>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="c-hero">
+      <div class="c-rail"></div>
+      <div class="c-hero-inner">
+        <p class="c-eyebrow">RAPIDETECH // MSP // RIVE-NORD DE MONTRÉAL</p>
+        <h1 class="c-h1">
+          L'INFRASTRUCTURE IT<br>
+          DE VOS PME,<br>
+          <em>SANS</em> LE<br>
+          CASSE-TÊTE.
+        </h1>
+        <p class="c-sub">
+          Gestion, sécurité, développement —<br>
+          un seul interlocuteur sur la Rive-Nord<br>
+          et dans les Laurentides.
+        </p>
+        <a href="#" class="c-cta">Parlons de votre projet</a>
+      </div>
+    </section>
+
+    <!-- Services -->
+    <section class="c-services">
+      <p class="c-services-hd">// NOS SERVICES</p>
+      <div class="c-grid">
+        <article class="c-card">
+          <span class="c-card-num">01/</span>
+          <h3>Gestion TI</h3>
+          <p>Supervision, maintenance et support proactif de votre environnement Microsoft 365 et Windows.</p>
+        </article>
+        <article class="c-card">
+          <span class="c-card-num">02/</span>
+          <h3>Cybersécurité</h3>
+          <p>Durcissement, sauvegarde et réponse aux incidents — pour dormir tranquille.</p>
+        </article>
+        <article class="c-card">
+          <span class="c-card-num">03/</span>
+          <h3>Dev web</h3>
+          <p>Sites performants et sur mesure, faciles à gérer vous-même.</p>
+        </article>
+      </div>
+    </section>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════
+       DIRECTION 02 — NORD
+  ═══════════════════════════════════════════ -->
+  <section id="nord" class="dir-section">
+    <div class="dir-header">
+      <span class="dir-num">02 //</span>
+      <span class="dir-name">NORD</span>
+      <div class="dir-partis">
+        <span class="dir-parti"><strong>TYPO :</strong> Syne 800 (géant) + Instrument Sans</span>
+        <span class="dir-parti"><strong>GRILLE :</strong> Sections à fond alternant vert forêt / crème chaud</span>
+        <span class="dir-parti"><strong>COULEUR :</strong> Vert forêt #162E14 · Crème ivoire · Vert accent ponctuel</span>
+        <span class="dir-parti"><strong>SIGNATURE :</strong> Titre PLEINE LARGEUR qui remplit le cadre — panneau routier des Laurentides</span>
+      </div>
+      <div class="dir-tags">
+        <span class="dir-tag">BOLD</span>
+        <span class="dir-tag">ÉDITORIAL</span>
+        <span class="dir-tag">RÉGIONAL</span>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="n-nav">
+      <span class="n-logo">RAPIDETECH</span>
+      <div class="n-nav-links">
+        <a href="#">Services</a>
+        <a href="#">À propos</a>
+        <a href="#" class="n-nav-cta">Nous joindre</a>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="n-hero">
+      <p class="n-eyebrow">Rive-Nord &amp; Laurentides</p>
+      <h1 class="n-h1">
+        VOTRE<br>
+        INFORMATIQUE,<br>
+        <em>ENTRE</em> DE<br>
+        BONNES MAINS.
+      </h1>
+      <p class="n-sub">
+        Un seul interlocuteur qui connaît votre infrastructure par cœur. Des factures honnêtes, des réponses claires — sans surprise.
+      </p>
+      <a href="#" class="n-cta">Parlons</a>
+    </section>
+
+    <!-- Services -->
+    <section class="n-services">
+      <p class="n-services-hd">Nos services</p>
+      <div class="n-rule"></div>
+      <div class="n-service">
+        <span class="n-service-num">01</span>
+        <div>
+          <h3>Gestion TI</h3>
+          <p>Supervision, maintenance et support proactif de votre environnement Microsoft 365 et Windows.</p>
+        </div>
+      </div>
+      <div class="n-rule"></div>
+      <div class="n-service">
+        <span class="n-service-num">02</span>
+        <div>
+          <h3>Cybersécurité</h3>
+          <p>Durcissement, sauvegarde et réponse aux incidents — pour dormir tranquille.</p>
+        </div>
+      </div>
+      <div class="n-rule"></div>
+      <div class="n-service">
+        <span class="n-service-num">03</span>
+        <div>
+          <h3>Développement web</h3>
+          <p>Sites performants et sur mesure, faciles à mettre à jour vous-même.</p>
+        </div>
+      </div>
+      <div class="n-rule"></div>
+    </section>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════
+       DIRECTION 03 — ATELIER
+  ═══════════════════════════════════════════ -->
+  <section id="atelier" class="dir-section">
+    <div class="dir-header">
+      <span class="dir-num">03 //</span>
+      <span class="dir-name">ATELIER</span>
+      <div class="dir-partis">
+        <span class="dir-parti"><strong>TYPO :</strong> DM Serif Display + DM Mono (étiquettes) + DM Sans</span>
+        <span class="dir-parti"><strong>GRILLE :</strong> Hero splitté 50/50 — expertise à gauche, services à droite</span>
+        <span class="dir-parti"><strong>COULEUR :</strong> Blanc technique · Vert foncé #0F2010 · Vert accent seul</span>
+        <span class="dir-parti"><strong>SIGNATURE :</strong> Capsules DM Mono vertes sur chaque entrée — langage UI « tech artisan »</span>
+      </div>
+      <div class="dir-tags">
+        <span class="dir-tag">LIGHT</span>
+        <span class="dir-tag">PRÉCIS</span>
+        <span class="dir-tag">SPLITTÉ</span>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="a-nav">
+      <span class="a-logo">RAPIDE<em>TECH</em></span>
+      <span class="a-nav-mid">MSP QUÉBÉCOIS</span>
+      <a href="#" class="a-nav-cta">Réservez un appel</a>
+    </nav>
+
+    <!-- Hero -->
+    <section class="a-hero">
+      <div class="a-hero-l">
+        <div>
+          <div class="a-tags">
+            <span class="a-tag">GESTION TI</span>
+            <span class="a-tag">CYBERSÉCURITÉ</span>
+            <span class="a-tag">DÉV. WEB</span>
+          </div>
+          <h1 class="a-h1">
+            L'infrastructure IT<br>
+            de vos PME,<br>
+            <em>entre de<br>bonnes mains.</em>
+          </h1>
+        </div>
+        <a href="#" class="a-cta-l">Réservez un appel</a>
+      </div>
+      <div class="a-hero-r">
+        <p class="a-expertise-label">EXPERTISE</p>
+        <div class="a-svc-item">
+          <span class="a-svc-num">01</span>
+          <div>
+            <h3>Gestion TI</h3>
+            <p>Supervision proactive Microsoft 365 &amp; Windows — toujours la même personne.</p>
+          </div>
+        </div>
+        <div class="a-svc-rule"></div>
+        <div class="a-svc-item">
+          <span class="a-svc-num">02</span>
+          <div>
+            <h3>Cybersécurité</h3>
+            <p>Durcissement, sauvegarde chiffrée et réponse aux incidents — sans jargon.</p>
+          </div>
+        </div>
+        <div class="a-svc-rule"></div>
+        <div class="a-svc-item">
+          <span class="a-svc-num">03</span>
+          <div>
+            <h3>Développement web</h3>
+            <p>Sites performants sur mesure, faciles à gérer vous-même.</p>
+          </div>
+        </div>
+        <div class="a-cta-r">
+          <a href="#" class="a-main-cta">Parlons de votre projet</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services -->
+    <section class="a-services">
+      <div class="a-services-grid">
+        <div class="a-svc-col">
+          <p class="a-svc-mono">01 // GESTION TI</p>
+          <h3>Supervision &amp; support proactif</h3>
+          <p>Maintenance, mises à jour, support — pour que votre environnement roule sans accroc.</p>
+        </div>
+        <div class="a-svc-col">
+          <p class="a-svc-mono">02 // CYBERSÉCURITÉ</p>
+          <h3>Protection sans compromis</h3>
+          <p>Durcissement, sauvegarde chiffrée et réponse rapide aux incidents. Vos données, protégées.</p>
+        </div>
+        <div class="a-svc-col">
+          <p class="a-svc-mono">03 // DÉV. WEB</p>
+          <h3>Sites sur mesure &amp; performants</h3>
+          <p>Design, code et mise en ligne — un site que vous gérez vous-même, sans dépendance.</p>
+        </div>
+      </div>
+    </section>
+  </section>
+
+
+  <!-- PAGE FOOTER -->
+  <footer class="page-footer">
+    <p>RAPIDETECH — 3 DIRECTIONS ARTISTIQUES // PROTOTYPE VISUEL</p>
+    <p class="choose-prompt">→ CHOISISSEZ UNE DIRECTION POUR LANCER LE DESIGN SYSTEM COMPLET</p>
+  </footer>
+
+  <script>
+    // Highlight active direction in meta-nav on scroll
+    const sections = ['circuit', 'nord', 'atelier'];
+    const links = document.querySelectorAll('.meta-nav a');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          links.forEach(l => l.style.color = '');
+          const active = document.querySelector(`.meta-nav a[href="#${entry.target.id}"]`);
+          if (active) {
+            active.style.color = '#6BC31A';
+            active.style.borderColor = 'rgba(107,195,26,0.25)';
+            active.style.background = 'rgba(107,195,26,0.06)';
+          }
+        } else {
+          const link = document.querySelector(`.meta-nav a[href="#${entry.target.id}"]`);
+          if (link) {
+            link.style.color = '';
+            link.style.borderColor = '';
+            link.style.background = '';
+          }
+        }
+      });
+    }, { threshold: 0.1 });
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+  </script>
+</body>
+</html>

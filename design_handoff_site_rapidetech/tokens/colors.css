@@ -1,0 +1,48 @@
+/* Rapidetech — Colors
+   Extracted from the Rapidetech logo (electric green on charcoal)
+   Direction artistique : CIRCUIT — dark industriel, vert électrique roi. */
+:root {
+  /* Base — green (brand) */
+  --rt-green:        #6BC31A;  /* logo green — primary accent */
+  --rt-green-hi:     #8BE93A;  /* hover / highlight */
+  --rt-green-dim:    #4A8A12;  /* pressed / subdued */
+  --rt-green-ghost:  rgba(107, 195, 26, 0.35); /* outlines */
+  --rt-green-tint:   rgba(107, 195, 26, 0.07); /* spotlight, fills */
+
+  /* Base — neutrals (charcoal scale) */
+  --rt-black:        #060606;  /* deepest — boot screen, footer */
+  --rt-bg:           #0A0A0A;  /* page background */
+  --rt-surface:      #0C0C0B;  /* raised strip (marquee, panels) */
+  --rt-surface-2:    #161616;  /* cards, inputs */
+  --rt-line:         #1E1E1C;  /* hairline borders */
+  --rt-line-hi:      #2A2A26;  /* dot-matrix, stronger rules */
+  --rt-stroke-ghost: #3A3A36;  /* outlined "ghost" display text */
+  --rt-grey:         #6E6E68;  /* secondary text */
+  --rt-grey-dim:     #4A4A46;  /* tertiary text, status bar */
+  --rt-ink:          #EDEDE8;  /* primary text — warm off-white */
+
+  /* Semantic aliases */
+  --text-primary:    var(--rt-ink);
+  --text-secondary:  var(--rt-grey);
+  --text-tertiary:   var(--rt-grey-dim);
+  --text-accent:     var(--rt-green);
+  --text-on-accent:  var(--rt-bg);
+
+  --surface-page:    var(--rt-bg);
+  --surface-raised:  var(--rt-surface);
+  --surface-card:    var(--rt-surface-2);
+  --surface-deep:    var(--rt-black);
+
+  --border-default:  var(--rt-line);
+  --border-strong:   var(--rt-line-hi);
+  --border-accent:   var(--rt-green-ghost);
+
+  --accent:          var(--rt-green);
+  --accent-hover:    var(--rt-green-hi);
+  --accent-active:   var(--rt-green-dim);
+
+  /* Semantic status */
+  --status-ok:       var(--rt-green);
+  --status-warn:     #E8B931;
+  --status-error:    #E84A31;
+}

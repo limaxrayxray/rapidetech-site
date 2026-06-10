@@ -1,0 +1,16 @@
+/** Champ de formulaire mono à coins vifs — bord vert au focus. */
+export interface InputProps {
+  label?: string;
+  /** Affiche l'astérisque verte * */
+  required?: boolean;
+  /** Rend un <textarea> */
+  multiline?: boolean;
+  /** Message d'erreur (bord + texte rouges) */
+  error?: string;
+  hint?: string;
+  placeholder?: string;
+  type?: string;
+  value?: string;
+  onChange?: (e: any) => void;
+  style?: React.CSSProperties;
+}

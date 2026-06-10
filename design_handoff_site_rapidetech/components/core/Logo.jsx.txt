@@ -1,0 +1,38 @@
+// Copie de référence (handoff) — `export` retiré pour éviter la collision avec le design system source.
+import React from 'react';
+
+const cssId = 'rt-css-logo';
+const css = `
+.rt-logo {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 18px;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-transform: uppercase;
+}
+.rt-logo i {
+  width: 10px;
+  height: 10px;
+  background: var(--accent);
+  display: inline-block;
+}
+`;
+
+function inject() {
+  if (typeof document !== 'undefined' && !document.getElementById(cssId)) {
+    const el = document.createElement('style');
+    el.id = cssId;
+    el.textContent = css;
+    document.head.appendChild(el);
+  }
+}
+
+function Logo({ href = '#', style }) {
+  inject();
+  return <a className="rt-logo" href={href} style={style}><i></i>RAPIDETECH</a>;
+}

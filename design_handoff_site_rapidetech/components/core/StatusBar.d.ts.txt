@@ -1,0 +1,12 @@
+/** Barre de statut « live » signature MSP : point vert pulsant, horloge temps réel, méta. */
+export interface StatusBarProps {
+  /** Message à côté du point pulsant (défaut : « Tous systèmes opérationnels ») */
+  message?: string;
+  /** Horloge fr-CA en temps réel (défaut : true) */
+  clock?: boolean;
+  /** Items additionnels à gauche, ex. ["PING 12 MS"] */
+  items?: string[];
+  /** Items alignés à droite, ex. ["45.6°N — 73.8°O", "EST. BLAINVILLE, QC"] */
+  rightItems?: string[];
+  style?: React.CSSProperties;
+}

@@ -1,0 +1,5 @@
+/** Sur-titre mono vert avec tiret — introduit un hero ou une section. */
+export interface EyebrowProps {
+  children?: React.ReactNode;
+  style?: React.CSSProperties;
+}

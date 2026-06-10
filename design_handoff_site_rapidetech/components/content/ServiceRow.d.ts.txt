@@ -1,0 +1,13 @@
+/**
+ * Rangée de service pleine largeur — inversion verte au survol (signature).
+ * @startingPoint section="Components" subtitle="Liste de services à inversion verte" viewport="900x420"
+ */
+export interface ServiceRowProps {
+  /** Numéro affiché « / 01 » */
+  num: string;
+  title: string;
+  desc: string;
+  href?: string;
+  onClick?: () => void;
+  style?: React.CSSProperties;
+}

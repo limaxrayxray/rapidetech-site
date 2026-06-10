@@ -1,0 +1,11 @@
+/* Rapidetech — base element styles */
+::selection { background: var(--rt-green); color: var(--rt-bg); }
+
+body {
+  background: var(--surface-page);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
+}

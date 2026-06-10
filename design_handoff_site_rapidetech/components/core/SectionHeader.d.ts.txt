@@ -1,0 +1,7 @@
+/** En-tête de section : carré vert + titre Clash uppercase + compteur «( 03 )». */
+export interface SectionHeaderProps {
+  title: string;
+  /** Compteur affiché à droite, ex. "03" */
+  count?: string;
+  style?: React.CSSProperties;
+}

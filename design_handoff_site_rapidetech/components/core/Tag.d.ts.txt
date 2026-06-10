@@ -1,0 +1,7 @@
+/** Étiquette mono uppercase à coins vifs — services, statuts, méta. */
+export interface TagProps {
+  /** 'accent' (vert, défaut) | 'neutral' (gris) | 'solid' (fond vert) */
+  variant?: 'accent' | 'neutral' | 'solid';
+  children?: React.ReactNode;
+  style?: React.CSSProperties;
+}

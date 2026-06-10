@@ -1,0 +1,23 @@
+/* Rapidetech — Motion & effects
+   Animations franches, mécaniques : reveals masqués, fills scaleY, scramble.
+   Toujours gated derrière prefers-reduced-motion. */
+:root {
+  /* Easing */
+  --ease-out-expo:  cubic-bezier(0.22, 1, 0.36, 1);   /* @kind other */
+  --ease-inout:     cubic-bezier(0.65, 0, 0.35, 1);   /* @kind other */
+  --ease-exit:      cubic-bezier(0.83, 0, 0.17, 1);   /* @kind other */
+
+  /* Durations */
+  --dur-fast:   0.2s;  /* @kind other */
+  --dur-base:   0.35s; /* @kind other */
+  --dur-reveal: 0.9s;  /* @kind other */
+
+  /* Shadows — none. Depth = borders + fills, jamais d'ombre portée. */
+  --shadow-none: none;
+
+  /* Grain overlay opacity */
+  --grain-opacity: 0.05; /* @kind other */
+
+  /* Spotlight */
+  --spotlight: radial-gradient(420px circle at var(--mx, 50vw) var(--my, 50vh), var(--rt-green-tint), transparent 70%);
+}

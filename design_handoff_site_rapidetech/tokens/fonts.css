@@ -1,0 +1,67 @@
+/* Webfonts — tous binaires locaux (assets/fonts/).
+   Clash Display — titres (licence ITF FFL).
+   General Sans — texte courant (même fonderie, licence ITF FFL).
+   Space Mono — Google Fonts CDN (étiquettes, données, statuts).
+   NB : les @import doivent précéder les @font-face (règle CSS). */
+
+@import url("https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap");
+
+/* ── Clash Display ── */
+@font-face {
+  font-family: 'Clash Display';
+  src: url('../assets/fonts/ClashDisplay-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Clash Display';
+  src: url('../assets/fonts/ClashDisplay-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Clash Display';
+  src: url('../assets/fonts/ClashDisplay-Semibold.woff') format('woff');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Clash Display';
+  src: url('../assets/fonts/ClashDisplay-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── General Sans ── */
+@font-face {
+  font-family: 'General Sans';
+  src: url('../assets/fonts/GeneralSans-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'General Sans';
+  src: url('../assets/fonts/GeneralSans-Italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'General Sans';
+  src: url('../assets/fonts/GeneralSans-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'General Sans';
+  src: url('../assets/fonts/GeneralSans-Semibold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}

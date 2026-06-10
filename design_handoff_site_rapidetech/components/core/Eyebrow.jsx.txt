@@ -1,0 +1,38 @@
+// Copie de référence (handoff) — `export` retiré pour éviter la collision avec le design system source.
+import React from 'react';
+
+const cssId = 'rt-css-eyebrow';
+const css = `
+.rt-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0;
+}
+.rt-eyebrow::before {
+  content: '';
+  width: 40px;
+  height: 1px;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+`;
+
+function inject() {
+  if (typeof document !== 'undefined' && !document.getElementById(cssId)) {
+    const el = document.createElement('style');
+    el.id = cssId;
+    el.textContent = css;
+    document.head.appendChild(el);
+  }
+}
+
+function Eyebrow({ children, style }) {
+  inject();
+  return <p className="rt-eyebrow" style={style}>{children}</p>;
+}

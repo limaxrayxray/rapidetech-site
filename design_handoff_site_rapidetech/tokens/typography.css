@@ -1,0 +1,41 @@
+/* Rapidetech — Typography
+   Display : Clash Display (600) — UPPERCASE, tracking serré. Binaires locaux.
+   Body    : General Sans — texte courant, descriptions. Même fonderie que Clash.
+   Mono    : Space Mono — étiquettes, eyebrows, données, statuts SEULEMENT. */
+:root {
+  --font-display: 'Clash Display', 'Arial Narrow', sans-serif;
+  --font-body:    'General Sans', 'Segoe UI', sans-serif;
+  --font-mono:    'Space Mono', 'Courier New', monospace;
+
+  /* Display scale (uppercase, line-height ~0.96, letter-spacing -0.02em) */
+  --text-hero:    clamp(64px, 8.2vw, 128px); /* H1 hero */
+  --text-display: clamp(34px, 3.6vw, 54px);  /* service rows, big numbers */
+  --text-title:   clamp(26px, 2.4vw, 34px);  /* section titles */
+  --text-heading: 18px;                       /* card headings, logo */
+
+  /* Body scale (General Sans) */
+  --text-body:    15px;    /* paragraphs — line-height 1.75 */
+  --text-body-sm: 13.5px;  /* descriptions de service, cartes */
+
+  /* Mono scale (Space Mono) */
+  --text-label:   11px;    /* nav, eyebrows — uppercase, tracking 0.12–0.22em */
+  --text-micro:   10px;    /* status bar, meta — uppercase, tracking 0.14em */
+
+  /* Weights */
+  --weight-display: 600;   /* Clash Display semibold */
+  --weight-display-md: 500;
+  --weight-body:    400;
+  --weight-body-md: 500;
+  --weight-mono:    400;
+  --weight-mono-bold: 700;
+
+  /* Tracking */
+  --tracking-display: -0.02em;
+  --tracking-label:   0.12em;
+  --tracking-eyebrow: 0.22em;
+
+  /* Leading */
+  --leading-display: 0.96;
+  --leading-body:    1.75;
+  --leading-desc:    1.7;
+}

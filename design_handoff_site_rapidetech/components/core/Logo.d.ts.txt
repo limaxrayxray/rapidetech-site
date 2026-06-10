@@ -1,0 +1,5 @@
+/** Mot-symbole RAPIDETECH : carré vert + Clash Display uppercase. */
+export interface LogoProps {
+  href?: string;
+  style?: React.CSSProperties;
+}

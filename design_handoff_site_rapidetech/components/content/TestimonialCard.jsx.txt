@@ -1,0 +1,73 @@
+// Copie de référence (handoff) — `export` retiré pour éviter la collision avec le design system source.
+import React from 'react';
+
+const cssId = 'rt-css-testimonial';
+const css = `
+.rt-testim {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  transition: border-color 0.25s;
+}
+.rt-testim:hover { border-color: var(--border-accent); }
+.rt-testim-mark {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+}
+.rt-testim-quote {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: 1.7;
+  color: var(--text-primary);
+  margin: 0;
+  flex: 1;
+}
+.rt-testim-meta {
+  border-top: 1px solid var(--border-default);
+  padding-top: 16px;
+}
+.rt-testim-author {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.rt-testim-role {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+}
+`;
+
+function inject() {
+  if (typeof document !== 'undefined' && !document.getElementById(cssId)) {
+    const el = document.createElement('style');
+    el.id = cssId;
+    el.textContent = css;
+    document.head.appendChild(el);
+  }
+}
+
+function TestimonialCard({ quote, author, role, index, style }) {
+  inject();
+  return (
+    <figure className="rt-testim" style={style}>
+      <span className="rt-testim-mark">{index ? `// TÉMOIN ${index}` : '//'}</span>
+      <blockquote className="rt-testim-quote">« {quote} »</blockquote>
+      <figcaption className="rt-testim-meta">
+        <div className="rt-testim-author">{author}</div>
+        {role && <div className="rt-testim-role">{role}</div>}
+      </figcaption>
+    </figure>
+  );
+}

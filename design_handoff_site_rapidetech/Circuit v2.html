@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Brand" name="Direction Circuit" subtitle="Hero animé awwwards-style — Clash Display, boot sequence, scramble, services full-width" -->
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rapidetech — Circuit v2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    /* Clash Display + General Sans — binaires locaux du design system */
+    @font-face {
+      font-family: 'General Sans';
+      src: url('assets/fonts/GeneralSans-Regular.woff2') format('woff2');
+      font-weight: 400; font-style: normal; font-display: swap;
+    }
+    @font-face {
+      font-family: 'General Sans';
+      src: url('assets/fonts/GeneralSans-Medium.woff2') format('woff2');
+      font-weight: 500; font-style: normal; font-display: swap;
+    }
+    @font-face {
+      font-family: 'Clash Display';
+      src: url('assets/fonts/ClashDisplay-Medium.woff') format('woff');
+      font-weight: 500; font-style: normal; font-display: swap;
+    }
+    @font-face {
+      font-family: 'Clash Display';
+      src: url('assets/fonts/ClashDisplay-Semibold.woff') format('woff');
+      font-weight: 600; font-style: normal; font-display: swap;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:    #6BC31A;
+      --green-hi: #8BE93A;
+      --black:    #0A0A0A;
+      --ink:      #EDEDE8;
+      --grey:     #6E6E68;
+      --line:     #1E1E1C;
+      --mx: 50vw;
+      --my: 50vh;
+    }
+
+    ::selection { background: var(--green); color: var(--black); }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--black);
+      color: var(--ink);
+      font-family: 'Space Mono', monospace;
+      overflow-x: hidden;
+      min-width: 900px;
+    }
+
+    /* ─── GRAIN ─── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: -50%;
+      width: 200%;
+      height: 200%;
+      pointer-events: none;
+      z-index: 99;
+      opacity: 0.05;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      animation: grain 0.6s steps(4) infinite;
+    }
+    @keyframes grain {
+      0% { transform: translate(0, 0); }
+      25% { transform: translate(-2%, 3%); }
+      50% { transform: translate(3%, -2%); }
+      75% { transform: translate(-3%, -3%); }
+      100% { transform: translate(2%, 2%); }
+    }
+
+    /* ─── BOOT LOADER ─── */
+    .boot {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: #060606;
+      display: flex;
+      align-items: flex-end;
+      padding: 48px;
+      transition: transform 0.7s cubic-bezier(0.83, 0, 0.17, 1);
+    }
+    .boot.exit { transform: translateY(-100%); }
+    .boot-lines {
+      font-size: 11px;
+      line-height: 2;
+      color: #3A3A36;
+      letter-spacing: 0.08em;
+    }
+    .boot-lines .ok { color: var(--green); }
+    .boot-lines div { opacity: 0; }
+    .boot-pct {
+      position: absolute;
+      right: 48px;
+      bottom: 40px;
+      font-family: 'Clash Display', sans-serif;
+      font-weight: 600;
+      font-size: 100px;
+      line-height: 1;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ─── CURSOR SPOTLIGHT ─── */
+    .spot {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      background: radial-gradient(420px circle at var(--mx) var(--my), rgba(107,195,26,0.07), transparent 70%);
+    }
+
+    /* ─── NAV ─── */
+    .nav {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 48px;
+      height: 68px;
+      border-bottom: 1px solid var(--line);
+    }
+    .logo {
+      font-family: 'Clash Display', sans-serif;
+      font-weight: 600;
+      font-size: 18px;
+      letter-spacing: 0.04em;
+      color: var(--ink);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo i {
+      width: 10px; height: 10px;
+      background: var(--green);
+      display: inline-block;
+    }
+    .nav-links { display: flex; gap: 34px; align-items: center; }
+    .nav-links a {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--grey);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--ink); }
+    .nav-cta {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--green) !important;
+      border: 1px solid rgba(107,195,26,0.35);
+      padding: 10px 20px;
+      position: relative;
+      overflow: hidden;
+      transition: color 0.25s !important;
+    }
+    .nav-cta::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--green);
+      transform: scaleY(0);
+      transform-origin: bottom;
+      transition: transform 0.25s cubic-bezier(0.65, 0, 0.35, 1);
+      z-index: -1;
+    }
+    .nav-cta:hover { color: var(--black) !important; }
+    .nav-cta:hover::before { transform: scaleY(1); }
+
+    /* ─── HERO ─── */
+    .hero {
+      position: relative;
+      min-height: calc(100vh - 68px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 80px 48px 120px;
+      z-index: 2;
+    }
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image: radial-gradient(circle, #2A2A26 1.5px, transparent 1.5px);
+      background-size: 44px 44px;
+      mask-image: radial-gradient(900px circle at var(--mx) var(--my), black 0%, transparent 75%);
+      -webkit-mask-image: radial-gradient(900px circle at var(--mx) var(--my), black 0%, transparent 75%);
+      opacity: 0.9;
+    }
+
+    .hero-eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      color: var(--green);
+      text-transform: uppercase;
+      margin-bottom: 36px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-height: 16px;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      width: 40px;
+      height: 1px;
+      background: var(--green);
+    }
+
+    .h1 {
+      font-family: 'Clash Display', sans-serif;
+      font-weight: 600;
+      font-size: clamp(64px, 8.2vw, 128px);
+      line-height: 0.96;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      text-transform: uppercase;
+      margin-bottom: 44px;
+    }
+    .h1 .line {
+      display: block;
+      overflow: hidden;
+    }
+    .h1 .line > span {
+      display: block;
+      transform: translateY(110%);
+      transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    body.loaded .h1 .line > span { transform: translateY(0); }
+    .h1 .line:nth-child(2) > span { transition-delay: 0.08s; }
+    .h1 .line:nth-child(3) > span { transition-delay: 0.16s; }
+
+    .h1 .ghost {
+      color: transparent;
+      -webkit-text-stroke: 1.5px #3A3A36;
+    }
+    .h1 .accent { color: var(--green); }
+
+    /* scramble word */
+    .scramble {
+      display: inline-block;
+      min-width: 8ch;
+      text-align: left;
+      color: var(--green);
+    }
+
+    .hero-foot {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 40px;
+    }
+    .hero-sub {
+      font-family: 'General Sans', sans-serif;
+      font-size: 15px;
+      line-height: 1.75;
+      color: var(--grey);
+      max-width: 420px;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.8s ease 0.5s, transform 0.8s ease 0.5s;
+    }
+    body.loaded .hero-sub { opacity: 1; transform: none; }
+    .hero-sub b { color: var(--ink); font-weight: 500; }
+
+    .cta {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--green);
+      color: var(--black);
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 20px 32px;
+      white-space: nowrap;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.8s ease 0.65s, transform 0.8s ease 0.65s, background 0.2s;
+      will-change: transform;
+    }
+    body.loaded .cta { opacity: 1; transform: none; }
+    .cta:hover { background: var(--green-hi); }
+    .cta .arr { display: inline-block; transition: transform 0.25s; }
+    .cta:hover .arr { transform: translateX(5px); }
+
+    /* ─── STATUS BAR ─── */
+    .status {
+      position: absolute;
+      left: 48px;
+      right: 48px;
+      bottom: 0;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      gap: 36px;
+      padding: 16px 0;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      color: #4A4A46;
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity 1s ease 0.9s;
+    }
+    body.loaded .status { opacity: 1; }
+    .status .item { display: flex; align-items: center; gap: 8px; }
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      position: relative;
+    }
+    .dot::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 1px solid var(--green);
+      animation: pulse 2s ease-out infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(0.5); opacity: 1; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+    .status .ok-text { color: var(--green); }
+    .status .right { margin-left: auto; display: flex; gap: 36px; }
+
+    /* ─── MARQUEE ─── */
+    .marquee {
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      overflow: hidden;
+      padding: 18px 0;
+      position: relative;
+      z-index: 2;
+      background: #0C0C0B;
+    }
+    .marquee-track {
+      display: flex;
+      gap: 0;
+      width: max-content;
+      animation: scroll 28s linear infinite;
+    }
+    .marquee:hover .marquee-track { animation-play-state: paused; }
+    @keyframes scroll {
+      to { transform: translateX(-50%); }
+    }
+    .marquee-item {
+      font-family: 'Clash Display', sans-serif;
+      font-weight: 500;
+      font-size: 15px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #3C3C38;
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      gap: 56px;
+      white-space: nowrap;
+    }
+    .marquee-item::after {
+      content: '✺';
+      color: var(--green);
+      font-size: 13px;
+    }
+
+    /* ─── SERVICES ─── */
+    .services {
+      position: relative;
+      z-index: 2;
+      padding: 90px 48px 110px;
+    }
+    .services-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 48px;
+    }
+    .services-head h2 {
+      font-family: 'Clash Display', sans-serif;
+      font-weight: 600;
+      font-size: 15px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .services-head h2::before {
+      content: '';
+      width: 10px;
+      height: 10px;
+      background: var(--green);
+    }
+    .services-head .count {
+      font-size: 11px;
+      color: #3C3C38;
+      letter-spacing: 0.14em;
+    }
+
+    .svc {
+      position: relative;
+      display: grid;
+      grid-template-columns: 70px minmax(0, 1.2fr) minmax(180px, 360px) 50px;
+      align-items: center;
+      gap: 28px;
+      padding: 38px 28px;
+      border-top: 1px solid var(--line);
+      text-decoration: none;
+      cursor: pointer;
+      overflow: hidden;
+      isolation: isolate;
+    }
+    .svc:last-of-type { border-bottom: 1px solid var(--line); }
+    .svc::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--green);
+      transform: scaleY(0);
+      transform-origin: top;
+      transition: transform 0.35s cubic-bezier(0.65, 0, 0.35, 1);
+      z-index: -1;
+    }
+    .svc:hover::before { transform: scaleY(1); transform-origin: bottom; }
+
+    .svc-num {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--green);
+      transition: color 0.25s;
+    }
+    .svc-num, .svc-title, .svc-desc, .svc-arr { min-width: 0; }
+    .svc-title {
+      font-family: 'Clash Display', sans-serif;
+      font-weight: 600;
+      font-size: clamp(26px, 3.4vw, 54px);
+      line-height: 1;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      transition: color 0.25s, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .svc-desc {
+      font-family: 'General Sans', sans-serif;
+      font-size: 13.5px;
+      line-height: 1.7;
+      color: var(--grey);
+      transition: color 0.25s;
+    }
+    .svc-arr {
+      font-family: 'Clash Display', sans-serif;
+      font-size: 30px;
+      color: #2E2E2A;
+      justify-self: end;
+      transition: color 0.25s, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .svc:hover .svc-num,
+    .svc:hover .svc-desc { color: rgba(10,10,10,0.7); }
+    .svc:hover .svc-title { color: var(--black); transform: translateX(12px); }
+    .svc:hover .svc-arr { color: var(--black); transform: translateX(6px) rotate(-45deg); }
+
+    /* Narrow viewports: stack the description under the title so they never collide */
+    @media (max-width: 1240px) {
+      .svc {
+        grid-template-columns: 70px minmax(0, 1fr) 50px;
+        grid-template-rows: auto auto;
+        row-gap: 12px;
+        align-items: start;
+      }
+      .svc-num { grid-row: 1; grid-column: 1; padding-top: 8px; }
+      .svc-title { grid-row: 1; grid-column: 2; }
+      .svc-arr { grid-row: 1; grid-column: 3; padding-top: 2px; }
+      .svc-desc { grid-row: 2; grid-column: 2; max-width: 560px; }
+    }
+
+    /* ─── ANCRAGE LOCAL ─── */
+    .local {
+      position: relative;
+      z-index: 2;
+      border-top: 1px solid var(--line);
+      padding: 56px 48px 64px;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 48px;
+      align-items: start;
+      background: #0C0C0B;
+    }
+    .local-badge {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .local-badge .stars {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Clash Display', sans-serif;
+      font-weight: 600;
+      font-size: 28px;
+      color: var(--ink);
+    }
+    .local-badge .stars .s { color: var(--green); font-size: 18px; letter-spacing: 3px; }
+    .local-badge .src {
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #4A4A46;
+    }
+    .local-cities h3 {
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .local-cities h3::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+    .cities {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 0;
+      font-family: 'General Sans', sans-serif;
+      font-size: 14px;
+      color: var(--grey);
+      line-height: 1.6;
+    }
+    .cities span { white-space: nowrap; }
+    .cities span::after {
+      content: '✧';
+      color: #2E2E2A;
+      margin: 0 14px;
+      font-size: 10px;
+    }
+    .cities span:last-child::after { content: ''; margin: 0; }
+    .cities b { color: var(--ink); font-weight: 500; }
+
+    /* ─── REDUCED MOTION ───
+       Activé via la classe body.reduce-motion (posée par le JS quand
+       RESPECT_REDUCED_MOTION est vrai ET que l'OS demande moins d'animations).
+       Loops coupés ; les reveals deviennent de simples fondus. */
+    body.reduce-motion::after { display: none; }            /* grain loop */
+    body.reduce-motion .dot::after { animation: none; }     /* pulse loop */
+    body.reduce-motion .marquee-track { animation: none; }  /* marquee loop */
+    body.reduce-motion .boot { display: none; }
+    body.reduce-motion .h1 .line > span {
+      transform: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    body.reduce-motion.loaded .h1 .line > span { opacity: 1; }
+    body.reduce-motion .h1 .line:nth-child(2) > span { transition-delay: 0.1s; }
+    body.reduce-motion .h1 .line:nth-child(3) > span { transition-delay: 0.2s; }
+    body.reduce-motion .hero-sub,
+    body.reduce-motion .cta,
+    body.reduce-motion .status {
+      transform: none;
+      transition: opacity 0.5s ease 0.3s;
+    }
+    body.reduce-motion .svc::before { transition: none; }
+    body.reduce-motion .svc:hover .svc-title { transform: none; }
+    body.reduce-motion .svc:hover .svc-arr { transform: rotate(-45deg); }
+  </style>
+</head>
+<body>
+
+  <!-- BOOT -->
+  <div class="boot" id="boot" aria-hidden="true">
+    <div class="boot-lines" id="bootLines">
+      <div>&gt; init rapidetech.sys</div>
+      <div>&gt; chargement infrastructure ......... <span class="ok">OK</span></div>
+      <div>&gt; périmètre sécurisé ................ <span class="ok">OK</span></div>
+      <div>&gt; rive-nord // laurentides .......... <span class="ok">EN LIGNE</span></div>
+    </div>
+    <div class="boot-pct" id="bootPct">0</div>
+  </div>
+
+  <div class="spot" aria-hidden="true"></div>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <a href="#" class="logo"><i></i>RAPIDETECH</a>
+    <div class="nav-links">
+      <a href="#">Services</a>
+      <a href="#">Approche</a>
+      <a href="#">À propos</a>
+      <a href="#" class="nav-cta">Parler à Alexandre</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero" data-screen-label="Hero">
+    <div class="hero-grid" aria-hidden="true"></div>
+
+    <p class="hero-eyebrow"><span id="eyebrowText">MSP — RIVE-NORD DE MONTRÉAL &amp; LAURENTIDES</span></p>
+
+    <h1 class="h1">
+      <span class="line"><span>VOTRE TI,</span></span>
+      <span class="line"><span><span class="ghost">SANS</span> <span class="scramble" id="scramble">SURPRISE</span></span></span>
+      <span class="line"><span>POINT FINAL.</span></span>
+    </h1>
+
+    <div class="hero-foot">
+      <p class="hero-sub">
+        Gestion TI, cybersécurité et développement web pour les PME.
+        <b>Un seul interlocuteur</b>, qui connaît votre infrastructure par cœur —
+        et qui répond quand vous appelez.
+      </p>
+      <a href="#" class="cta" id="magneticCta">Parlons de votre projet <span class="arr">→</span></a>
+    </div>
+
+    <div class="status" aria-hidden="true">
+      <span class="item"><span class="dot"></span><span class="ok-text">Tous systèmes opérationnels</span></span>
+      <span class="item" id="clock">--:--:--</span>
+      <span class="item">PING <span id="ping">12</span> MS</span>
+      <div class="right">
+        <span class="item">45.6°N — 73.8°O</span>
+        <span class="item">EST. BLAINVILLE, QC</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MARQUEE -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track" id="marqueeTrack">
+      <span class="marquee-item">Gestion TI</span>
+      <span class="marquee-item">Cybersécurité</span>
+      <span class="marquee-item">Développement web</span>
+      <span class="marquee-item">Microsoft 365</span>
+      <span class="marquee-item">Support local</span>
+      <span class="marquee-item">Sans surprise</span>
+    </div>
+  </div>
+
+  <!-- SERVICES -->
+  <section class="services" data-screen-label="Services">
+    <div class="services-head">
+      <h2>Nos services</h2>
+      <span class="count">( 03 )</span>
+    </div>
+
+    <a href="#" class="svc">
+      <span class="svc-num">/ 01</span>
+      <span class="svc-title">Gestion TI</span>
+      <span class="svc-desc">Supervision, maintenance et support proactif de votre environnement Microsoft 365 et Windows. On voit les problèmes avant vous.</span>
+      <span class="svc-arr">→</span>
+    </a>
+    <a href="#" class="svc">
+      <span class="svc-num">/ 02</span>
+      <span class="svc-title">Cybersécurité</span>
+      <span class="svc-desc">Durcissement, sauvegarde chiffrée et réponse aux incidents. Vos données protégées — pour dormir tranquille.</span>
+      <span class="svc-arr">→</span>
+    </a>
+    <a href="#" class="svc">
+      <span class="svc-num">/ 03</span>
+      <span class="svc-title">Dév. web</span>
+      <span class="svc-desc">Sites performants et sur mesure, faciles à mettre à jour vous-même. Sans dépendance, sans abonnement piège.</span>
+      <span class="svc-arr">→</span>
+    </a>
+  </section>
+
+  <!-- ANCRAGE LOCAL -->
+  <section class="local" data-screen-label="Ancrage local">
+    <div class="local-badge">
+      <div class="stars">5,0 <span class="s">★★★★★</span></div>
+      <p class="src">Avis Google — [n] avis vérifiés</p>
+    </div>
+    <div class="local-cities">
+      <h3>Fièrement local — Rive-Nord &amp; Laurentides</h3>
+      <p class="cities">
+        <span><b>Blainville</b></span><span>Sainte-Thérèse</span><span>Boisbriand</span><span>Rosemère</span><span>Lorraine</span><span>Bois-des-Filion</span><span>Mirabel</span><span>Saint-Eustache</span><span>Deux-Montagnes</span><span>Terrebonne</span><span>Saint-Jérôme</span><span>Sainte-Anne-des-Plaines</span>
+      </p>
+    </div>
+  </section>
+
+  <script>
+    /* PROTOTYPE : animations toujours actives pour la revue de design.
+       En production, passer RESPECT_REDUCED_MOTION à true pour respecter
+       le réglage « Réduire les animations » de l'OS du visiteur.
+       (C'est ce réglage, actif sur votre machine/aperçu, qui coupait tout.) */
+    const RESPECT_REDUCED_MOTION = false;
+    const reduced = RESPECT_REDUCED_MOTION && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) document.body.classList.add('reduce-motion');
+
+    /* ── BOOT SEQUENCE ── */
+    const boot = document.getElementById('boot');
+    const bootLines = document.getElementById('bootLines').children;
+    const bootPct = document.getElementById('bootPct');
+
+    function runBoot() {
+      if (reduced) {
+        boot.remove();
+        // double rAF so the opacity fade still plays
+        requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add('loaded')));
+        return;
+      }
+      // reveal lines
+      [...bootLines].forEach((l, i) => {
+        setTimeout(() => { l.style.opacity = 1; }, 120 + i * 180);
+      });
+      // counter
+      const t0 = performance.now(), dur = 1100;
+      (function tick(now) {
+        const p = Math.min(1, (now - t0) / dur);
+        bootPct.textContent = Math.round(100 * (1 - Math.pow(1 - p, 3)));
+        if (p < 1) requestAnimationFrame(tick);
+        else {
+          setTimeout(() => {
+            boot.classList.add('exit');
+            document.body.classList.add('loaded');
+            setTimeout(() => boot.remove(), 800);
+          }, 200);
+        }
+      })(t0);
+    }
+    runBoot();
+
+    /* ── CURSOR SPOTLIGHT + GRID MASK ── */
+    addEventListener('pointermove', e => {
+      document.documentElement.style.setProperty('--mx', e.clientX + 'px');
+      document.documentElement.style.setProperty('--my', e.clientY + 'px');
+    });
+
+    /* ── SCRAMBLE WORD ── */
+    const words = ['SURPRISE', 'JARGON', 'STRESS', 'DÉTOUR'];
+    const chars = '!<>-_\\/[]{}—=+*^?#█';
+    const scrambleEl = document.getElementById('scramble');
+    let wi = 0;
+    let currentWord = 'SURPRISE';
+
+    function scrambleTo(word) {
+      const from = currentWord;
+      const len = Math.max(from.length, word.length);
+      const queue = [];
+      for (let i = 0; i < len; i++) {
+        queue.push({
+          from: from[i] || '',
+          to: word[i] || '',
+          start: Math.floor(Math.random() * 25),
+          end: Math.floor(Math.random() * 25) + 18
+        });
+      }
+      currentWord = word;
+      let frame = 0;
+      (function update() {
+        let out = '', done = 0;
+        for (const q of queue) {
+          if (frame >= q.end) { done++; out += q.to; }
+          else if (frame >= q.start) out += `<span style="color:#3A3A36">${chars[Math.floor(Math.random() * chars.length)]}</span>`;
+          else out += q.from;
+        }
+        scrambleEl.innerHTML = out;
+        if (done < queue.length) { frame++; requestAnimationFrame(update); }
+      })();
+    }
+    if (!reduced) {
+      setInterval(() => {
+        wi = (wi + 1) % words.length;
+        scrambleTo(words[wi]);
+      }, 3200);
+    }
+
+    /* ── CLOCK + PING ── */
+    const clockEl = document.getElementById('clock');
+    const pingEl = document.getElementById('ping');
+    function tickClock() {
+      clockEl.textContent = new Date().toLocaleTimeString('fr-CA', { hour12: false });
+    }
+    tickClock();
+    setInterval(tickClock, 1000);
+    setInterval(() => { pingEl.textContent = 8 + Math.floor(Math.random() * 14); }, 2400);
+
+    /* ── MAGNETIC CTA ── */
+    const cta = document.getElementById('magneticCta');
+    if (!reduced && cta) {
+      cta.addEventListener('pointermove', e => {
+        const r = cta.getBoundingClientRect();
+        const dx = e.clientX - (r.left + r.width / 2);
+        const dy = e.clientY - (r.top + r.height / 2);
+        cta.style.transform = `translate(${dx * 0.18}px, ${dy * 0.3}px)`;
+      });
+      cta.addEventListener('pointerleave', () => {
+        cta.style.transform = '';
+      });
+    }
+
+    /* ── MARQUEE: duplicate track for seamless loop ── */
+    const track = document.getElementById('marqueeTrack');
+    track.innerHTML += track.innerHTML;
+  </script>
+</body>
+</html>

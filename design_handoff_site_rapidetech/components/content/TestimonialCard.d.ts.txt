@@ -1,0 +1,9 @@
+/** Carte témoignage : fond charbon, bord hairline (vert au survol), citation mono. */
+export interface TestimonialCardProps {
+  quote: string;
+  author: string;
+  role?: string;
+  /** Numéro affiché « // TÉMOIN 01 » */
+  index?: string;
+  style?: React.CSSProperties;
+}

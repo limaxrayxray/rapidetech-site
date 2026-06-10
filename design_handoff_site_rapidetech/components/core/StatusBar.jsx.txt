@@ -1,0 +1,77 @@
+// Copie de référence (handoff) — `export` retiré pour éviter la collision avec le design system source.
+import React from 'react';
+
+const cssId = 'rt-css-statusbar';
+const css = `
+.rt-status {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  padding: 16px 0;
+  border-top: 1px solid var(--border-default);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+}
+.rt-status .rt-status-item { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.rt-status .rt-status-ok { color: var(--status-ok); }
+.rt-status .rt-status-right { margin-left: auto; display: flex; gap: 36px; }
+.rt-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--status-ok);
+  position: relative;
+  flex-shrink: 0;
+}
+.rt-dot::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1px solid var(--status-ok);
+  animation: rt-pulse 2s ease-out infinite;
+}
+@keyframes rt-pulse {
+  0% { transform: scale(0.5); opacity: 1; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rt-dot::after { animation: none; opacity: 0; }
+}
+`;
+
+function inject() {
+  if (typeof document !== 'undefined' && !document.getElementById(cssId)) {
+    const el = document.createElement('style');
+    el.id = cssId;
+    el.textContent = css;
+    document.head.appendChild(el);
+  }
+}
+
+function StatusBar({ message = 'Tous systèmes opérationnels', clock = true, items = [], rightItems = [], style }) {
+  inject();
+  const [time, setTime] = React.useState('');
+  React.useEffect(() => {
+    if (!clock) return;
+    const tick = () => setTime(new Date().toLocaleTimeString('fr-CA', { hour12: false }));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [clock]);
+  return (
+    <div className="rt-status" style={style}>
+      <span className="rt-status-item"><span className="rt-dot"></span><span className="rt-status-ok">{message}</span></span>
+      {clock && <span className="rt-status-item">{time}</span>}
+      {items.map((it, i) => <span key={i} className="rt-status-item">{it}</span>)}
+      {rightItems.length > 0 && (
+        <span className="rt-status-right">
+          {rightItems.map((it, i) => <span key={i} className="rt-status-item">{it}</span>)}
+        </span>
+      )}
+    </div>
+  );
+}

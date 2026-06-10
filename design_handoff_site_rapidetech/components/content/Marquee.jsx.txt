@@ -1,0 +1,58 @@
+// Copie de référence (handoff) — `export` retiré pour éviter la collision avec le design system source.
+import React from 'react';
+
+const cssId = 'rt-css-marquee';
+const css = `
+.rt-marquee {
+  border-top: 1px solid var(--border-default);
+  border-bottom: 1px solid var(--border-default);
+  overflow: hidden;
+  padding: 18px 0;
+  background: var(--surface-raised);
+}
+.rt-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: rt-scroll 28s linear infinite;
+}
+.rt-marquee:hover .rt-marquee-track { animation-play-state: paused; }
+@keyframes rt-scroll { to { transform: translateX(-50%); } }
+.rt-marquee-item {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rt-stroke-ghost);
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  gap: 56px;
+  white-space: nowrap;
+}
+.rt-marquee-item::after { content: '✺'; color: var(--accent); font-size: 13px; }
+@media (prefers-reduced-motion: reduce) {
+  .rt-marquee-track { animation: none; }
+}
+`;
+
+function inject() {
+  if (typeof document !== 'undefined' && !document.getElementById(cssId)) {
+    const el = document.createElement('style');
+    el.id = cssId;
+    el.textContent = css;
+    document.head.appendChild(el);
+  }
+}
+
+function Marquee({ items = [], style }) {
+  inject();
+  const doubled = [...items, ...items];
+  return (
+    <div className="rt-marquee" style={style} aria-hidden="true">
+      <div className="rt-marquee-track">
+        {doubled.map((it, i) => <span key={i} className="rt-marquee-item">{it}</span>)}
+      </div>
+    </div>
+  );
+}

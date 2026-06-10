@@ -1,0 +1,77 @@
+// Copie de référence (handoff) — `export` retiré pour éviter la collision avec le design system source.
+import React from 'react';
+
+const cssId = 'rt-css-input';
+const css = `
+.rt-field { display: flex; flex-direction: column; gap: 8px; }
+.rt-field-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.rt-field-label .req { color: var(--accent); }
+.rt-input {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-primary);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: 0;
+  padding: 14px 16px;
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+.rt-input::placeholder { color: var(--rt-stroke-ghost); }
+.rt-input:focus { border-color: var(--accent); }
+.rt-input--error { border-color: var(--status-error); }
+textarea.rt-input { resize: vertical; min-height: 120px; line-height: 1.7; }
+.rt-field-hint {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+}
+.rt-field-hint--error { color: var(--status-error); }
+`;
+
+function inject() {
+  if (typeof document !== 'undefined' && !document.getElementById(cssId)) {
+    const el = document.createElement('style');
+    el.id = cssId;
+    el.textContent = css;
+    document.head.appendChild(el);
+  }
+}
+
+function Input({
+  label,
+  required = false,
+  multiline = false,
+  error,
+  hint,
+  style,
+  ...rest
+}) {
+  inject();
+  const cls = `rt-input${error ? ' rt-input--error' : ''}`;
+  return (
+    <label className="rt-field" style={style}>
+      {label && (
+        <span className="rt-field-label">
+          {label} {required && <span className="req">*</span>}
+        </span>
+      )}
+      {multiline
+        ? <textarea className={cls} {...rest}></textarea>
+        : <input className={cls} {...rest} />}
+      {(error || hint) && (
+        <span className={`rt-field-hint${error ? ' rt-field-hint--error' : ''}`}>
+          {error || hint}
+        </span>
+      )}
+    </label>
+  );
+}

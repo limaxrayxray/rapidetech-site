@@ -1,0 +1,37 @@
+// Copie de référence (handoff) — `export` retiré pour éviter la collision avec le design system source.
+import React from 'react';
+
+const cssId = 'rt-css-tag';
+const css = `
+.rt-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid var(--border-accent);
+  padding: 4px 11px;
+  border-radius: 0;
+  white-space: nowrap;
+}
+.rt-tag--neutral { color: var(--text-tertiary); border-color: var(--border-strong); }
+.rt-tag--solid { background: var(--accent); color: var(--text-on-accent); border-color: var(--accent); font-weight: 700; }
+`;
+
+function inject() {
+  if (typeof document !== 'undefined' && !document.getElementById(cssId)) {
+    const el = document.createElement('style');
+    el.id = cssId;
+    el.textContent = css;
+    document.head.appendChild(el);
+  }
+}
+
+function Tag({ variant = 'accent', children, style }) {
+  inject();
+  const cls = `rt-tag${variant !== 'accent' ? ' rt-tag--' + variant : ''}`;
+  return <span className={cls} style={style}>{children}</span>;
+}

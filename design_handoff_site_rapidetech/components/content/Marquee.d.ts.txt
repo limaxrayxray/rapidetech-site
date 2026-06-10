@@ -1,0 +1,6 @@
+/** Bandeau défilant de mots-clés séparés par ✺ vert. Pause au survol. */
+export interface MarqueeProps {
+  /** Mots-clés, ex. ["Gestion TI", "Cybersécurité", …] */
+  items: string[];
+  style?: React.CSSProperties;
+}

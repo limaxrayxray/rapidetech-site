@@ -1,0 +1,25 @@
+/* Rapidetech — Spacing, radii, borders
+   Coins VIFS partout (radius 0) — signature industrielle. Seule exception : le dot de statut (cercle). */
+:root {
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  24px;
+  --space-6:  32px;
+  --space-7:  48px;   /* page gutter */
+  --space-8:  64px;
+  --space-9:  90px;   /* section padding */
+  --space-10: 120px;
+
+  --gutter-page: 48px;
+  --section-pad: 90px 48px 110px;
+
+  /* Radii — sharp by design */
+  --radius-none: 0;
+  --radius-full: 999px; /* dots only */
+
+  /* Borders */
+  --border-w: 1px;
+  --rail-w: 6px;       /* signature green rail */
+}

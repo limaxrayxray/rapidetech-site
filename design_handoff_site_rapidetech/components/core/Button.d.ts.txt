@@ -1,0 +1,18 @@
+/**
+ * Bouton Rapidetech — coins vifs, mono uppercase, flèche animée.
+ * @startingPoint section="Components" subtitle="Bouton primaire / contour / fantôme" viewport="700x220"
+ */
+export interface ButtonProps {
+  /** 'primary' (fond vert) | 'outline' (contour vert, remplissage au survol) | 'ghost' (lien souligné) */
+  variant?: 'primary' | 'outline' | 'ghost';
+  /** 'sm' | 'md' | 'lg' */
+  size?: 'sm' | 'md' | 'lg';
+  /** Affiche la flèche → (true par défaut) */
+  arrow?: boolean;
+  /** Rend un <a> au lieu d'un <button> */
+  href?: string;
+  disabled?: boolean;
+  onClick?: () => void;
+  children?: React.ReactNode;
+  style?: React.CSSProperties;
+}

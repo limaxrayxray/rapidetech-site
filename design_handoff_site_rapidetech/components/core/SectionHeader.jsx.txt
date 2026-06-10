@@ -1,0 +1,56 @@
+// Copie de référence (handoff) — `export` retiré pour éviter la collision avec le design system source.
+import React from 'react';
+
+const cssId = 'rt-css-sectionheader';
+const css = `
+.rt-secthead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0 0 48px;
+}
+.rt-secthead h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+}
+.rt-secthead h2::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+.rt-secthead .rt-secthead-count {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--rt-stroke-ghost);
+  letter-spacing: 0.14em;
+}
+`;
+
+function inject() {
+  if (typeof document !== 'undefined' && !document.getElementById(cssId)) {
+    const el = document.createElement('style');
+    el.id = cssId;
+    el.textContent = css;
+    document.head.appendChild(el);
+  }
+}
+
+function SectionHeader({ title, count, style }) {
+  inject();
+  return (
+    <div className="rt-secthead" style={style}>
+      <h2>{title}</h2>
+      {count != null && <span className="rt-secthead-count">( {count} )</span>}
+    </div>
+  );
+}

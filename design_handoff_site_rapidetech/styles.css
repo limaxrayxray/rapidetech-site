@@ -1,0 +1,8 @@
+/* Rapidetech Design System — global CSS entry point.
+   @import lines only; everything reachable from here ships to consumers. */
+@import "./tokens/fonts.css";
+@import "./tokens/colors.css";
+@import "./tokens/typography.css";
+@import "./tokens/spacing.css";
+@import "./tokens/effects.css";
+@import "./tokens/base.css";

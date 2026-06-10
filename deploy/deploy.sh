@@ -24,4 +24,16 @@ echo "→ push du dist/ vers le VPS"
 rsync -rlz --delete --omit-dir-times --no-perms --no-owner --no-group \
   -e "ssh -i $SSH_KEY -o IdentitiesOnly=yes" dist/ "${VPS_SSH}:${VPS_WEBROOT}/"
 
+echo "→ push du relais leads (hors webroot, ~/apps/rapidetech-leads/)"
+# Pas de root sur le VPS : le relais vit dans le HOME de l'utilisateur de site
+# et tourne via son crontab (voir lead-mailer-watchdog.sh). Le code est mis à
+# jour à chaque déploiement ; on relance le process pour qu'il le recharge
+# (le watchdog cron le redémarre en ≤ 5 min — ou immédiatement ci-dessous).
+rsync -rlz --no-perms --no-owner --no-group \
+  -e "ssh -i $SSH_KEY -o IdentitiesOnly=yes" \
+  deploy/lead-mailer.mjs deploy/lead-mailer-watchdog.sh deploy/leads.env.example \
+  "${VPS_SSH}:apps/rapidetech-leads/"
+ssh -i "$SSH_KEY" -o IdentitiesOnly=yes "$VPS_SSH" \
+  'chmod +x apps/rapidetech-leads/lead-mailer-watchdog.sh; pkill -f "node .*lead-mailer\.mjs" 2>/dev/null; apps/rapidetech-leads/lead-mailer-watchdog.sh || true'
+
 echo "✓ déployé"

@@ -1,0 +1,89 @@
+---
+// Carte témoignage CIRCUIT : marque mono // TÉMOIN N, citation « … », méta.
+interface Props {
+  quote: string;
+  author: string;
+  role?: string;
+  index?: number;
+  rating?: number | null;
+}
+const { quote, author, role, index, rating } = Astro.props;
+const mark = index != null ? `// TÉMOIN ${String(index).padStart(2, "0")}` : "//";
+---
+
+<figure class="rt-testim">
+  <div class="rt-testim-head">
+    <span class="rt-testim-mark">{mark}</span>
+    {rating != null && rating > 0 && (
+      <span class="rt-testim-stars" aria-label={`${rating} sur 5`}>
+        {"★".repeat(Math.min(rating, 5))}
+      </span>
+    )}
+  </div>
+  <blockquote class="rt-testim-quote">« {quote} »</blockquote>
+  <figcaption class="rt-testim-meta">
+    <div class="rt-testim-author">{author}</div>
+    {role && <div class="rt-testim-role">{role}</div>}
+  </figcaption>
+</figure>
+
+<style>
+  .rt-testim {
+    background: var(--surface-card);
+    border: 1px solid var(--border-default);
+    padding: 32px 28px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    transition: border-color 0.25s;
+  }
+  .rt-testim:hover {
+    border-color: var(--border-accent);
+  }
+  .rt-testim-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .rt-testim-mark {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: var(--tracking-label);
+    color: var(--accent);
+  }
+  .rt-testim-stars {
+    color: var(--accent);
+    font-size: 12px;
+    letter-spacing: 3px;
+  }
+  .rt-testim-quote {
+    font-family: var(--font-body);
+    font-size: var(--text-body);
+    line-height: var(--leading-desc);
+    color: var(--text-primary);
+    margin: 0;
+    flex: 1;
+  }
+  .rt-testim-meta {
+    border-top: 1px solid var(--border-default);
+    padding-top: 16px;
+  }
+  .rt-testim-author {
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .rt-testim-role {
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+  }
+</style>

@@ -1,0 +1,107 @@
+---
+// Bouton CIRCUIT — mono uppercase, coins vifs, flèche →.
+// Variantes : primary (fill vert), outline (fill vert qui monte au survol),
+// ghost (lien souligné). Le libellé vient TOUJOURS de Directus (slot).
+interface Props {
+  href: string;
+  variant?: "primary" | "outline" | "ghost";
+  size?: "sm" | "md" | "lg";
+  arrow?: boolean;
+  target?: string;
+  rel?: string;
+}
+const {
+  href,
+  variant = "primary",
+  size = "md",
+  arrow = true,
+  target,
+  rel,
+} = Astro.props;
+---
+
+<a
+  class:list={["rt-btn", `rt-btn--${variant}`, `rt-btn--${size}`]}
+  href={href}
+  target={target}
+  rel={rel}
+>
+  <slot />
+  {arrow && <span class="rt-btn-arr" aria-hidden="true">→</span>}
+</a>
+
+<style>
+  .rt-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 0;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    isolation: isolate;
+    transition: background var(--dur-fast), color var(--dur-fast);
+  }
+  .rt-btn .rt-btn-arr {
+    display: inline-block;
+    transition: transform 0.25s;
+  }
+  .rt-btn:hover .rt-btn-arr {
+    transform: translateX(5px);
+  }
+
+  .rt-btn--md { font-size: 12px; padding: 15px 26px; }
+  .rt-btn--sm { font-size: 11px; padding: 10px 20px; font-weight: 400; }
+  .rt-btn--lg { font-size: 12px; padding: 20px 32px; }
+
+  .rt-btn--primary {
+    background: var(--accent);
+    color: var(--text-on-accent);
+  }
+  .rt-btn--primary:hover { background: var(--accent-hover); }
+  .rt-btn--primary:active { background: var(--accent-active); }
+
+  .rt-btn--outline {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--border-accent);
+  }
+  .rt-btn--outline::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.25s var(--ease-inout);
+    z-index: -1;
+  }
+  .rt-btn--outline:hover { color: var(--text-on-accent); }
+  .rt-btn--outline:hover::before { transform: scaleY(1); }
+
+  .rt-btn--ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    font-weight: 400;
+    padding: 0 0 3px;
+    border-bottom: 1px solid var(--border-strong);
+  }
+  .rt-btn--ghost .rt-btn-arr { color: var(--accent); }
+  .rt-btn--ghost:hover {
+    color: var(--text-primary);
+    border-bottom-color: var(--accent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rt-btn--outline::before,
+    .rt-btn .rt-btn-arr {
+      transition: none;
+    }
+  }
+</style>

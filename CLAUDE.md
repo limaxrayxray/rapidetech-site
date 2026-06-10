@@ -90,17 +90,27 @@ Réflexe : après création de collection(s)/champ(s) via API, flush le cache ; 
 - Logs utiles : `docker logs directus-directus-1 --tail 50`.
 
 ## Modèle de contenu Directus (état actuel)
-- **`home`** (singleton) : `hero_eyebrow`, `hero_title`, `hero_subtitle`, `hero_cta_label`, `hero_cta_href`, `hero_image` (uuid → directus_files), `services_title`, `differentiators_title`, `partners_title`, `partners_intro`, `cta_final_title`, `cta_final_body`, `cta_final_label`, `cta_final_href`.
+- **`home`** (singleton) : `hero_eyebrow`, `hero_title` (legacy, plus affiché), `hero_title_line1`, `hero_title_ghost`, `hero_scramble_words` (JSON liste), `hero_title_line3`, `hero_subtitle`, `hero_cta_label`, `hero_cta_href`, `hero_image` (uuid → directus_files, plus affiché — direction CIRCUIT sans photo de hero), `marquee_items` (JSON liste), `services_title`, `differentiators_title`, `testimonials_title`, `local_title`, `about_title`, `partners_title`, `partners_intro`, `cta_final_title`, `cta_final_body`, `cta_final_label`, `cta_final_href`.
+  ⚠️ Les champs CIRCUIT (`hero_title_line1`…) doivent être créés via `deploy/directus-circuit-setup.sh` (idempotent, token admin requis) — tant qu'ils n'existent pas/sont vides, les `FALLBACK_*` affichent le contenu par défaut.
 - **`services`** (collection) : `title`, `description`, `icon` (nom d'icône Lucide), `sort`.
 - **`differentiators`** (collection) : `title`, `description`, `sort`.
 - **`testimonials`** (collection) : `name`, `detail`, `rating` (1-5, optionnel), `quote`, `sort`.
 - **`partners`** (collection) : `name`, `logo` (uuid → directus_files), `url`, `sort`.
 - **`about`** (singleton) : `name`, `role`, `bio`, `values` (JSON liste), `photo` (uuid → directus_files).
-- **`site_settings`** (singleton) : `company_name`, `phone`, `email`, `hours`, `city`, `service_area`, `google_reviews_url`, `footer_tagline`, `meta_title`, `meta_description`.
+- **`site_settings`** (singleton) : `company_name`, `phone`, `email`, `hours`, `city`, `service_area`, `google_reviews_url`, `footer_tagline`, `meta_title`, `meta_description`, `cities` (JSON liste — bandeau ancrage local, la 1re ville est en gras), `google_rating`, `google_reviews_count`, `coordinates`, `status_message`, `nav_links` (JSON liste label+href), `nav_cta_label`, `nav_cta_href`.
 - Crée un token statique **lecture seule** pour le build, mets-le dans `.env` (`DIRECTUS_TOKEN`).
 - Étends le modèle au besoin (réalisations, FAQ, etc.) — toujours : champ Directus → prop → composant.
 
 ## Patterns front (établis — réutilise-les)
+
+### Direction artistique CIRCUIT (en vigueur)
+Le style du site = design system `design_handoff_site_rapidetech/` (tokens, composants, readme = source de vérité). Points clés :
+- Tokens CSS CIRCUIT dans `src/styles/global.css` (`--rt-*` + alias sémantiques), pontés vers les alias shadcn via `@theme inline` — les composants 21st.dev se thèment seuls.
+- Fonts auto-hébergées dans `public/fonts/` (Clash Display, General Sans, Space Mono). Pas de CDN.
+- Composants `.astro` purs (zéro JS) : `Logo`, `Button`, `SectionHeader`, `ServiceRow`, `TestimonialCard`, `Marquee` (piste dupliquée côté serveur). Seul îlot React : `Hero.tsx` (scramble, horloge, ping, CTA magnétique), monté `client:idle`.
+- Reveals d'entrée : CSS pur, gated par `html.js` (posé dans `<head>`) + `body.loaded` (script inline de `Base.astro`, rejoué sur `astro:page-load`) → no-JS safe, indépendant de l'hydratation.
+- Pas d'icônes pictogrammes (numéros `/ 01`, flèche →, ✺) : `ServiceIcon.tsx` est conservé mais plus monté.
+- Toutes les boucles (grain, pulse, marquee, scramble) coupées sous `prefers-reduced-motion`.
 
 ### Champs de singleton vides → fallback champ par champ
 `getHome`/`getSiteSettings`/`getAbout` passent par `fillEmpty(data, FALLBACK)` dans `directus.ts` : tout champ `null`/`""` retombe sur le fallback. Indispensable car les items sont en lecture publique → un champ existant mais non rempli reviendrait vide et casserait l'UI (CTA/footer vides). Le `try/catch → FALLBACK` global, lui, ne couvre QUE Directus hors ligne. **Tout nouveau champ de singleton doit avoir une valeur dans le FALLBACK correspondant.**

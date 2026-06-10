@@ -1,0 +1,65 @@
+---
+// Marquee CIRCUIT — items séparés par ✺, défilement CSS pur (zéro JS).
+// La piste est dupliquée CÔTÉ SERVEUR pour la boucle sans couture
+// (la démo le faisait en JS ; ici le HTML statique suffit).
+interface Props {
+  items: string[];
+}
+const { items } = Astro.props;
+---
+
+{items.length > 0 && (
+  <div class="rt-marquee" aria-hidden="true">
+    <div class="rt-marquee-track">
+      {[0, 1].map(() =>
+        items.map((item) => <span class="rt-marquee-item">{item}</span>)
+      )}
+    </div>
+  </div>
+)}
+
+<style>
+  .rt-marquee {
+    border-top: 1px solid var(--border-default);
+    border-bottom: 1px solid var(--border-default);
+    overflow: hidden;
+    padding: 18px 0;
+    position: relative;
+    z-index: 2;
+    background: var(--surface-raised);
+  }
+  .rt-marquee-track {
+    display: flex;
+    gap: 0;
+    width: max-content;
+    animation: rt-scroll 28s linear infinite;
+  }
+  .rt-marquee:hover .rt-marquee-track {
+    animation-play-state: paused;
+  }
+  @keyframes rt-scroll {
+    to { transform: translateX(-50%); }
+  }
+  .rt-marquee-item {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 15px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #3c3c38;
+    padding: 0 28px;
+    display: flex;
+    align-items: center;
+    gap: 56px;
+    white-space: nowrap;
+  }
+  .rt-marquee-item::after {
+    content: "✺";
+    color: var(--accent);
+    font-size: 13px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rt-marquee-track { animation: none; }
+  }
+</style>

@@ -1,0 +1,33 @@
+---
+// Wordmark CIRCUIT : carré vert + nom en Clash Display (jamais le PNG en UI).
+interface Props {
+  name: string;
+  href?: string;
+}
+const { name, href = "/" } = Astro.props;
+---
+
+<a href={href} class="rt-logo">
+  <i aria-hidden="true"></i>{name.toUpperCase()}
+</a>
+
+<style>
+  .rt-logo {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--text-heading);
+    letter-spacing: 0.04em;
+    color: var(--text-primary);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .rt-logo i {
+    width: 10px;
+    height: 10px;
+    background: var(--accent);
+    display: inline-block;
+    flex-shrink: 0;
+  }
+</style>

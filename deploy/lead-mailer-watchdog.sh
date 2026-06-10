@@ -35,11 +35,16 @@ if [[ ! -f "$ENV_FILE" ]]; then
   exit 1
 fi
 
-# node n'est pas toujours dans le PATH minimal de cron.
+# node n'est pas toujours dans le PATH minimal de cron — et sur ce VPS il est
+# installé SANS root dans ~/.local/node (binaire officiel nodejs.org).
 if ! command -v node >/dev/null 2>&1; then
-  for p in /usr/local/bin /usr/bin /opt/node/bin; do
+  for p in "$HOME/.local/node/bin" /usr/local/bin /usr/bin /opt/node/bin; do
     [[ -x "$p/node" ]] && PATH="$p:$PATH" && break
   done
+fi
+if ! command -v node >/dev/null 2>&1; then
+  echo "$(date -Is) ERREUR: node introuvable — installer le binaire officiel dans ~/.local/node" >>"$APP_LOG"
+  exit 1
 fi
 
 set -a
@@ -48,4 +53,11 @@ source "$ENV_FILE"
 set +a
 
 nohup node "$SCRIPT" >>"$APP_LOG" 2>&1 &
-echo "$(date -Is) lead-mailer (re)démarré (pid $!)" >>"$APP_LOG"
+pid=$!
+sleep 1
+if kill -0 "$pid" 2>/dev/null; then
+  echo "$(date -Is) lead-mailer (re)démarré (pid $pid)" >>"$APP_LOG"
+else
+  echo "$(date -Is) ERREUR: lead-mailer n'a pas survécu au démarrage — voir plus haut" >>"$APP_LOG"
+  exit 1
+fi

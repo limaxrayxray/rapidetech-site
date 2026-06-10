@@ -7,14 +7,27 @@ import { createDirectus, rest, readSingleton, readItems } from "@directus/sdk";
  */
 export interface HomeContent {
   hero_eyebrow: string;
+  /** Titre legacy (une seule chaîne) — conservé pour compat, plus affiché. */
   hero_title: string;
+  /** Titre display CIRCUIT, ligne par ligne (la ligne 2 = mot fantôme + scramble). */
+  hero_title_line1: string;
+  hero_title_ghost: string;
+  /** Mots du scramble (interface "list" Directus). Le 1er = état de repos. */
+  hero_scramble_words: { value: string }[];
+  hero_title_line3: string;
   hero_subtitle: string;
   hero_cta_label: string;
   hero_cta_href: string;
   /** ID du fichier Directus (collection directus_files), ou null. */
   hero_image: string | null;
+  /** Items du marquee ✺ (interface "list"). */
+  marquee_items: { value: string }[];
   differentiators_title: string;
   services_title: string;
+  testimonials_title: string;
+  /** Bandeau « ancrage local » (villes + avis Google). */
+  local_title: string;
+  about_title: string;
   partners_title: string;
   partners_intro: string;
   cta_final_title: string;
@@ -51,6 +64,20 @@ export interface SiteSettings {
   footer_tagline: string;
   meta_title: string;
   meta_description: string;
+  /** Villes desservies (interface "list") — bandeau « ancrage local ». La 1re est mise en gras. */
+  cities: { value: string }[];
+  /** Note Google affichée telle quelle (ex. « 5,0 »). */
+  google_rating: string;
+  /** Nombre d'avis Google vérifiés (null = masqué). */
+  google_reviews_count: number | null;
+  /** Coordonnées affichées dans la barre de statut (ex. « 45.6°N — 73.8°O »). */
+  coordinates: string;
+  /** Message de la barre de statut « live ». */
+  status_message: string;
+  /** Liens de navigation (interface "list" à 2 champs : label, href). */
+  nav_links: { label: string; href: string }[];
+  nav_cta_label: string;
+  nav_cta_href: string;
 }
 
 export interface Partner {
@@ -116,22 +143,48 @@ function fillEmpty<T extends Record<string, unknown>>(data: T, fallback: T): T {
   const out = { ...data };
   for (const key in fallback) {
     const v = out[key];
-    if (v === null || v === undefined || v === "") out[key] = fallback[key];
+    if (
+      v === null ||
+      v === undefined ||
+      v === "" ||
+      (Array.isArray(v) && v.length === 0)
+    )
+      out[key] = fallback[key];
   }
   return out;
 }
 
 /** Static fallbacks: the build never fails just because Directus is down. */
 const FALLBACK_HOME: HomeContent = {
-  hero_eyebrow: "MSP • Cybersécurité • Dev web",
+  hero_eyebrow: "MSP — Rive-Nord de Montréal & Laurentides",
   hero_title: "L'infrastructure IT de vos PME, sans le casse-tête.",
+  hero_title_line1: "Votre TI,",
+  hero_title_ghost: "sans",
+  hero_scramble_words: [
+    { value: "surprise" },
+    { value: "jargon" },
+    { value: "stress" },
+    { value: "détour" },
+  ],
+  hero_title_line3: "Point final.",
   hero_subtitle:
-    "Rapidetech gère, sécurise et modernise votre parc informatique sur la Rive-Nord et dans les Laurentides.",
+    "Gestion TI, cybersécurité et développement web pour les PME. Un seul interlocuteur, qui connaît votre infrastructure par cœur — et qui répond quand vous appelez.",
   hero_cta_label: "Parlons de votre projet",
   hero_cta_href: "#contact",
   hero_image: null,
+  marquee_items: [
+    { value: "Gestion TI" },
+    { value: "Cybersécurité" },
+    { value: "Développement web" },
+    { value: "Microsoft 365" },
+    { value: "Support local" },
+    { value: "Sans surprise" },
+  ],
   differentiators_title: "Fini les mauvaises surprises",
   services_title: "Nos services",
+  testimonials_title: "Ce que nos clients disent",
+  local_title: "Fièrement local — Rive-Nord & Laurentides",
+  about_title: "Qui je suis",
   partners_title: "Nos partenaires",
   partners_intro:
     "On s'appuie sur des technologies éprouvées et des partenaires de confiance pour livrer un service fiable.",
@@ -179,7 +232,7 @@ const FALLBACK_SITE_SETTINGS: SiteSettings = {
   phone: "",
   email: "",
   hours: "Lun.–Ven. 8 h à 17 h",
-  city: "Rive-Nord de Montréal",
+  city: "Blainville, QC",
   service_area: "Rive-Nord & Basses-Laurentides",
   google_reviews_url: "#",
   footer_tagline:
@@ -187,6 +240,31 @@ const FALLBACK_SITE_SETTINGS: SiteSettings = {
   meta_title: "Rapidetech — Gestion TI, cybersécurité et dev web",
   meta_description:
     "MSP pour PME sur la Rive-Nord de Montréal et dans les Laurentides.",
+  cities: [
+    { value: "Blainville" },
+    { value: "Sainte-Thérèse" },
+    { value: "Boisbriand" },
+    { value: "Rosemère" },
+    { value: "Lorraine" },
+    { value: "Bois-des-Filion" },
+    { value: "Mirabel" },
+    { value: "Saint-Eustache" },
+    { value: "Deux-Montagnes" },
+    { value: "Terrebonne" },
+    { value: "Saint-Jérôme" },
+    { value: "Sainte-Anne-des-Plaines" },
+  ],
+  google_rating: "5,0",
+  google_reviews_count: null,
+  coordinates: "45.6°N — 73.8°O",
+  status_message: "Tous systèmes opérationnels",
+  nav_links: [
+    { label: "Services", href: "#services" },
+    { label: "Approche", href: "#approche" },
+    { label: "À propos", href: "#a-propos" },
+  ],
+  nav_cta_label: "Parler à Alexandre",
+  nav_cta_href: "#contact",
 };
 
 const FALLBACK_PARTNERS: Partner[] = [];

@@ -27,12 +27,61 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <title>{title}</title>
+    <!-- Fonts display critiques (le hero est above-the-fold). -->
+    <link
+      rel="preload"
+      href="/fonts/ClashDisplay-Semibold.woff"
+      as="font"
+      type="font/woff"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/SpaceMono-Regular.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <!-- Gate no-JS : les états « cachés avant reveal » n'existent que sous
+         html.js — sans JavaScript, tout le contenu est visible d'emblée. -->
+    <script is:inline>
+      document.documentElement.classList.add("js");
+    </script>
     <!-- Smooth, app-like page transitions (built into Astro 5) -->
     <ClientRouter />
   </head>
   <body>
-    <Header companyName={settings.company_name} phone={settings.phone} />
+    <!-- Spotlight vert qui suit le curseur (texture signature CIRCUIT). -->
+    <div class="rt-spot" aria-hidden="true"></div>
+    <Header settings={settings} />
     <slot />
     <Footer settings={settings} />
+
+    <!-- Effets globaux CIRCUIT : suivi du pointeur (spotlight + grille du
+         hero via --mx/--my) et déclenchement des reveals (body.loaded).
+         is:inline : s'exécute une seule fois ; les listeners survivent aux
+         transitions du ClientRouter (astro:page-load rejoue le reveal). -->
+    <script is:inline>
+      (function () {
+        if (window.__rtFx) return;
+        window.__rtFx = true;
+
+        addEventListener("pointermove", function (e) {
+          document.documentElement.style.setProperty("--mx", e.clientX + "px");
+          document.documentElement.style.setProperty("--my", e.clientY + "px");
+        });
+
+        function reveal() {
+          document.body.classList.remove("loaded");
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              document.body.classList.add("loaded");
+            });
+          });
+        }
+        document.addEventListener("astro:page-load", reveal);
+        reveal();
+      })();
+    </script>
   </body>
 </html>

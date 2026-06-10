@@ -2,8 +2,21 @@
 import { getImage } from "astro:assets";
 import Base from "@/layouts/Base.astro";
 import Hero from "@/components/Hero.tsx";
-import ServiceIcon from "@/components/ServiceIcon.tsx";
-import { getHome, getServices, getDifferentiators, getAbout, getTestimonials, getSiteSettings, getPartners, assetUrl } from "@/lib/directus";
+import Marquee from "@/components/Marquee.astro";
+import SectionHeader from "@/components/SectionHeader.astro";
+import ServiceRow from "@/components/ServiceRow.astro";
+import TestimonialCard from "@/components/TestimonialCard.astro";
+import Button from "@/components/Button.astro";
+import {
+  getHome,
+  getServices,
+  getDifferentiators,
+  getAbout,
+  getTestimonials,
+  getSiteSettings,
+  getPartners,
+  assetUrl,
+} from "@/lib/directus";
 
 // Runs at BUILD time. Content is baked into static HTML.
 const home = await getHome();
@@ -37,122 +50,135 @@ async function localizeImage(
   }
 }
 
-const heroImageSrc = await localizeImage(home.hero_image, 1600);
 const aboutPhotoSrc = await localizeImage(about.photo, 600);
 const partnersWithLogo = await Promise.all(
   partners.map(async (p) => ({ ...p, logoSrc: await localizeImage(p.logo, 240) }))
 );
+
+const scrambleWords = home.hero_scramble_words.map((w) => w.value);
+const marqueeItems = home.marquee_items.map((m) => m.value);
+const cities = siteSettings.cities.map((c) => c.value);
 ---
 
 <Base>
-  {/* client:visible → la React island n'hydrate qu'au scroll. */}
+  {/* client:idle → hydrate dès que le main thread est libre (scramble,
+      horloge, ping). Les reveals d'entrée sont en CSS pur, donc le hero
+      est complet visuellement avant même l'hydratation. */}
   <Hero
-    client:visible
+    client:idle
     eyebrow={home.hero_eyebrow}
-    title={home.hero_title}
+    titleLine1={home.hero_title_line1}
+    titleGhost={home.hero_title_ghost}
+    scrambleWords={scrambleWords}
+    titleLine3={home.hero_title_line3}
     subtitle={home.hero_subtitle}
     ctaLabel={home.hero_cta_label}
     ctaHref={home.hero_cta_href}
-    imageSrc={heroImageSrc}
+    statusMessage={siteSettings.status_message}
+    coordinates={siteSettings.coordinates}
+    city={siteSettings.city}
   />
 
-  <section class="mx-auto max-w-5xl px-6 py-20">
-    <h2 class="mb-12 text-center text-3xl font-bold text-foreground">
-      {home.services_title}
-    </h2>
-    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {
-        services.map((s) => (
-          <article class="rounded-2xl border border-border bg-card p-6 transition-transform hover:-translate-y-1">
-            <ServiceIcon name={s.icon} className="h-8 w-8 text-primary" />
-            <h3 class="mt-4 text-lg font-semibold text-card-foreground">{s.title}</h3>
-            <p class="mt-2 text-sm text-muted-foreground">{s.description}</p>
-          </article>
-        ))
-      }
+  <Marquee items={marqueeItems} />
+
+  {/* ── SERVICES ── */}
+  <section class="rt-section" id="services">
+    <SectionHeader title={home.services_title} count={services.length} />
+    {services.map((s, i) => (
+      <ServiceRow
+        num={i + 1}
+        title={s.title}
+        desc={s.description}
+        href={home.cta_final_href}
+      />
+    ))}
+  </section>
+
+  {/* ── ANCRAGE LOCAL (villes + avis Google) ── */}
+  <section class="rt-local">
+    <div class="rt-local-badge">
+      <div class="rt-local-stars">
+        {siteSettings.google_rating}
+        <span class="rt-local-s" aria-hidden="true">★★★★★</span>
+      </div>
+      <p class="rt-local-src">
+        Avis Google{siteSettings.google_reviews_count != null && (
+          <Fragment> — {siteSettings.google_reviews_count} avis vérifiés</Fragment>
+        )}
+      </p>
+    </div>
+    <div class="rt-local-cities">
+      <h3>{home.local_title}</h3>
+      <p class="rt-cities">
+        {cities.map((c, i) => (i === 0 ? <span><b>{c}</b></span> : <span>{c}</span>))}
+      </p>
     </div>
   </section>
 
-  <section class="mx-auto max-w-5xl px-6 py-20">
-    <h2 class="mb-12 text-center text-3xl font-bold text-foreground">
-      {home.differentiators_title}
-    </h2>
-    <div class="grid gap-6 sm:grid-cols-2">
-      {
-        differentiators.map((d) => (
-          <article class="rounded-2xl border border-border bg-card p-8">
-            <h3 class="text-lg font-semibold text-card-foreground">{d.title}</h3>
-            <p class="mt-3 text-sm leading-relaxed text-muted-foreground">{d.description}</p>
-          </article>
-        ))
-      }
+  {/* ── DIFFÉRENCIATEURS ── */}
+  <section class="rt-section" id="approche">
+    <SectionHeader
+      title={home.differentiators_title}
+      count={differentiators.length}
+    />
+    <div class="rt-diff-grid">
+      {differentiators.map((d, i) => (
+        <article class="rt-diff">
+          <span class="rt-diff-num">/ {String(i + 1).padStart(2, "0")}</span>
+          <h3>{d.title}</h3>
+          <p>{d.description}</p>
+        </article>
+      ))}
     </div>
   </section>
 
-  <section class="mx-auto max-w-5xl px-6 py-20">
-    <h2 class="mb-12 text-center text-3xl font-bold text-foreground">
-      Ce que nos clients disent
-    </h2>
-    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {
-        testimonials.map((t) => (
-          <article class="flex flex-col rounded-2xl border border-border bg-card p-6">
-            {t.rating && (
-              <div class="mb-3 flex gap-0.5 text-accent" aria-label={`${t.rating} sur 5`}>
-                {Array.from({ length: t.rating }).map(() => (
-                  <span aria-hidden="true">★</span>
-                ))}
-              </div>
-            )}
-            <p class="flex-1 text-sm leading-relaxed text-card-foreground">“{t.quote}”</p>
-            <div class="mt-4">
-              <p class="text-sm font-semibold text-card-foreground">{t.name}</p>
-              <p class="text-xs text-muted-foreground">{t.detail}</p>
-            </div>
-          </article>
-        ))
-      }
+  {/* ── TÉMOIGNAGES ── */}
+  <section class="rt-section">
+    <SectionHeader title={home.testimonials_title} count={testimonials.length} />
+    <div class="rt-testim-grid">
+      {testimonials.map((t, i) => (
+        <TestimonialCard
+          quote={t.quote}
+          author={t.name}
+          role={t.detail}
+          index={i + 1}
+          rating={t.rating}
+        />
+      ))}
     </div>
     {siteSettings.google_reviews_url && siteSettings.google_reviews_url !== "#" && (
-      <div class="mt-12 text-center">
-        <a
-          href={siteSettings.google_reviews_url}
-          target="_blank"
-          rel="noopener"
-          class="inline-flex items-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-        >
+      <div class="rt-testim-more">
+        <Button href={siteSettings.google_reviews_url} variant="ghost" target="_blank" rel="noopener">
           Voir tous nos avis sur Google
-        </a>
+        </Button>
       </div>
     )}
   </section>
 
-  <section class="mx-auto max-w-5xl px-6 py-20">
-    <div class="flex flex-col items-center gap-12 md:flex-row md:items-start">
+  {/* ── À PROPOS ── */}
+  <section class="rt-section" id="a-propos">
+    <div class="rt-about">
       {aboutPhotoSrc && (
-        <div class="shrink-0">
+        <div class="rt-about-photo">
           <img
             src={aboutPhotoSrc}
             alt={about.name}
-            width="240"
-            height="240"
-            class="rounded-full object-cover shadow-lg"
-            style="width:240px;height:240px;"
+            width="280"
+            height="280"
+            loading="lazy"
           />
         </div>
       )}
-      <div class="flex-1">
-        <p class="text-sm font-semibold uppercase tracking-widest text-primary">
-          Qui je suis
-        </p>
-        <h2 class="mt-2 text-3xl font-bold text-foreground">{about.name}</h2>
-        <p class="mt-1 text-base text-muted-foreground">{about.role}</p>
-        <p class="mt-4 leading-relaxed text-foreground">{about.bio}</p>
+      <div class="rt-about-body">
+        <p class="rt-eyebrow">{home.about_title}</p>
+        <h2>{about.name}</h2>
+        <p class="rt-about-role">{about.role}</p>
+        <p class="rt-about-bio">{about.bio}</p>
         {about.values?.length > 0 && (
-          <ul class="mt-6 space-y-2">
+          <ul class="rt-about-values">
             {about.values.map((v) => (
-              <li class="flex items-start gap-2 text-sm text-muted-foreground">
-                <span class="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" />
+              <li>
+                <span class="rt-square" aria-hidden="true"></span>
                 {v.value}
               </li>
             ))}
@@ -162,56 +188,357 @@ const partnersWithLogo = await Promise.all(
     </div>
   </section>
 
-  {
-    partnersWithLogo.length > 0 && (
-      <section class="mx-auto max-w-5xl px-6 py-20">
-        <h2 class="text-center text-3xl font-bold text-foreground">{home.partners_title}</h2>
-        {home.partners_intro && (
-          <p class="mx-auto mt-4 max-w-2xl text-center text-muted-foreground">
-            {home.partners_intro}
-          </p>
-        )}
-        <div class="mt-12 grid grid-cols-2 items-center gap-8 sm:grid-cols-3 lg:grid-cols-4">
-          {partnersWithLogo.map((p) => {
-            const inner = p.logoSrc ? (
-              <img
-                src={p.logoSrc}
-                alt={p.name}
-                class="max-h-12 w-auto opacity-70 transition-opacity hover:opacity-100"
-                loading="lazy"
-              />
-            ) : (
-              <span class="text-sm font-medium text-muted-foreground">{p.name}</span>
-            );
-            return (
-              <div class="flex items-center justify-center">
-                {p.url ? (
-                  <a href={p.url} target="_blank" rel="noopener" aria-label={p.name}>
-                    {inner}
-                  </a>
-                ) : (
-                  inner
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </section>
-    )
-  }
+  {/* ── PARTENAIRES ── */}
+  {partnersWithLogo.length > 0 && (
+    <section class="rt-section">
+      <SectionHeader title={home.partners_title} count={partnersWithLogo.length} />
+      {home.partners_intro && <p class="rt-partners-intro">{home.partners_intro}</p>}
+      <div class="rt-partners-grid">
+        {partnersWithLogo.map((p) => {
+          const inner = p.logoSrc ? (
+            <img src={p.logoSrc} alt={p.name} loading="lazy" />
+          ) : (
+            <span class="rt-partner-name">{p.name}</span>
+          );
+          return (
+            <div class="rt-partner">
+              {p.url ? (
+                <a href={p.url} target="_blank" rel="noopener" aria-label={p.name}>
+                  {inner}
+                </a>
+              ) : (
+                inner
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  )}
 
-  <section class="mx-auto max-w-5xl px-6 py-20">
-    <div class="rounded-3xl border border-border bg-card px-6 py-16 text-center">
-      <h2 class="text-3xl font-bold text-foreground sm:text-4xl">{home.cta_final_title}</h2>
-      {home.cta_final_body && (
-        <p class="mx-auto mt-4 max-w-2xl text-muted-foreground">{home.cta_final_body}</p>
-      )}
-      <a
-        href={home.cta_final_href}
-        class="mt-8 inline-flex items-center rounded-xl bg-primary px-7 py-3.5 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-transform hover:scale-[1.03]"
-      >
-        {home.cta_final_label}
-      </a>
-    </div>
+  {/* ── CTA FINAL ── */}
+  <section class="rt-cta-final" id="contact">
+    <p class="rt-eyebrow">// Contact</p>
+    <h2>{home.cta_final_title}</h2>
+    {home.cta_final_body && <p class="rt-cta-body">{home.cta_final_body}</p>}
+    <Button href={home.cta_final_href} size="lg">{home.cta_final_label}</Button>
   </section>
 </Base>
+
+<style>
+  .rt-section {
+    position: relative;
+    z-index: 2;
+    padding: var(--section-pad);
+  }
+
+  /* Eyebrow mono (réutilisé À propos + CTA final) */
+  .rt-eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 20px;
+  }
+
+  /* ── Ancrage local ── */
+  .rt-local {
+    position: relative;
+    z-index: 2;
+    border-top: 1px solid var(--border-default);
+    padding: 56px var(--gutter-page) 64px;
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 48px;
+    align-items: start;
+    background: var(--surface-raised);
+  }
+  .rt-local-stars {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 28px;
+    color: var(--text-primary);
+  }
+  .rt-local-s {
+    color: var(--accent);
+    font-size: 18px;
+    letter-spacing: 3px;
+  }
+  .rt-local-src {
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    margin: 14px 0 0;
+  }
+  .rt-local-cities h3 {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    font-weight: 400;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .rt-local-cities h3::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border-default);
+  }
+  .rt-cities {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 0;
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
+  }
+  .rt-cities span {
+    white-space: nowrap;
+  }
+  .rt-cities span::after {
+    content: "✧";
+    color: var(--rt-line-hi);
+    margin: 0 14px;
+    font-size: 10px;
+  }
+  .rt-cities span:last-child::after {
+    content: "";
+    margin: 0;
+  }
+  .rt-cities b {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+  @media (max-width: 900px) {
+    .rt-local {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+  }
+
+  /* ── Différenciateurs ── */
+  .rt-diff-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--border-default);
+    border: 1px solid var(--border-default);
+  }
+  .rt-diff {
+    background: var(--surface-card);
+    padding: 36px 32px;
+    transition: background 0.25s;
+  }
+  .rt-diff:hover {
+    background: #1a1a19;
+  }
+  .rt-diff-num {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: var(--tracking-label);
+    color: var(--accent);
+  }
+  .rt-diff h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 22px;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    margin: 18px 0 12px;
+  }
+  .rt-diff p {
+    font-family: var(--font-body);
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-desc);
+    color: var(--text-secondary);
+    margin: 0;
+  }
+  @media (max-width: 720px) {
+    .rt-diff-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ── Témoignages ── */
+  .rt-testim-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+  .rt-testim-more {
+    margin-top: 48px;
+    text-align: center;
+  }
+  @media (max-width: 1000px) {
+    .rt-testim-grid {
+      grid-template-columns: 1fr;
+      max-width: 560px;
+    }
+  }
+
+  /* ── À propos ── */
+  .rt-about {
+    display: flex;
+    gap: 64px;
+    align-items: flex-start;
+  }
+  .rt-about-photo img {
+    width: 280px;
+    height: 280px;
+    object-fit: cover;
+    /* Traitement froid/contrasté prescrit par le design system. */
+    filter: grayscale(1) contrast(1.1);
+    border: 1px solid var(--border-default);
+    display: block;
+  }
+  .rt-about-body h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--text-title);
+    line-height: 1;
+    letter-spacing: var(--tracking-display);
+    text-transform: uppercase;
+    color: var(--text-primary);
+    margin: 0 0 8px;
+  }
+  .rt-about-role {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    margin: 0 0 24px;
+  }
+  .rt-about-bio {
+    font-family: var(--font-body);
+    font-size: var(--text-body);
+    line-height: var(--leading-body);
+    color: var(--text-secondary);
+    max-width: 560px;
+    margin: 0;
+  }
+  .rt-about-values {
+    list-style: none;
+    margin: 28px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .rt-about-values li {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: var(--text-secondary);
+  }
+  .rt-square {
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    flex-shrink: 0;
+    transform: translateY(-1px);
+  }
+  @media (max-width: 900px) {
+    .rt-about {
+      flex-direction: column;
+      gap: 40px;
+    }
+  }
+
+  /* ── Partenaires ── */
+  .rt-partners-intro {
+    font-family: var(--font-body);
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-desc);
+    color: var(--text-secondary);
+    max-width: 480px;
+    margin: -24px 0 48px;
+  }
+  .rt-partners-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--border-default);
+    border: 1px solid var(--border-default);
+  }
+  .rt-partner {
+    background: var(--surface-card);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    min-height: 110px;
+  }
+  .rt-partner img {
+    max-height: 44px;
+    width: auto;
+    /* Logos en niveaux de gris sur charbon — couleur au survol. */
+    filter: grayscale(1) brightness(1.4);
+    opacity: 0.6;
+    transition: opacity 0.25s, filter 0.25s;
+  }
+  .rt-partner:hover img {
+    opacity: 1;
+    filter: none;
+  }
+  .rt-partner-name {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+  @media (max-width: 720px) {
+    .rt-partners-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* ── CTA final ── */
+  .rt-cta-final {
+    position: relative;
+    z-index: 2;
+    border-top: 1px solid var(--border-default);
+    padding: 110px var(--gutter-page) 120px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .rt-cta-final h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(38px, 5.4vw, 84px);
+    line-height: var(--leading-display);
+    letter-spacing: var(--tracking-display);
+    text-transform: uppercase;
+    color: var(--text-primary);
+    margin: 0 0 28px;
+    max-width: 18ch;
+  }
+  .rt-cta-body {
+    font-family: var(--font-body);
+    font-size: var(--text-body);
+    line-height: var(--leading-body);
+    color: var(--text-secondary);
+    max-width: 480px;
+    margin: 0 0 44px;
+  }
+</style>

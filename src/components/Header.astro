@@ -1,25 +1,86 @@
 ---
-// En-tête (version texte — le graphisme viendra en phase 2).
+// Navigation CIRCUIT : wordmark + liens mono uppercase + CTA outline.
 // Tout le contenu vient de site_settings (props), jamais en dur.
+import Logo from "@/components/Logo.astro";
+import type { SiteSettings } from "@/lib/directus";
+
 interface Props {
-  companyName: string;
-  phone: string;
+  settings: SiteSettings;
 }
-const { companyName, phone } = Astro.props;
+const { settings } = Astro.props;
 ---
 
-<header class="border-b border-border">
-  <div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-    <a href="/" class="text-lg font-bold text-foreground">{companyName}</a>
-    {
-      phone && (
-        <a
-          href={`tel:${phone.replace(/[^0-9+]/g, "")}`}
-          class="text-sm font-semibold text-primary"
-        >
-          {phone}
-        </a>
-      )
-    }
-  </div>
+<header class="rt-nav">
+  <Logo name={settings.company_name} />
+  <nav class="rt-nav-links" aria-label="Navigation principale">
+    {settings.nav_links.map((l) => <a href={l.href}>{l.label}</a>)}
+    <a href={settings.nav_cta_href} class="rt-nav-cta">{settings.nav_cta_label}</a>
+  </nav>
 </header>
+
+<style>
+  .rt-nav {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--gutter-page);
+    height: 68px;
+    border-bottom: 1px solid var(--border-default);
+  }
+  .rt-nav-links {
+    display: flex;
+    gap: 34px;
+    align-items: center;
+  }
+  .rt-nav-links a {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: var(--tracking-label);
+    color: var(--text-secondary);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color var(--dur-fast);
+  }
+  .rt-nav-links a:hover {
+    color: var(--text-primary);
+  }
+  .rt-nav-cta {
+    color: var(--accent) !important;
+    border: 1px solid var(--border-accent);
+    letter-spacing: 0.1em;
+    padding: 10px 20px;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    transition: color 0.25s !important;
+  }
+  .rt-nav-cta::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.25s var(--ease-inout);
+    z-index: -1;
+  }
+  .rt-nav-cta:hover {
+    color: var(--rt-bg) !important;
+  }
+  .rt-nav-cta:hover::before {
+    transform: scaleY(1);
+  }
+
+  @media (max-width: 720px) {
+    .rt-nav-links a:not(.rt-nav-cta) {
+      display: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rt-nav-cta::before {
+      transition: none;
+    }
+  }
+</style>

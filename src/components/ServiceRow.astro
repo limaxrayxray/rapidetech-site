@@ -1,0 +1,130 @@
+---
+// Rangée de service full-width CIRCUIT : / 0N — TITRE — description — →.
+// Le survol (fill vert scaleY, inversion, flèche -45°) est 100 % CSS → zéro JS.
+interface Props {
+  num: number;
+  title: string;
+  desc: string;
+  href?: string;
+}
+const { num, title, desc, href = "#contact" } = Astro.props;
+const numLabel = `/ ${String(num).padStart(2, "0")}`;
+---
+
+<a class="rt-svc" href={href}>
+  <span class="rt-svc-num">{numLabel}</span>
+  <span class="rt-svc-title">{title}</span>
+  <span class="rt-svc-desc">{desc}</span>
+  <span class="rt-svc-arr" aria-hidden="true">→</span>
+</a>
+
+<style>
+  .rt-svc {
+    position: relative;
+    display: grid;
+    grid-template-columns: 70px minmax(0, 1.2fr) minmax(180px, 360px) 50px;
+    align-items: center;
+    gap: 28px;
+    padding: 38px 28px;
+    border-top: 1px solid var(--border-default);
+    text-decoration: none;
+    cursor: pointer;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .rt-svc:last-of-type {
+    border-bottom: 1px solid var(--border-default);
+  }
+  .rt-svc::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform var(--dur-base) var(--ease-inout);
+    z-index: -1;
+  }
+  .rt-svc:hover::before {
+    transform: scaleY(1);
+    transform-origin: bottom;
+  }
+  .rt-svc > * {
+    min-width: 0;
+  }
+  .rt-svc-num {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: var(--tracking-label);
+    color: var(--accent);
+    transition: color 0.25s;
+  }
+  .rt-svc-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--text-display);
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+    transition: color 0.25s, transform var(--dur-base) var(--ease-out-expo);
+  }
+  .rt-svc-desc {
+    font-family: var(--font-body);
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-desc);
+    color: var(--text-secondary);
+    transition: color 0.25s;
+  }
+  .rt-svc-arr {
+    font-family: var(--font-display);
+    font-size: 30px;
+    color: var(--rt-line-hi);
+    justify-self: end;
+    transition: color 0.25s, transform var(--dur-base) var(--ease-out-expo);
+  }
+  .rt-svc:hover .rt-svc-num,
+  .rt-svc:hover .rt-svc-desc {
+    color: rgba(10, 10, 10, 0.7);
+  }
+  .rt-svc:hover .rt-svc-title {
+    color: var(--rt-bg);
+    transform: translateX(12px);
+  }
+  .rt-svc:hover .rt-svc-arr {
+    color: var(--rt-bg);
+    transform: translateX(6px) rotate(-45deg);
+  }
+
+  /* Viewports étroits : description sous le titre. */
+  @media (max-width: 1240px) {
+    .rt-svc {
+      grid-template-columns: 70px minmax(0, 1fr) 50px;
+      grid-template-rows: auto auto;
+      row-gap: 12px;
+      align-items: start;
+    }
+    .rt-svc-num { grid-row: 1; grid-column: 1; padding-top: 8px; }
+    .rt-svc-title { grid-row: 1; grid-column: 2; }
+    .rt-svc-arr { grid-row: 1; grid-column: 3; padding-top: 2px; }
+    .rt-svc-desc { grid-row: 2; grid-column: 2; max-width: 560px; }
+  }
+  @media (max-width: 720px) {
+    .rt-svc {
+      grid-template-columns: 44px minmax(0, 1fr) 32px;
+      padding: 28px 12px;
+      gap: 16px;
+    }
+    .rt-svc-desc { grid-column: 1 / -1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rt-svc::before,
+    .rt-svc-title,
+    .rt-svc-arr {
+      transition: none;
+    }
+    .rt-svc:hover .rt-svc-title { transform: none; }
+    .rt-svc:hover .rt-svc-arr { transform: rotate(-45deg); }
+  }
+</style>

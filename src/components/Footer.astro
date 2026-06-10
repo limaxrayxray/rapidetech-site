@@ -1,6 +1,9 @@
 ---
-// Pied de page (version texte). Contenu 100 % depuis site_settings.
+// Pied de page CIRCUIT — charbon profond, étiquettes mono, points de suite.
+// Contenu 100 % depuis site_settings.
+import Logo from "@/components/Logo.astro";
 import type { SiteSettings } from "@/lib/directus";
+
 interface Props {
   settings: SiteSettings;
 }
@@ -8,52 +11,145 @@ const { settings } = Astro.props;
 const year = new Date().getFullYear();
 ---
 
-<footer class="border-t border-border bg-card">
-  <div class="mx-auto max-w-5xl px-6 py-12">
-    <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-      <div>
-        <p class="text-base font-bold text-card-foreground">{settings.company_name}</p>
-        {settings.footer_tagline && (
-          <p class="mt-2 text-sm text-muted-foreground">{settings.footer_tagline}</p>
-        )}
-      </div>
-
-      <div class="space-y-1 text-sm text-muted-foreground">
-        {settings.phone && (
-          <p>
-            <a href={`tel:${settings.phone.replace(/[^0-9+]/g, "")}`} class="hover:text-foreground">
-              {settings.phone}
-            </a>
-          </p>
-        )}
-        {settings.email && (
-          <p>
-            <a href={`mailto:${settings.email}`} class="hover:text-foreground">{settings.email}</a>
-          </p>
-        )}
-      </div>
-
-      <div class="space-y-1 text-sm text-muted-foreground">
-        {settings.hours && <p class="whitespace-pre-line">{settings.hours}</p>}
-        {settings.service_area && <p>{settings.service_area}</p>}
-      </div>
-
-      <div class="text-sm">
-        {settings.google_reviews_url && settings.google_reviews_url !== "#" && (
-          <a
-            href={settings.google_reviews_url}
-            target="_blank"
-            rel="noopener"
-            class="font-semibold text-primary hover:opacity-90"
-          >
-            Voir nos avis Google
-          </a>
-        )}
-      </div>
+<footer class="rt-footer">
+  <div class="rt-footer-grid">
+    <div class="rt-footer-brand">
+      <Logo name={settings.company_name} />
+      {settings.footer_tagline && <p class="rt-footer-tagline">{settings.footer_tagline}</p>}
     </div>
 
-    <p class="mt-10 text-xs text-muted-foreground">
-      © {year} {settings.company_name}. Tous droits réservés.
-    </p>
+    <div class="rt-footer-col">
+      <h3>// Contact</h3>
+      {settings.phone && (
+        <p>
+          <a href={`tel:${settings.phone.replace(/[^0-9+]/g, "")}`}>{settings.phone}</a>
+        </p>
+      )}
+      {settings.email && (
+        <p>
+          <a href={`mailto:${settings.email}`}>{settings.email}</a>
+        </p>
+      )}
+    </div>
+
+    <div class="rt-footer-col">
+      <h3>// Heures &amp; territoire</h3>
+      {settings.hours && <p class="rt-footer-pre">{settings.hours}</p>}
+      {settings.service_area && <p>{settings.service_area}</p>}
+    </div>
+
+    <div class="rt-footer-col">
+      <h3>// Avis</h3>
+      {settings.google_reviews_url && settings.google_reviews_url !== "#" && (
+        <p>
+          <a href={settings.google_reviews_url} target="_blank" rel="noopener">
+            Voir nos avis Google <span aria-hidden="true">→</span>
+          </a>
+        </p>
+      )}
+    </div>
+  </div>
+
+  <div class="rt-footer-status">
+    <span class="rt-footer-dots" aria-hidden="true"></span>
+    <p>© {year} {settings.company_name} — Tous droits réservés.</p>
+    {settings.coordinates && <p class="rt-footer-coord">{settings.coordinates}</p>}
   </div>
 </footer>
+
+<style>
+  .rt-footer {
+    background: var(--surface-deep);
+    border-top: 1px solid var(--border-default);
+    padding: 64px var(--gutter-page) 32px;
+    position: relative;
+    z-index: 2;
+  }
+  .rt-footer-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 40px;
+  }
+  .rt-footer-tagline {
+    margin-top: 16px;
+    font-family: var(--font-body);
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-desc);
+    color: var(--text-secondary);
+    max-width: 280px;
+  }
+  .rt-footer-col h3 {
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 16px;
+  }
+  .rt-footer-col p {
+    margin: 0 0 6px;
+    font-family: var(--font-body);
+    font-size: var(--text-body-sm);
+    color: var(--text-secondary);
+  }
+  .rt-footer-pre {
+    white-space: pre-line;
+  }
+  .rt-footer-col a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color var(--dur-fast);
+  }
+  .rt-footer-col a:hover {
+    color: var(--text-primary);
+  }
+
+  .rt-footer-status {
+    margin-top: 56px;
+    border-top: 1px solid var(--border-default);
+    padding-top: 18px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+  }
+  .rt-footer-status p {
+    margin: 0;
+  }
+  /* Points de suite terminal — signature de ponctuation CIRCUIT. */
+  .rt-footer-dots {
+    flex: 1;
+    order: 2;
+    overflow: hidden;
+    white-space: nowrap;
+    color: var(--rt-line-hi);
+  }
+  .rt-footer-dots::after {
+    content: ".........................................................................................................";
+    letter-spacing: 4px;
+  }
+  .rt-footer-status p:first-of-type {
+    order: 1;
+  }
+  .rt-footer-coord {
+    order: 3;
+  }
+
+  @media (max-width: 900px) {
+    .rt-footer-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .rt-footer-dots {
+      display: none;
+    }
+    .rt-footer-status {
+      flex-wrap: wrap;
+      gap: 8px 24px;
+    }
+  }
+</style>

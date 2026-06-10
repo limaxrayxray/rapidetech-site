@@ -1,0 +1,50 @@
+---
+// Tête de section CIRCUIT : carré vert + titre uppercase + compteur ( 0N ).
+interface Props {
+  title: string;
+  count?: number;
+  id?: string;
+}
+const { title, count, id } = Astro.props;
+const countLabel =
+  count != null ? `( ${String(count).padStart(2, "0")} )` : null;
+---
+
+<div class="rt-secthead" id={id}>
+  <h2>{title}</h2>
+  {countLabel && <span class="rt-secthead-count">{countLabel}</span>}
+</div>
+
+<style>
+  .rt-secthead {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin: 0 0 48px;
+  }
+  .rt-secthead h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 0;
+  }
+  .rt-secthead h2::before {
+    content: "";
+    width: 10px;
+    height: 10px;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+  .rt-secthead-count {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    color: var(--rt-stroke-ghost);
+    letter-spacing: 0.14em;
+  }
+</style>

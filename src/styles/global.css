@@ -1,60 +1,198 @@
 @import "tailwindcss";
 
-/* shadcn / 21st.dev design tokens.
-   21st.dev components reference these CSS variables (bg-background,
-   text-foreground, border-border, etc.). Keeping them here means any
-   component you drop in via `npx shadcn add` themes correctly out of the box.
-   Tweak the HSL values to define YOUR brand — this is your "sort du lot" knob. */
-@theme inline {
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
-  --color-border: hsl(var(--border));
-  --color-ring: hsl(var(--ring));
-  --radius: 0.75rem;
+/* ============================================================
+   RAPIDETECH — Direction artistique CIRCUIT
+   Dark industriel, vert électrique #6BC31A, coins vifs, zéro ombre.
+   Source de vérité : design_handoff_site_rapidetech/ (tokens + readme).
+   ============================================================ */
+
+/* ── Webfonts (binaires locaux, voir public/fonts/) ──
+   Clash Display = display (UPPERCASE) · General Sans = corps ·
+   Space Mono = étiquettes/données/statuts seulement. */
+@font-face {
+  font-family: "Clash Display";
+  src: url("/fonts/ClashDisplay-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Clash Display";
+  src: url("/fonts/ClashDisplay-Medium.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Clash Display";
+  src: url("/fonts/ClashDisplay-Semibold.woff") format("woff");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Clash Display";
+  src: url("/fonts/ClashDisplay-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "General Sans";
+  src: url("/fonts/GeneralSans-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "General Sans";
+  src: url("/fonts/GeneralSans-Italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "General Sans";
+  src: url("/fonts/GeneralSans-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "General Sans";
+  src: url("/fonts/GeneralSans-Semibold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Space Mono";
+  src: url("/fonts/SpaceMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Space Mono";
+  src: url("/fonts/SpaceMono-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
 }
 
+/* ── Tokens CIRCUIT ── */
 :root {
-  --background: 0 0% 100%;
-  --foreground: 222 47% 11%;
-  --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
-  --primary: 262 83% 58%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 210 40% 96%;
-  --secondary-foreground: 222 47% 11%;
-  --muted: 210 40% 96%;
-  --muted-foreground: 215 16% 47%;
-  --accent: 199 89% 48%;
-  --accent-foreground: 210 40% 98%;
-  --border: 214 32% 91%;
-  --ring: 262 83% 58%;
+  /* Vert (marque) */
+  --rt-green: #6bc31a;
+  --rt-green-hi: #8be93a;
+  --rt-green-dim: #4a8a12;
+  --rt-green-ghost: rgba(107, 195, 26, 0.35);
+  --rt-green-tint: rgba(107, 195, 26, 0.07);
+
+  /* Neutres (échelle charbon) */
+  --rt-black: #060606;
+  --rt-bg: #0a0a0a;
+  --rt-surface: #0c0c0b;
+  --rt-surface-2: #161616;
+  --rt-line: #1e1e1c;
+  --rt-line-hi: #2a2a26;
+  --rt-stroke-ghost: #3a3a36;
+  --rt-grey: #6e6e68;
+  --rt-grey-dim: #4a4a46;
+  --rt-ink: #edede8;
+
+  /* Alias sémantiques */
+  --text-primary: var(--rt-ink);
+  --text-secondary: var(--rt-grey);
+  --text-tertiary: var(--rt-grey-dim);
+  --text-accent: var(--rt-green);
+  --text-on-accent: var(--rt-bg);
+  --surface-page: var(--rt-bg);
+  --surface-raised: var(--rt-surface);
+  --surface-card: var(--rt-surface-2);
+  --surface-deep: var(--rt-black);
+  --border-default: var(--rt-line);
+  --border-strong: var(--rt-line-hi);
+  --border-accent: var(--rt-green-ghost);
+  --accent: var(--rt-green);
+  --accent-hover: var(--rt-green-hi);
+  --accent-active: var(--rt-green-dim);
+  --status-ok: var(--rt-green);
+  --status-warn: #e8b931;
+  --status-error: #e84a31;
+
+  /* Typo */
+  --font-display: "Clash Display", "Arial Narrow", sans-serif;
+  --font-body: "General Sans", "Segoe UI", sans-serif;
+  --font-mono: "Space Mono", "Courier New", monospace;
+  --text-hero: clamp(52px, 8.2vw, 128px);
+  --text-display: clamp(34px, 3.6vw, 54px);
+  --text-title: clamp(26px, 2.4vw, 34px);
+  --text-heading: 18px;
+  --text-body: 15px;
+  --text-body-sm: 13.5px;
+  --text-label: 11px;
+  --text-micro: 10px;
+  --tracking-display: -0.02em;
+  --tracking-label: 0.12em;
+  --tracking-eyebrow: 0.22em;
+  --leading-display: 0.96;
+  --leading-body: 1.75;
+  --leading-desc: 1.7;
+
+  /* Espacement */
+  --gutter-page: 48px;
+  --section-pad: 90px var(--gutter-page) 110px;
+
+  /* Motion */
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-exit: cubic-bezier(0.83, 0, 0.17, 1);
+  --dur-fast: 0.2s;
+  --dur-base: 0.35s;
+  --dur-reveal: 0.9s;
+
+  /* Curseur (spotlight + grille du hero) */
+  --mx: 50vw;
+  --my: 50vh;
 }
 
-.dark {
-  --background: 222 47% 6%;
-  --foreground: 210 40% 98%;
-  --card: 222 47% 9%;
-  --card-foreground: 210 40% 98%;
-  --primary: 262 83% 66%;
-  --primary-foreground: 222 47% 11%;
-  --secondary: 217 33% 17%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 217 33% 17%;
-  --muted-foreground: 215 20% 65%;
-  --accent: 199 89% 55%;
-  --accent-foreground: 222 47% 11%;
-  --border: 217 33% 20%;
-  --ring: 262 83% 66%;
+@media (max-width: 720px) {
+  :root {
+    --gutter-page: 20px;
+    --section-pad: 64px var(--gutter-page) 72px;
+  }
+}
+
+/* ── Pont Tailwind v4 / shadcn ──
+   Les composants 21st.dev référencent bg-background, text-foreground, etc.
+   On mappe ces alias sur les tokens CIRCUIT : tout composant ajouté via
+   `npx shadcn add` se thème correctement sans retouche. */
+@theme inline {
+  --color-background: var(--surface-page);
+  --color-foreground: var(--text-primary);
+  --color-card: var(--surface-card);
+  --color-card-foreground: var(--text-primary);
+  --color-primary: var(--accent);
+  --color-primary-foreground: var(--text-on-accent);
+  --color-secondary: var(--surface-card);
+  --color-secondary-foreground: var(--text-primary);
+  --color-muted: var(--surface-raised);
+  --color-muted-foreground: var(--text-secondary);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--text-on-accent);
+  --color-border: var(--border-default);
+  --color-ring: var(--accent);
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-mono);
+  /* Coins VIFS partout — signature industrielle. */
+  --radius: 0px;
+}
+
+/* ── Base ── */
+::selection {
+  background: var(--rt-green);
+  color: var(--rt-bg);
 }
 
 html {
@@ -62,7 +200,269 @@ html {
 }
 
 body {
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
+  background: var(--surface-page);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+}
+
+/* ── Grain animé (signature) ── */
+body::after {
+  content: "";
+  position: fixed;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+  z-index: 99;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: rt-grain 0.6s steps(4) infinite;
+}
+@keyframes rt-grain {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-2%, 3%); }
+  50% { transform: translate(3%, -2%); }
+  75% { transform: translate(-3%, -3%); }
+  100% { transform: translate(2%, 2%); }
+}
+
+/* ── Spotlight vert qui suit le curseur (div .rt-spot dans Base.astro) ── */
+.rt-spot {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(
+    420px circle at var(--mx) var(--my),
+    var(--rt-green-tint),
+    transparent 70%
+  );
+}
+
+/* ============================================================
+   HERO (île React src/components/Hero.tsx — styles globaux car
+   les <style> scopés Astro ne s'appliquent pas au DOM React)
+   ============================================================ */
+.rt-hero {
+  position: relative;
+  min-height: calc(100vh - 68px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 80px var(--gutter-page) 120px;
+  z-index: 2;
+}
+
+/* Grille de points révélée au curseur */
+.rt-hero-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, var(--rt-line-hi) 1.5px, transparent 1.5px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(900px circle at var(--mx) var(--my), black 0%, transparent 75%);
+  -webkit-mask-image: radial-gradient(900px circle at var(--mx) var(--my), black 0%, transparent 75%);
+  opacity: 0.9;
+}
+
+.rt-hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-eyebrow);
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 36px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 16px;
+}
+.rt-hero-eyebrow::before {
+  content: "";
+  width: 40px;
+  height: 1px;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+.rt-h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-hero);
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+  color: var(--text-primary);
+  text-transform: uppercase;
+  margin-bottom: 44px;
+}
+.rt-h1 .rt-line {
+  display: block;
+  overflow: hidden;
+}
+.rt-h1 .rt-line > span {
+  display: block;
+}
+/* Reveal masqué : l'état caché n'existe QUE si JS est là (html.js),
+   sinon le titre est visible d'emblée (no-JS safe). */
+html.js .rt-h1 .rt-line > span {
+  transform: translateY(110%);
+  transition: transform var(--dur-reveal) var(--ease-out-expo);
+}
+html.js body.loaded .rt-h1 .rt-line > span {
+  transform: translateY(0);
+}
+.rt-h1 .rt-line:nth-child(2) > span { transition-delay: 0.08s; }
+.rt-h1 .rt-line:nth-child(3) > span { transition-delay: 0.16s; }
+
+.rt-h1 .rt-ghost {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--rt-stroke-ghost);
+}
+.rt-h1 .rt-scramble {
+  display: inline-block;
+  min-width: 8ch;
+  text-align: left;
+  color: var(--accent);
+}
+.rt-h1 .rt-scramble .rt-scramble-noise {
+  color: var(--rt-stroke-ghost);
+}
+
+.rt-hero-foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+.rt-hero-sub {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  color: var(--text-secondary);
+  max-width: 420px;
+}
+html.js .rt-hero-sub {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.8s ease 0.5s, transform 0.8s ease 0.5s;
+}
+html.js body.loaded .rt-hero-sub {
+  opacity: 1;
+  transform: none;
+}
+
+.rt-hero-cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--accent);
+  color: var(--text-on-accent);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 20px 32px;
+  white-space: nowrap;
+  will-change: transform;
+}
+html.js .rt-hero-cta {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.8s ease 0.65s, transform 0.8s ease 0.65s, background var(--dur-fast);
+}
+html.js body.loaded .rt-hero-cta {
+  opacity: 1;
+  transform: none;
+}
+.rt-hero-cta:hover { background: var(--accent-hover); }
+.rt-hero-cta .rt-arr {
+  display: inline-block;
+  transition: transform 0.25s;
+}
+.rt-hero-cta:hover .rt-arr { transform: translateX(5px); }
+
+/* Barre de statut « live » — ADN MSP */
+.rt-status {
+  position: absolute;
+  left: var(--gutter-page);
+  right: var(--gutter-page);
+  bottom: 0;
+  border-top: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  padding: 16px 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.14em;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+}
+html.js .rt-status {
+  opacity: 0;
+  transition: opacity 1s ease 0.9s;
+}
+html.js body.loaded .rt-status { opacity: 1; }
+.rt-status .rt-status-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.rt-status .rt-status-ok { color: var(--status-ok); }
+.rt-status .rt-status-right {
+  margin-left: auto;
+  display: flex;
+  gap: 36px;
+}
+.rt-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--status-ok);
+  position: relative;
+  flex-shrink: 0;
+}
+.rt-dot::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 999px;
+  border: 1px solid var(--status-ok);
+  animation: rt-pulse 2s ease-out infinite;
+}
+@keyframes rt-pulse {
+  0% { transform: scale(0.5); opacity: 1; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+@media (max-width: 900px) {
+  .rt-status { flex-wrap: wrap; gap: 14px 24px; position: static; margin-top: 56px; }
+  .rt-status .rt-status-right { margin-left: 0; gap: 24px; }
+  .rt-hero { padding-bottom: 64px; }
+}
+
+/* ── Reduced motion : boucles coupées, reveals → fondus ── */
+@media (prefers-reduced-motion: reduce) {
+  body::after { display: none; }            /* grain */
+  .rt-dot::after { animation: none; opacity: 0; }
+  html.js .rt-h1 .rt-line > span {
+    transform: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  html.js body.loaded .rt-h1 .rt-line > span { opacity: 1; }
+  html.js .rt-hero-sub,
+  html.js .rt-hero-cta {
+    transform: none;
+    transition: opacity 0.5s ease 0.3s;
+  }
 }

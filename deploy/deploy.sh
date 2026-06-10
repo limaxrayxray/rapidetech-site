@@ -29,6 +29,8 @@ echo "→ push du relais leads (hors webroot, ~/apps/rapidetech-leads/)"
 # et tourne via son crontab (voir lead-mailer-watchdog.sh). Le code est mis à
 # jour à chaque déploiement ; on relance le process pour qu'il le recharge
 # (le watchdog cron le redémarre en ≤ 5 min — ou immédiatement ci-dessous).
+# rsync ne crée pas les dossiers parents → mkdir -p d'abord.
+ssh -i "$SSH_KEY" -o IdentitiesOnly=yes "$VPS_SSH" 'mkdir -p apps/rapidetech-leads'
 rsync -rlz --no-perms --no-owner --no-group \
   -e "ssh -i $SSH_KEY -o IdentitiesOnly=yes" \
   deploy/lead-mailer.mjs deploy/lead-mailer-watchdog.sh deploy/leads.env.example \

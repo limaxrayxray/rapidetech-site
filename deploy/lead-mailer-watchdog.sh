@@ -16,9 +16,11 @@
 #       mais fiable ; le journal JSONL fait le reste.)
 #   4. Nginx : PAS besoin de /etc — dans l'admin web CloudPanel :
 #      Sites → dev.galx.ca → Vhost Editor → ajouter dans le bloc server {} :
-#        location /api/lead { proxy_pass http://127.0.0.1:8788/lead; }
+#        location /api/lead { proxy_pass http://127.0.0.1:8791/lead; }
+#      (8791 et non 8788 : sur ce VPS, 8788 est déjà occupé par un autre
+#       service → LEAD_PORT=8791 dans ~/rapidetech-leads.env.)
 #
-# Logs applicatifs : ~/lead-mailer.log  ·  test : curl http://127.0.0.1:8788/healthz
+# Logs applicatifs : ~/lead-mailer.log  ·  test : curl http://127.0.0.1:8791/healthz
 set -euo pipefail
 
 ENV_FILE="${LEAD_ENV_FILE:-$HOME/rapidetech-leads.env}"

@@ -1,0 +1,68 @@
+---
+// Page d'atterrissage après soumission du formulaire SANS JavaScript
+// (le relais /api/lead redirige ici en 303). Sert aussi d'objectif de
+// conversion mesurable. noindex : aucune valeur pour Google.
+import Base from "@/layouts/Base.astro";
+import { getHome } from "@/lib/directus";
+
+const home = await getHome();
+---
+
+<Base title="Merci — message reçu" noindex>
+  <main class="rt-merci">
+    <p class="rt-merci-eyebrow">// Contact</p>
+    <h1>Merci.</h1>
+    <p class="rt-merci-body">{home.contact_success_message}</p>
+    <a href="/" class="rt-merci-back">← Retour à l'accueil</a>
+  </main>
+</Base>
+
+<style>
+  .rt-merci {
+    position: relative;
+    z-index: 2;
+    padding: var(--section-pad);
+    min-height: 55vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .rt-merci-eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 20px;
+  }
+  .rt-merci h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--text-hero);
+    line-height: var(--leading-display);
+    letter-spacing: var(--tracking-display);
+    text-transform: uppercase;
+    color: var(--text-primary);
+    margin: 0 0 24px;
+  }
+  .rt-merci-body {
+    font-family: var(--font-body);
+    font-size: var(--text-body);
+    line-height: var(--leading-body);
+    color: var(--text-secondary);
+    max-width: 480px;
+    margin: 0 0 40px;
+  }
+  .rt-merci-back {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color var(--dur-fast);
+  }
+  .rt-merci-back:hover {
+    color: var(--text-primary);
+  }
+</style>

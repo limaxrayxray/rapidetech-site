@@ -5,7 +5,9 @@ import Hero from "@/components/Hero.tsx";
 import Marquee from "@/components/Marquee.astro";
 import SectionHeader from "@/components/SectionHeader.astro";
 import ServiceRow from "@/components/ServiceRow.astro";
+import ServicePanel from "@/components/ServicePanel.astro";
 import TestimonialCard from "@/components/TestimonialCard.astro";
+import ContactForm from "@/components/ContactForm.astro";
 import Button from "@/components/Button.astro";
 import {
   getHome,
@@ -58,6 +60,48 @@ const partnersWithLogo = await Promise.all(
 const scrambleWords = home.hero_scramble_words.map((w) => w.value);
 const marqueeItems = home.marquee_items.map((m) => m.value);
 const cities = siteSettings.cities.map((c) => c.value);
+
+// Témoignages randomisés À CHAQUE BUILD (Fisher-Yates) — et chaque sauvegarde
+// Directus redéclenche un build via le Flow, donc l'ordre tourne réellement.
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+const displayedTestimonials = shuffle(testimonials).slice(0, 6);
+
+const phoneHref = siteSettings.phone
+  ? `tel:${siteSettings.phone.replace(/[^0-9+]/g, "")}`
+  : null;
+
+// Données structurées LocalBusiness — le levier « map pack » local.
+// AggregateRating seulement si le nombre d'avis est connu (sinon invalide).
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  name: siteSettings.company_name,
+  description: siteSettings.meta_description,
+  url: Astro.site?.href,
+  ...(siteSettings.phone && { telephone: siteSettings.phone }),
+  ...(siteSettings.email && { email: siteSettings.email }),
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: siteSettings.city,
+    addressRegion: "QC",
+    addressCountry: "CA",
+  },
+  areaServed: cities.map((c) => ({ "@type": "City", name: c })),
+  ...(siteSettings.google_reviews_count != null && {
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: siteSettings.google_rating.replace(",", "."),
+      reviewCount: siteSettings.google_reviews_count,
+    },
+  }),
+};
 ---
 
 <Base>
@@ -89,10 +133,35 @@ const cities = siteSettings.cities.map((c) => c.value);
         num={i + 1}
         title={s.title}
         desc={s.description}
-        href={home.cta_final_href}
+        href={`/services/${s.slug}/`}
+        overlay={s.slug}
       />
     ))}
   </section>
+
+  {/* Overlays services : même contenu que les pages /services/<slug>/
+      (ServicePanel partagé), déjà dans le HTML au build. Le clic sur une
+      rangée ouvre le <dialog> (fond flouté, clic extérieur/Échap pour fermer)
+      et pousse l'URL réelle dans l'historique → partageable, indexable. */}
+  {services.map((s, i) => (
+    <dialog
+      class="rt-svc-dialog"
+      data-slug={s.slug}
+      data-href={`/services/${s.slug}/`}
+      aria-labelledby={`svc-title-${s.slug}`}
+    >
+      <div class="rt-svc-dialog-inner">
+        <button class="rt-svc-dialog-close" data-close>← Fermer</button>
+        <ServicePanel
+          service={s}
+          num={i + 1}
+          heading="h2"
+          ctaLabel={home.cta_final_label}
+          ctaHref="/#contact"
+        />
+      </div>
+    </dialog>
+  ))}
 
   {/* ── ANCRAGE LOCAL (villes + avis Google) ── */}
   <section class="rt-local">
@@ -136,7 +205,7 @@ const cities = siteSettings.cities.map((c) => c.value);
   <section class="rt-section">
     <SectionHeader title={home.testimonials_title} count={testimonials.length} />
     <div class="rt-testim-grid">
-      {testimonials.map((t, i) => (
+      {displayedTestimonials.map((t, i) => (
         <TestimonialCard
           quote={t.quote}
           author={t.name}
@@ -216,13 +285,94 @@ const cities = siteSettings.cities.map((c) => c.value);
     </section>
   )}
 
-  {/* ── CTA FINAL ── */}
+  {/* ── CONTACT (CTA final + formulaire → courriel) ── */}
   <section class="rt-cta-final" id="contact">
     <p class="rt-eyebrow">// Contact</p>
     <h2>{home.cta_final_title}</h2>
     {home.cta_final_body && <p class="rt-cta-body">{home.cta_final_body}</p>}
-    <Button href={home.cta_final_href} size="lg">{home.cta_final_label}</Button>
+
+    <div class="rt-contact-grid">
+      <ContactForm home={home} />
+      <aside class="rt-contact-direct">
+        <h3>{home.contact_direct_title}</h3>
+        {phoneHref && (
+          <a class="rt-contact-phone" href={phoneHref}>{siteSettings.phone}</a>
+        )}
+        {siteSettings.email && (
+          <a class="rt-contact-email" href={`mailto:${siteSettings.email}`}>
+            {siteSettings.email}
+          </a>
+        )}
+        {siteSettings.hours && <p class="rt-contact-hours">{siteSettings.hours}</p>}
+      </aside>
+    </div>
   </section>
+
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
+
+  {/* Overlay services — progressive enhancement. Sans JS : navigation
+      normale vers la page service. Avec JS : <dialog> modal + URL réelle
+      poussée dans l'historique (retour navigateur = fermeture). */}
+  <script is:inline>
+    (function () {
+      if (window.__rtOverlay) return;
+      window.__rtOverlay = true;
+
+      let openedByUs = false;
+
+      function dialogFor(slug) {
+        return document.querySelector(`.rt-svc-dialog[data-slug="${slug}"]`);
+      }
+
+      document.addEventListener(
+        "click",
+        function (e) {
+          // Ouverture : clic sur une rangée de service de l'accueil.
+          const trigger = e.target.closest("a[data-overlay]");
+          if (trigger && !e.metaKey && !e.ctrlKey && !e.shiftKey) {
+            const dlg = dialogFor(trigger.dataset.overlay);
+            if (dlg && typeof dlg.showModal === "function") {
+              e.preventDefault();
+              dlg.showModal();
+              openedByUs = true;
+              history.pushState({ rtOverlay: trigger.dataset.overlay }, "", trigger.href);
+              return;
+            }
+          }
+          // Fermeture : bouton « Fermer » ou clic sur le fond (backdrop).
+          const openDlg = document.querySelector(".rt-svc-dialog[open]");
+          if (!openDlg) return;
+          if (e.target.closest("[data-close]") || e.target === openDlg) {
+            openDlg.close();
+          }
+        },
+        true
+      );
+
+      // Quel que soit le chemin de fermeture (Échap natif, bouton, backdrop) :
+      // si on a poussé une URL, on revient en arrière pour la retirer.
+      document.addEventListener(
+        "close",
+        function (e) {
+          if (!e.target.classList || !e.target.classList.contains("rt-svc-dialog")) return;
+          if (openedByUs && history.state && history.state.rtOverlay) {
+            openedByUs = false;
+            history.back();
+          }
+        },
+        true
+      );
+
+      // Bouton retour du navigateur pendant qu'un overlay est ouvert.
+      window.addEventListener("popstate", function () {
+        const openDlg = document.querySelector(".rt-svc-dialog[open]");
+        if (openDlg) {
+          openedByUs = false; // déjà dépilé par le navigateur
+          openDlg.close();
+        }
+      });
+    })();
+  </script>
 </Base>
 
 <style>
@@ -511,16 +661,12 @@ const cities = siteSettings.cities.map((c) => c.value);
     }
   }
 
-  /* ── CTA final ── */
+  /* ── Contact (CTA final + formulaire) ── */
   .rt-cta-final {
     position: relative;
     z-index: 2;
     border-top: 1px solid var(--border-default);
     padding: 110px var(--gutter-page) 120px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
   }
   .rt-cta-final h2 {
     font-family: var(--font-display);
@@ -539,6 +685,130 @@ const cities = siteSettings.cities.map((c) => c.value);
     line-height: var(--leading-body);
     color: var(--text-secondary);
     max-width: 480px;
-    margin: 0 0 44px;
+    margin: 0 0 56px;
+  }
+  .rt-contact-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(260px, 1fr);
+    gap: 64px;
+    align-items: start;
+  }
+  .rt-contact-direct {
+    border-left: 1px solid var(--border-default);
+    padding-left: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .rt-contact-direct h3 {
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 8px;
+  }
+  .rt-contact-phone {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(22px, 2.4vw, 32px);
+    letter-spacing: 0.01em;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color var(--dur-fast);
+  }
+  .rt-contact-phone:hover {
+    color: var(--accent);
+  }
+  .rt-contact-email {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color var(--dur-fast);
+  }
+  .rt-contact-email:hover {
+    color: var(--text-primary);
+  }
+  .rt-contact-hours {
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    white-space: pre-line;
+    margin: 8px 0 0;
+  }
+  @media (max-width: 900px) {
+    .rt-contact-grid {
+      grid-template-columns: 1fr;
+      gap: 48px;
+    }
+    .rt-contact-direct {
+      border-left: none;
+      border-top: 1px solid var(--border-default);
+      padding-left: 0;
+      padding-top: 32px;
+    }
+  }
+
+  /* ── Overlay services (<dialog>) ── */
+  .rt-svc-dialog {
+    background: var(--surface-page);
+    color: var(--text-primary);
+    border: 1px solid var(--border-strong);
+    border-radius: 0;
+    padding: 0;
+    width: min(880px, calc(100vw - 2 * var(--gutter-page)));
+    max-height: 85vh;
+    margin: auto;
+  }
+  /* Flou de la page d'accueil derrière l'overlay (demande explicite). */
+  .rt-svc-dialog::backdrop {
+    background: rgba(6, 6, 6, 0.65);
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+  }
+  .rt-svc-dialog[open] {
+    animation: rt-dialog-in 0.45s var(--ease-out-expo);
+  }
+  @keyframes rt-dialog-in {
+    from { transform: translateY(24px); opacity: 0; }
+    to { transform: none; opacity: 1; }
+  }
+  .rt-svc-dialog-inner {
+    padding: 48px;
+    overflow-y: auto;
+    max-height: 85vh;
+  }
+  .rt-svc-dialog-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    padding: 0 0 3px;
+    margin-bottom: 36px;
+    border-bottom: 1px solid var(--border-strong);
+    transition: color var(--dur-fast), border-color var(--dur-fast);
+  }
+  .rt-svc-dialog-close:hover {
+    color: var(--text-primary);
+    border-bottom-color: var(--accent);
+  }
+  @media (max-width: 720px) {
+    .rt-svc-dialog-inner {
+      padding: 28px 20px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rt-svc-dialog[open] {
+      animation: none;
+    }
   }
 </style>

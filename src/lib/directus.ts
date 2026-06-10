@@ -34,6 +34,16 @@ export interface HomeContent {
   cta_final_body: string;
   cta_final_label: string;
   cta_final_href: string;
+  /** Formulaire de contact (libellés + messages d'état). */
+  contact_name_label: string;
+  contact_email_label: string;
+  contact_phone_label: string;
+  contact_message_label: string;
+  contact_submit_label: string;
+  contact_success_message: string;
+  contact_error_message: string;
+  /** Intertitre de la colonne « contact direct » (tel/courriel/heures). */
+  contact_direct_title: string;
 }
 
 export interface Differentiator {
@@ -102,7 +112,13 @@ export interface Service {
   id: string;
   title: string;
   description: string;
-  icon: string; // lucide icon name, e.g. "shield-check"
+  icon: string; // legacy (lucide) — plus affiché en direction CIRCUIT
+  /** Slug d'URL de la page service (ex. « gestion-ti »). */
+  slug: string;
+  /** Corps long de la page service — paragraphes séparés par une ligne vide. */
+  body: string;
+  /** Bénéfices concrets (interface "list"). */
+  benefits: { value: string }[];
   sort: number;
 }
 
@@ -193,12 +209,67 @@ const FALLBACK_HOME: HomeContent = {
     "Parlez-moi de votre situation. Sans engagement, sans jargon — juste un vrai diagnostic et des réponses claires.",
   cta_final_label: "Réservez un appel",
   cta_final_href: "/contact/",
+  contact_name_label: "Votre nom",
+  contact_email_label: "Courriel",
+  contact_phone_label: "Téléphone (optionnel)",
+  contact_message_label: "Décrivez votre situation",
+  contact_submit_label: "Envoyer",
+  contact_success_message:
+    "Message reçu. On vous revient rapidement — promis.",
+  contact_error_message:
+    "L'envoi a échoué. Réessayez, ou écrivez-nous directement par courriel.",
+  contact_direct_title: "Vous préférez parler à quelqu'un ?",
 };
 
 const FALLBACK_SERVICES: Service[] = [
-  { id: "1", title: "Gestion TI", description: "Supervision, maintenance et support proactif de votre environnement Microsoft 365 et Windows.", icon: "server", sort: 1 },
-  { id: "2", title: "Cybersécurité", description: "Durcissement, sauvegarde et réponse aux incidents pour dormir tranquille.", icon: "shield-check", sort: 2 },
-  { id: "3", title: "Développement web", description: "Sites performants et sur mesure, faciles à mettre à jour vous-même.", icon: "code", sort: 3 },
+  {
+    id: "1",
+    title: "Gestion TI",
+    description:
+      "Supervision, maintenance et support proactif de votre environnement Microsoft 365 et Windows. On voit les problèmes avant vous.",
+    icon: "server",
+    slug: "gestion-ti",
+    body: "Votre informatique devrait travailler pour vous, pas l'inverse. On prend en charge la supervision complète de votre parc : postes, serveurs, Microsoft 365, sauvegardes. Les mises à jour se font en arrière-plan, les problèmes sont détectés avant qu'ils vous arrêtent, et quand vous appelez, c'est la même personne qui répond — quelqu'un qui connaît votre infrastructure par cœur.\n\nPas de contrat piège, pas de jargon. Un forfait clair, des rapports que vous comprenez, et la tranquillité de savoir que quelqu'un veille.",
+    benefits: [
+      { value: "Surveillance continue de vos postes et serveurs" },
+      { value: "Mises à jour et correctifs appliqués sans vous interrompre" },
+      { value: "Support direct — la même personne, qui connaît votre parc" },
+      { value: "Rapports clairs, factures sans surprise" },
+    ],
+    sort: 1,
+  },
+  {
+    id: "2",
+    title: "Cybersécurité",
+    description:
+      "Durcissement, sauvegarde et réponse aux incidents pour dormir tranquille.",
+    icon: "shield-check",
+    slug: "cybersecurite",
+    body: "Les PME sont devenues la cible préférée des attaques — pas parce qu'elles sont riches, mais parce qu'elles sont moins protégées. On durcit votre environnement (comptes, courriels, accès), on met en place des sauvegardes chiffrées testées régulièrement, et on prépare un plan simple pour que tout le monde sache quoi faire si quelque chose arrive.\n\nL'objectif n'est pas de vous vendre la peur : c'est de dormir tranquille. Des protections concrètes, expliquées en mots simples, adaptées à votre réalité et à votre budget.",
+    benefits: [
+      { value: "Durcissement Microsoft 365 et authentification multifacteur" },
+      { value: "Sauvegardes chiffrées, testées régulièrement" },
+      { value: "Sensibilisation de vos employés à l'hameçonnage" },
+      { value: "Plan de réponse aux incidents, simple et connu de tous" },
+    ],
+    sort: 2,
+  },
+  {
+    id: "3",
+    title: "Développement web",
+    description:
+      "Sites performants et sur mesure, faciles à mettre à jour vous-même.",
+    icon: "code",
+    slug: "developpement-web",
+    body: "Un site qui vous appartient, que vous pouvez mettre à jour vous-même, et qui charge vite. On construit sur mesure — pas de gabarit générique, pas d'abonnement piège qui vous tient en otage. Vous gardez le contrôle de votre contenu, de votre hébergement et de vos données.\n\nDe la vitrine simple à l'outil interne, on livre quelque chose de solide, rapide et facile à faire évoluer.",
+    benefits: [
+      { value: "Site sur mesure, rapide, conçu pour durer" },
+      { value: "Un CMS simple pour modifier votre contenu vous-même" },
+      { value: "Hébergement et données qui vous appartiennent" },
+      { value: "Référencement local de base inclus" },
+    ],
+    sort: 3,
+  },
 ];
 
 const FALLBACK_DIFFERENTIATORS: Differentiator[] = [
@@ -315,12 +386,30 @@ export async function getHome(): Promise<HomeContent> {
   }
 }
 
+/** Slug d'URL sûr dérivé d'un titre (accents retirés, kebab-case). */
+export function slugify(text: string): string {
+  return text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
 export async function getServices(): Promise<Service[]> {
   try {
     const items = await client.request(
       readItems("services", { sort: ["sort"] })
     );
-    return items.length ? items : FALLBACK_SERVICES;
+    if (!items.length) return FALLBACK_SERVICES;
+    // Défensif : tant que les champs CIRCUIT (slug, body, benefits) n'existent
+    // pas dans Directus, on dérive le slug du titre et on dégrade proprement.
+    return items.map((s) => ({
+      ...s,
+      slug: s.slug || slugify(s.title),
+      body: s.body || "",
+      benefits: Array.isArray(s.benefits) ? s.benefits : [],
+    }));
   } catch {
     return FALLBACK_SERVICES;
   }

@@ -1,0 +1,197 @@
+---
+// Formulaire de contact CIRCUIT (style Input du design system).
+// - Sans JS : POST classique vers /api/lead → redirection /merci/.
+// - Avec JS : envoi fetch + état inline (succès/erreur), sans rechargement.
+// - Honeypot « entreprise » : un humain ne le voit pas, un bot le remplit.
+// Le relais courriel tourne sur le VPS : deploy/lead-mailer.mjs derrière
+// Nginx (/api/lead). Tous les libellés viennent de Directus (home).
+import type { HomeContent } from "@/lib/directus";
+
+interface Props {
+  home: HomeContent;
+}
+const { home } = Astro.props;
+---
+
+{/* data-astro-reload : le ClientRouter ne doit PAS intercepter ce submit
+    (sinon il « navigue » vers /api/lead) — notre script fetch s'en charge. */}
+<form
+  class="rt-form"
+  method="POST"
+  action="/api/lead"
+  data-astro-reload
+  data-success={home.contact_success_message}
+  data-error={home.contact_error_message}
+>
+  <p class="rt-hp" aria-hidden="true">
+    <label>
+      Ne pas remplir
+      <input type="text" name="entreprise" tabindex="-1" autocomplete="off" />
+    </label>
+  </p>
+
+  <label class="rt-field">
+    <span class="rt-field-label">{home.contact_name_label} <span class="req">*</span></span>
+    <input class="rt-input" type="text" name="nom" required minlength="2" maxlength="120" />
+  </label>
+
+  <div class="rt-form-row">
+    <label class="rt-field">
+      <span class="rt-field-label">{home.contact_email_label} <span class="req">*</span></span>
+      <input class="rt-input" type="email" name="courriel" required maxlength="200" />
+    </label>
+    <label class="rt-field">
+      <span class="rt-field-label">{home.contact_phone_label}</span>
+      <input class="rt-input" type="tel" name="telephone" maxlength="40" />
+    </label>
+  </div>
+
+  <label class="rt-field">
+    <span class="rt-field-label">{home.contact_message_label} <span class="req">*</span></span>
+    <textarea class="rt-input" name="message" required minlength="10" maxlength="5000" rows="5"></textarea>
+  </label>
+
+  <button class="rt-form-submit" type="submit">
+    {home.contact_submit_label} <span aria-hidden="true">→</span>
+  </button>
+
+  <p class="rt-form-status" role="status" hidden></p>
+</form>
+
+<script>
+  // Délégué au document : survit aux transitions du ClientRouter sans ré-init.
+  if (!(window as any).__rtFormWired) {
+    (window as any).__rtFormWired = true;
+    // Phase capture : on passe AVANT le routeur d'Astro (ClientRouter).
+    document.addEventListener("submit", async (e) => {
+      const form = e.target as HTMLFormElement;
+      if (!form.classList.contains("rt-form")) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+
+      const status = form.querySelector(".rt-form-status") as HTMLElement;
+      const button = form.querySelector(".rt-form-submit") as HTMLButtonElement;
+      button.disabled = true;
+      status.hidden = true;
+
+      try {
+        const res = await fetch(form.action, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify(Object.fromEntries(new FormData(form))),
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        form.reset();
+        status.textContent = form.dataset.success || "Message reçu.";
+        status.classList.remove("rt-form-status--error");
+      } catch {
+        status.textContent = form.dataset.error || "L'envoi a échoué.";
+        status.classList.add("rt-form-status--error");
+      } finally {
+        status.hidden = false;
+        button.disabled = false;
+      }
+    }, true);
+  }
+</script>
+
+<style>
+  .rt-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    text-align: left;
+  }
+  /* Honeypot : retiré du flux ET du lecteur d'écran, mais présent pour les bots. */
+  .rt-hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    margin: 0;
+  }
+  .rt-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .rt-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .rt-field-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+  }
+  .rt-field-label .req {
+    color: var(--accent);
+  }
+  .rt-input {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-primary);
+    background: var(--surface-card);
+    border: 1px solid var(--border-default);
+    border-radius: 0;
+    padding: 14px 16px;
+    outline: none;
+    transition: border-color var(--dur-fast);
+    width: 100%;
+  }
+  .rt-input::placeholder {
+    color: var(--rt-stroke-ghost);
+  }
+  .rt-input:focus {
+    border-color: var(--accent);
+  }
+  textarea.rt-input {
+    resize: vertical;
+    min-height: 120px;
+    line-height: 1.7;
+  }
+  .rt-form-submit {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--accent);
+    color: var(--text-on-accent);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 0;
+    cursor: pointer;
+    padding: 18px 30px;
+    transition: background var(--dur-fast);
+  }
+  .rt-form-submit:hover {
+    background: var(--accent-hover);
+  }
+  .rt-form-submit:disabled {
+    opacity: 0.5;
+    cursor: wait;
+  }
+  .rt-form-status {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    margin: 0;
+  }
+  .rt-form-status--error {
+    color: var(--status-error);
+  }
+  @media (max-width: 720px) {
+    .rt-form-row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

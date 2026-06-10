@@ -91,8 +91,9 @@ Réflexe : après création de collection(s)/champ(s) via API, flush le cache ; 
 
 ## Modèle de contenu Directus (état actuel)
 - **`home`** (singleton) : `hero_eyebrow`, `hero_title` (legacy, plus affiché), `hero_title_line1`, `hero_title_ghost`, `hero_scramble_words` (JSON liste), `hero_title_line3`, `hero_subtitle`, `hero_cta_label`, `hero_cta_href`, `hero_image` (uuid → directus_files, plus affiché — direction CIRCUIT sans photo de hero), `marquee_items` (JSON liste), `services_title`, `differentiators_title`, `testimonials_title`, `local_title`, `about_title`, `partners_title`, `partners_intro`, `cta_final_title`, `cta_final_body`, `cta_final_label`, `cta_final_href`.
+  Champs formulaire de contact : `contact_name_label`, `contact_email_label`, `contact_phone_label`, `contact_message_label`, `contact_submit_label`, `contact_success_message`, `contact_error_message`, `contact_direct_title`.
   ⚠️ Les champs CIRCUIT (`hero_title_line1`…) doivent être créés via `deploy/directus-circuit-setup.sh` (idempotent, token admin requis) — tant qu'ils n'existent pas/sont vides, les `FALLBACK_*` affichent le contenu par défaut.
-- **`services`** (collection) : `title`, `description`, `icon` (nom d'icône Lucide), `sort`.
+- **`services`** (collection) : `title`, `description`, `icon` (legacy Lucide, plus affiché), `slug`, `body` (texte long, paragraphes séparés par ligne vide), `benefits` (JSON liste), `sort`. Chaque service a sa page statique `/services/<slug>/` (SEO) ET un overlay sur l'accueil (`<dialog>` + pushState — même contenu via `ServicePanel.astro`, sans JS le lien navigue normalement).
 - **`differentiators`** (collection) : `title`, `description`, `sort`.
 - **`testimonials`** (collection) : `name`, `detail`, `rating` (1-5, optionnel), `quote`, `sort`.
 - **`partners`** (collection) : `name`, `logo` (uuid → directus_files), `url`, `sort`.
@@ -129,6 +130,16 @@ Le token est passé en `?access_token=` sur l'URL d'asset au build (voir `assetU
 Dans `index.astro`, le helper `localizeImage(fileId, width)` enrobe `getImage({ src: assetUrl(id), inferSize: true, ... })` dans un try/catch :
 - `inferSize: true` est **obligatoire** pour un asset distant (sinon erreur `MissingImageDimension`).
 - L'asset binaire `/assets/...` de Directus exige un **token** (les /items sont en lecture publique, pas les fichiers). Tant que `DIRECTUS_TOKEN` n'est pas configuré, le fetch échoue → le try/catch dégrade en « pas d'image » et le **build reste vert**. Une fois le token en place, les images apparaissent sans changement de code.
+
+### Formulaire de contact → courriel (relais VPS)
+`ContactForm.astro` POST vers `/api/lead` (Nginx → `deploy/lead-mailer.mjs`, service systemd `rapidetech-leads` sur le VPS, port local 8788). Envoi via l'API Brevo (clé dans `/etc/rapidetech-leads.env`, jamais dans le repo). Honeypot `entreprise`, rate-limit 5/h/IP, retries, et journal JSONL de secours (lead jamais perdu même si Brevo tombe). Sans JS : POST classique → 303 vers `/merci/`. ⚠️ Le formulaire porte `data-astro-reload` + listener submit en phase CAPTURE — sinon le ClientRouter d'Astro intercepte le submit et « navigue » vers /api/lead.
+
+### Avis Google → Directus (sync automatique)
+`deploy/sync-google-reviews.mjs` (cron sur la machine Directus) : API Places (New) → upsert `testimonials` (dédup. par `google_review_id`, champs auto-créés ; les témoignages manuels ne sont jamais touchés) + met à jour `site_settings.google_rating`/`google_reviews_count`. Limite API : ~5 avis les plus pertinents. Les témoignages affichés sont mélangés à CHAQUE BUILD (le Flow redéploie à chaque sauvegarde → l'ordre tourne réellement).
+
+### SEO
+- `SITE_ENV=preprod` dans le `.env` de build → robots.txt « Disallow: / » + meta noindex partout (dev.galx.ca ne doit jamais être indexé). Au lancement : retirer la variable, rebuilder.
+- Sitemap (`@astrojs/sitemap`, `/merci/` exclu), canonical, Open Graph (`public/og.png`), favicon.svg, JSON-LD ProfessionalService sur l'accueil (AggregateRating seulement si `google_reviews_count` est renseigné).
 
 ## Commandes
 - `npm run dev` — dev local.

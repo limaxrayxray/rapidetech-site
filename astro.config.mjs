@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import react from "@astrojs/react";
+import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 
 // https://astro.build/config
@@ -16,7 +17,11 @@ export default defineConfig({
   image: {
     domains: ["localhost"],
   },
-  integrations: [react()],
+  integrations: [
+    react(),
+    // /merci/ est une page de confirmation post-formulaire — rien à indexer.
+    sitemap({ filter: (page) => !page.includes("/merci/") }),
+  ],
   vite: {
     plugins: [tailwindcss()],
   },

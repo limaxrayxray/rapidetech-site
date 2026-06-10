@@ -70,6 +70,30 @@ create_field home local_title string input 'null' \
   "Titre du bandeau « ancrage local » (villes desservies)"
 create_field home about_title string input 'null' \
   "Eyebrow de la section À propos (ex. « Qui je suis »)"
+create_field home contact_name_label string input 'null' \
+  "Formulaire — libellé du champ nom"
+create_field home contact_email_label string input 'null' \
+  "Formulaire — libellé du champ courriel"
+create_field home contact_phone_label string input 'null' \
+  "Formulaire — libellé du champ téléphone"
+create_field home contact_message_label string input 'null' \
+  "Formulaire — libellé du champ message"
+create_field home contact_submit_label string input 'null' \
+  "Formulaire — libellé du bouton d'envoi"
+create_field home contact_success_message string input 'null' \
+  "Formulaire — message de confirmation après envoi"
+create_field home contact_error_message string input 'null' \
+  "Formulaire — message en cas d'échec d'envoi"
+create_field home contact_direct_title string input 'null' \
+  "Contact — intertitre de la colonne tel/courriel (ex. « Vous préférez parler à quelqu'un ? »)"
+
+echo "── Champs CIRCUIT sur \`services\` (pages dédiées /services/<slug>/) ──"
+create_field services slug string input 'null' \
+  "Slug d'URL de la page service (ex. gestion-ti) — minuscules, sans accents"
+create_field services body text input-multiline 'null' \
+  "Corps long de la page service — paragraphes séparés par une ligne vide"
+create_field services benefits json list "${LIST_VALUE_OPTIONS}" \
+  "Bénéfices concrets affichés en liste (page service + overlay)"
 
 echo "── Champs CIRCUIT sur \`site_settings\` ──"
 create_field site_settings cities json list "${LIST_VALUE_OPTIONS}" \
@@ -100,6 +124,11 @@ for spec in \
   home:hero_title_line1 home:hero_title_ghost home:hero_scramble_words \
   home:hero_title_line3 home:marquee_items home:testimonials_title \
   home:local_title home:about_title \
+  home:contact_name_label home:contact_email_label home:contact_phone_label \
+  home:contact_message_label home:contact_submit_label \
+  home:contact_success_message home:contact_error_message \
+  home:contact_direct_title \
+  services:slug services:body services:benefits \
   site_settings:cities site_settings:google_rating \
   site_settings:google_reviews_count site_settings:coordinates \
   site_settings:status_message site_settings:nav_links \

@@ -9,8 +9,14 @@ SSH_KEY="$HOME/.ssh/galx_deploy"     # clé de déploiement dédiée (nom non st
 
 cd "$REPO_DIR"
 
-echo "→ pull"
-git pull --ff-only
+# Le pull peut remplacer CE script pendant que bash le lit (bash lit au fil de
+# l'eau → on exécuterait un mélange ancien/nouveau code). Donc : pull, puis
+# ré-exécution de la version fraîchement tirée, qui saute le pull (garde env).
+if [[ "${DEPLOY_PULLED:-}" != "1" ]]; then
+  echo "→ pull"
+  git pull --ff-only
+  DEPLOY_PULLED=1 exec bash "$REPO_DIR/deploy/deploy.sh"
+fi
 
 echo "→ build (lit Directus via .env : DIRECTUS_URL + DIRECTUS_TOKEN)"
 npm ci

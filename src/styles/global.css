@@ -285,6 +285,18 @@ body::after {
   opacity: 0.9;
 }
 
+/* La grille est absolue → elle se peindrait PAR-DESSUS le texte statique du
+   hero (points visibles à travers les lettres du titre). On remonte le contenu. */
+.rt-hero-eyebrow,
+.rt-h1,
+.rt-hero-foot {
+  position: relative;
+  z-index: 1;
+}
+.rt-status {
+  z-index: 1; /* déjà position:absolute — ne pas toucher à sa position */
+}
+
 .rt-hero-eyebrow {
   font-family: var(--font-mono);
   font-size: var(--text-label);

@@ -1,5 +1,14 @@
 #!/usr/bin/env node
-// Synchronise les avis Google Business → Directus (témoignages + note/compte).
+// Synchronise la fiche Google Business → Directus.
+// PAR DÉFAUT : seulement site_settings.google_rating / google_reviews_count
+// (bandeau « 4,9 ★ — N avis vérifiés » + JSON-LD AggregateRating).
+// Les témoignages affichés sont saisis À LA MAIN dans Directus (l'API publique
+// est limitée à ~5 avis « pertinents » — choix client : sa propre sélection
+// parmi tous ses avis est plus riche pour la rotation).
+//
+// Pour réactiver l'import automatique des ~5 avis : GOOGLE_IMPORT_REVIEWS=1
+// (dédupliqué par google_review_id ; ne touche jamais aux témoignages manuels).
+//
 // À exécuter sur la machine qui voit Directus (cron quotidien recommandé) :
 //
 //   GOOGLE_PLACES_API_KEY=xxx DIRECTUS_ADMIN_TOKEN=yyy node deploy/sync-google-reviews.mjs
@@ -9,23 +18,14 @@
 // AFFICHE le Place ID trouvé, puis continue. Mets-le ensuite dans le cron pour
 // économiser une requête.
 //
-// Ce que ça fait :
-//  1. interroge l'API Places (New) — note, nombre d'avis, et les ~5 avis les
-//     plus pertinents (limite de l'API publique de Google) ;
-//  2. upsert dans `testimonials` (dédupliqué par google_review_id — les champs
-//     sont créés au besoin) ; les témoignages saisis À LA MAIN ne sont jamais
-//     touchés ;
-//  3. met à jour site_settings.google_rating / google_reviews_count ;
-//  4. vide le cache Directus puis VÉRIFIE par un GET (pièges connus — voir
-//     CLAUDE.md). La sauvegarde déclenche le Flow → le site se redéploie seul.
-//
 // Cron suggéré (crontab -e) :
-//   15 6 * * *  cd /opt/rapidetech-site && GOOGLE_PLACES_API_KEY=... GOOGLE_PLACE_ID=... DIRECTUS_ADMIN_TOKEN=... node deploy/sync-google-reviews.mjs >> /var/log/rapidetech-reviews.log 2>&1
+//   15 6 * * *  cd /opt/rapidetech-site && set -a && . ./.env && set +a && node deploy/sync-google-reviews.mjs >> /var/log/rapidetech-reviews.log 2>&1
 
 const GOOGLE_KEY = need("GOOGLE_PLACES_API_KEY");
 const DIRECTUS_URL = process.env.DIRECTUS_URL || "http://localhost:8055";
 const ADMIN_TOKEN = need("DIRECTUS_ADMIN_TOKEN");
 const PLACE_QUERY = process.env.GOOGLE_PLACE_QUERY || "Rapidetech Blainville QC";
+const IMPORT_REVIEWS = process.env.GOOGLE_IMPORT_REVIEWS === "1";
 let PLACE_ID = process.env.GOOGLE_PLACE_ID || "";
 
 function need(name) {
@@ -108,12 +108,15 @@ async function resolvePlaceId() {
 }
 
 async function fetchPlace(placeId) {
+  const fieldMask = IMPORT_REVIEWS
+    ? "rating,userRatingCount,reviews"
+    : "rating,userRatingCount";
   const res = await fetch(
     `https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}?languageCode=fr`,
     {
       headers: {
         "X-Goog-Api-Key": GOOGLE_KEY,
-        "X-Goog-FieldMask": "rating,userRatingCount,reviews",
+        "X-Goog-FieldMask": fieldMask,
       },
     }
   );
@@ -123,42 +126,47 @@ async function fetchPlace(placeId) {
 
 // ── 3. Upsert ──
 async function run() {
-  await ensureFields();
-
   if (!PLACE_ID) PLACE_ID = await resolvePlaceId();
   const place = await fetchPlace(PLACE_ID);
-  const reviews = place.reviews || [];
-  log(`note ${place.rating} · ${place.userRatingCount} avis · ${reviews.length} avis détaillés reçus`);
+  log(`note ${place.rating} · ${place.userRatingCount} avis`);
 
-  const existing = await directus(
-    "GET",
-    `/items/testimonials?filter[source][_eq]=google&fields=id,google_review_id,sort&limit=-1`
-  );
-  const byReviewId = new Map(existing.map((t) => [t.google_review_id, t]));
+  if (IMPORT_REVIEWS) {
+    await ensureFields();
+    const reviews = place.reviews || [];
+    log(`${reviews.length} avis détaillés reçus (GOOGLE_IMPORT_REVIEWS=1)`);
 
-  const all = await directus("GET", `/items/testimonials?fields=sort&limit=-1`);
-  let nextSort = Math.max(0, ...all.map((t) => t.sort || 0)) + 1;
+    const existing = await directus(
+      "GET",
+      `/items/testimonials?filter[source][_eq]=google&fields=id,google_review_id,sort&limit=-1`
+    );
+    const byReviewId = new Map(existing.map((t) => [t.google_review_id, t]));
 
-  for (const r of reviews) {
-    const reviewId = r.name; // ex. places/<id>/reviews/<id>
-    const text = (r.text?.text || r.originalText?.text || "").trim();
-    if (!text) continue; // note sans commentaire → rien à afficher
-    const item = {
-      name: r.authorAttribution?.displayName || "Client Google",
-      detail: `Avis Google — ${r.relativePublishTimeDescription || ""}`.trim(),
-      rating: r.rating ?? null,
-      quote: text,
-      source: "google",
-      google_review_id: reviewId,
-    };
-    const found = byReviewId.get(reviewId);
-    if (found) {
-      await directus("PATCH", `/items/testimonials/${found.id}`, item);
-      log(`~ avis mis à jour : ${item.name}`);
-    } else {
-      await directus("POST", `/items/testimonials`, { ...item, sort: nextSort++ });
-      log(`+ avis ajouté : ${item.name}`);
+    const all = await directus("GET", `/items/testimonials?fields=sort&limit=-1`);
+    let nextSort = Math.max(0, ...all.map((t) => t.sort || 0)) + 1;
+
+    for (const r of reviews) {
+      const reviewId = r.name; // ex. places/<id>/reviews/<id>
+      const text = (r.text?.text || r.originalText?.text || "").trim();
+      if (!text) continue; // note sans commentaire → rien à afficher
+      const item = {
+        name: r.authorAttribution?.displayName || "Client Google",
+        detail: `Avis Google — ${r.relativePublishTimeDescription || ""}`.trim(),
+        rating: r.rating ?? null,
+        quote: text,
+        source: "google",
+        google_review_id: reviewId,
+      };
+      const found = byReviewId.get(reviewId);
+      if (found) {
+        await directus("PATCH", `/items/testimonials/${found.id}`, item);
+        log(`~ avis mis à jour : ${item.name}`);
+      } else {
+        await directus("POST", `/items/testimonials`, { ...item, sort: nextSort++ });
+        log(`+ avis ajouté : ${item.name}`);
+      }
     }
+  } else {
+    log("import des avis désactivé (témoignages saisis à la main dans Directus)");
   }
 
   // Note + nombre d'avis (bandeau « ancrage local » + JSON-LD)

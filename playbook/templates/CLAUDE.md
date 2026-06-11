@@ -77,6 +77,15 @@ cette policy** (les scripts de setup le font ; sinon fallback silencieux).
 - Tout passe par `deploy/directus-setup.sh` (idempotent, token admin).
 
 ## Patterns front établis
+- **Échelle typo : tokens centralisés, 3 paliers** (détail : playbook
+  fiche 02) : base px (mobile) → `≥1100px` px plus gros (validés par le
+  client sur SON écran) → `≥2000px` tout en vw (= taille à 1920 ÷ 1920 :
+  proportions d'un 1080p sur 2K/4K). JAMAIS de `font-size` en px dur dans un
+  composant — toujours un token (`--text-body`, `--text-ui`, `--text-label`…).
+  Hero : `clamp(min_mobile, taille_1080p÷1920 vw, max_4K)`.
+  ⚠️ Ne jamais calibrer un coefficient vw sur une mesure rapportée par le
+  client : sa fenêtre CSS est peut-être rétrécie (DevTools, zoom, échelle
+  Windows) — ancrer sur un vrai 1920 plein écran.
 - Reveals d'entrée : CSS pur gaté par `html.js` + `body.loaded` (script inline
   du layout, rejoué sur `astro:page-load`) → no-JS safe.
 - Boucles d'animation coupées sous `prefers-reduced-motion`.

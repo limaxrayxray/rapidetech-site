@@ -34,7 +34,8 @@ Donne à Claude (claude.ai, mode chat/artefacts) :
 >    signatures visuelles récurrentes.
 > 2. **tokens.css** : palette complète en variables CSS préfixées
 >    (`--xx-*`) + alias sémantiques (`--accent`, `--text-primary`,
->    `--surface-deep`…), échelle typo (display/body/mono + tailles clamp),
+>    `--surface-deep`…), échelle typo (display/body/mono + tailles clamp —
+>    la phase build la déclinera en 3 paliers responsives, voir fiche 02),
 >    espacements, durées d'animation.
 > 3. **Choix de fonts auto-hébergeables** (licence libre — Fontshare,
 >    Google Fonts en woff2) : display, texte, mono.

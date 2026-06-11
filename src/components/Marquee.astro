@@ -11,7 +11,10 @@ const { items } = Astro.props;
 {items.length > 0 && (
   <div class="rt-marquee" aria-hidden="true">
     <div class="rt-marquee-track">
-      {[0, 1].map(() =>
+      {/* 8 répétitions (2 moitiés identiques de 4) : chaque moitié doit être
+          plus large que l'écran, sinon un trou apparaît en fin de boucle sur
+          les grands moniteurs. La durée est ×4 pour garder la même vitesse. */}
+      {[0, 1, 2, 3, 4, 5, 6, 7].map(() =>
         items.map((item) => <span class="rt-marquee-item">{item}</span>)
       )}
     </div>
@@ -32,7 +35,7 @@ const { items } = Astro.props;
     display: flex;
     gap: 0;
     width: max-content;
-    animation: rt-scroll 28s linear infinite;
+    animation: rt-scroll 112s linear infinite;
   }
   .rt-marquee:hover .rt-marquee-track {
     animation-play-state: paused;

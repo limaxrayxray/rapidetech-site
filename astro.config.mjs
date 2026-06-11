@@ -19,8 +19,10 @@ export default defineConfig({
   },
   integrations: [
     react(),
-    // /merci/ est une page de confirmation post-formulaire — rien à indexer.
-    sitemap({ filter: (page) => !page.includes("/merci/") }),
+    // /merci/ (confirmation post-formulaire) et /404/ n'ont rien à indexer.
+    sitemap({
+      filter: (page) => !page.includes("/merci/") && !page.includes("/404"),
+    }),
   ],
   vite: {
     plugins: [tailwindcss()],

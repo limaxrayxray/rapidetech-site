@@ -98,7 +98,8 @@ Réflexe : après création de collection(s)/champ(s) via API, flush le cache ; 
 - **`testimonials`** (collection) : `name`, `detail`, `rating` (1-5, optionnel), `quote`, `sort`.
 - **`partners`** (collection) : `name`, `logo` (uuid → directus_files), `url`, `sort`.
 - **`about`** (singleton) : `name`, `role`, `bio`, `values` (JSON liste), `photo` (uuid → directus_files).
-- **`site_settings`** (singleton) : `company_name`, `phone`, `email`, `hours`, `city`, `service_area`, `google_reviews_url`, `footer_tagline`, `meta_title`, `meta_description`, `cities` (JSON liste — bandeau ancrage local, la 1re ville est en gras), `google_rating`, `google_reviews_count`, `coordinates`, `status_message`, `nav_links` (JSON liste label+href), `nav_cta_label`, `nav_cta_href`.
+- **`site_settings`** (singleton) : `company_name`, `phone`, `email`, `hours`, `city`, `service_area`, `google_reviews_url`, `footer_tagline`, `meta_title`, `meta_description`, `cities` (JSON liste — bandeau ancrage local, la 1re ville est en gras), `google_rating`, `google_reviews_count`, `coordinates`, `status_message`, `nav_links` (JSON liste label+href), `nav_cta_label`, `nav_cta_href`, `privacy_link_label` (lien footer vers /confidentialite/), `notfound_title`/`notfound_body`/`notfound_cta_label` (page 404).
+- **`privacy`** (singleton) : `title`, `updated` (date affichée telle quelle), `body` (texte long — blocs séparés par ligne vide ; « ## Titre » = intertitre ; bloc de lignes « - » = liste à puces). Page `/confidentialite/` (Loi 25), liée depuis le footer. Collection + permission read de la policy de build créées par `deploy/directus-circuit-setup.sh`.
 - Crée un token statique **lecture seule** pour le build, mets-le dans `.env` (`DIRECTUS_TOKEN`).
 - Étends le modèle au besoin (réalisations, FAQ, etc.) — toujours : champ Directus → prop → composant.
 
@@ -139,7 +140,9 @@ Dans `index.astro`, le helper `localizeImage(fileId, width)` enrobe `getImage({ 
 
 ### SEO
 - `SITE_ENV=preprod` dans le `.env` de build → robots.txt « Disallow: / » + meta noindex partout (dev.galx.ca ne doit jamais être indexé). Au lancement : retirer la variable, rebuilder.
-- Sitemap (`@astrojs/sitemap`, `/merci/` exclu), canonical, Open Graph (`public/og.png`), favicon.svg, JSON-LD ProfessionalService sur l'accueil (AggregateRating seulement si `google_reviews_count` est renseigné).
+- Sitemap (`@astrojs/sitemap`, `/merci/` et `/404` exclus), canonical, Open Graph (`public/og.png`), favicon.svg, JSON-LD ProfessionalService sur l'accueil (AggregateRating seulement si `google_reviews_count` est renseigné).
+- Page 404 (`src/pages/404.astro` → `dist/404.html`, noindex) : Nginx ne la sert PAS tout seul — ajouter `error_page 404 /404.html;` dans le vhost (CloudPanel → Vhost Editor).
+- `/confidentialite/` : politique de confidentialité (Loi 25), contenu = singleton `privacy`, indexable, dans le sitemap.
 
 ## Commandes
 - `npm run dev` — dev local.

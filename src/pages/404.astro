@@ -1,0 +1,92 @@
+---
+// Page 404 — Astro émet dist/404.html ; Nginx doit la servir via
+// `error_page 404 /404.html;` dans le vhost (CloudPanel → Vhost Editor).
+// Contenu depuis site_settings (fallback complet). noindex, hors sitemap.
+import Base from "@/layouts/Base.astro";
+import { getSiteSettings } from "@/lib/directus";
+
+const settings = await getSiteSettings();
+const title = `${settings.notfound_title} — ${settings.company_name}`;
+---
+
+<Base title={title} noindex={true}>
+  <main class="rt-404">
+    <p class="rt-404-eyebrow">/ Erreur — 404</p>
+    <p class="rt-404-code" aria-hidden="true">404</p>
+    <h1 class="rt-404-title">{settings.notfound_title}</h1>
+    <p class="rt-404-body">{settings.notfound_body}</p>
+    <a href="/" class="rt-404-cta">
+      {settings.notfound_cta_label} <span aria-hidden="true">→</span>
+    </a>
+  </main>
+</Base>
+
+<style>
+  .rt-404 {
+    position: relative;
+    z-index: 2;
+    padding: var(--section-pad);
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 980px;
+  }
+  .rt-404-eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 16px;
+  }
+  /* Code géant en contour — même traitement que le mot fantôme du hero. */
+  .rt-404-code {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(96px, 18vw, 240px);
+    line-height: 0.9;
+    letter-spacing: var(--tracking-display);
+    color: transparent;
+    -webkit-text-stroke: 1px var(--text-tertiary);
+    margin: 0 0 24px;
+    user-select: none;
+  }
+  .rt-404-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(30px, 4vw, 52px);
+    line-height: var(--leading-display);
+    letter-spacing: var(--tracking-display);
+    text-transform: uppercase;
+    color: var(--text-primary);
+    margin: 0 0 16px;
+  }
+  .rt-404-body {
+    font-family: var(--font-body);
+    font-size: var(--text-body);
+    line-height: var(--leading-body);
+    color: var(--text-secondary);
+    max-width: 520px;
+    margin: 0 0 36px;
+  }
+  .rt-404-cta {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--accent);
+    color: var(--text-on-accent);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 18px 30px;
+    transition: background var(--dur-fast);
+  }
+  .rt-404-cta:hover {
+    background: var(--accent-hover);
+  }
+</style>

@@ -88,6 +88,25 @@ export interface SiteSettings {
   nav_links: { label: string; href: string }[];
   nav_cta_label: string;
   nav_cta_href: string;
+  /** Libellé du lien footer vers /confidentialite/. */
+  privacy_link_label: string;
+  /** Page 404. */
+  notfound_title: string;
+  notfound_body: string;
+  notfound_cta_label: string;
+}
+
+/** Singleton `privacy` — politique de confidentialité (Loi 25). */
+export interface Privacy {
+  title: string;
+  /** Date de dernière mise à jour, affichée telle quelle (ex. « 11 juin 2026 »). */
+  updated: string;
+  /**
+   * Corps de la politique. Convention : blocs séparés par une ligne vide ;
+   * un bloc « ## Titre » devient un intertitre ; un bloc dont chaque ligne
+   * commence par « - » devient une liste à puces ; sinon, paragraphe.
+   */
+  body: string;
 }
 
 export interface Partner {
@@ -130,6 +149,7 @@ interface Schema {
   testimonials: Testimonial[];
   site_settings: SiteSettings;
   partners: Partner[];
+  privacy: Privacy;
 }
 
 const DIRECTUS_URL = import.meta.env.DIRECTUS_URL ?? "http://localhost:8055";
@@ -336,6 +356,52 @@ const FALLBACK_SITE_SETTINGS: SiteSettings = {
   ],
   nav_cta_label: "Parler à Alexandre",
   nav_cta_href: "#contact",
+  privacy_link_label: "Politique de confidentialité",
+  notfound_title: "Page introuvable",
+  notfound_body:
+    "Cette page n'existe pas — ou son adresse a changé lors de la refonte du site. Le contenu que vous cherchez est probablement sur l'accueil.",
+  notfound_cta_label: "Retour à l'accueil",
+};
+
+const FALLBACK_PRIVACY: Privacy = {
+  title: "Politique de confidentialité",
+  updated: "11 juin 2026",
+  body: `## Qui nous sommes
+
+Rapidetech (« nous ») est une entreprise de services informatiques établie sur la Rive-Nord de Montréal. La présente politique décrit quels renseignements personnels nous recueillons par l'entremise de ce site, pourquoi nous les recueillons et comment nous les protégeons, conformément à la Loi 25 (protection des renseignements personnels dans le secteur privé au Québec).
+
+Responsable de la protection des renseignements personnels : Alexandre Martin — info@rapidetech.ca.
+
+## Ce que nous recueillons
+
+- Formulaire de contact : votre nom, votre courriel, votre numéro de téléphone (si vous le fournissez) et votre message.
+- Adresse IP au moment de l'envoi du formulaire, à des fins de prévention des abus et du pourriel.
+
+Ce site n'utilise aucun témoin (cookie) de suivi, aucun outil publicitaire et aucun pixel de réseaux sociaux.
+
+## Pourquoi nous les recueillons
+
+Uniquement pour répondre à votre demande et assurer le suivi de nos échanges. Nous ne vendons, ne louons et ne partageons jamais vos renseignements à des fins commerciales, et nous ne vous abonnons à aucune infolettre sans votre consentement explicite.
+
+## Avec qui ils sont partagés
+
+Vos renseignements ne sont communiqués qu'aux fournisseurs techniques strictement nécessaires au fonctionnement du site : notre hébergeur et notre service d'acheminement de courriels. Certains de ces fournisseurs peuvent conserver des données à l'extérieur du Québec ; nous retenons des fournisseurs reconnus qui offrent des protections adéquates.
+
+## Combien de temps nous les conservons
+
+Les messages reçus sont conservés le temps de traiter votre demande et d'assurer un suivi raisonnable, puis supprimés. Vous pouvez en demander la suppression en tout temps.
+
+## Vos droits
+
+Vous pouvez demander l'accès aux renseignements que nous détenons à votre sujet, les faire rectifier ou supprimer, ou retirer votre consentement. Écrivez au responsable de la protection des renseignements personnels (coordonnées ci-dessus) ; nous vous répondrons dans un délai de 30 jours.
+
+## Incident de confidentialité
+
+Si un incident touchant vos renseignements personnels survenait, nous vous en aviserions, ainsi que la Commission d'accès à l'information du Québec lorsque la loi l'exige.
+
+## Mises à jour de cette politique
+
+Cette politique peut évoluer ; la date de la dernière révision figure en haut de la page.`,
 };
 
 const FALLBACK_PARTNERS: Partner[] = [];
@@ -383,6 +449,14 @@ export async function getHome(): Promise<HomeContent> {
     return fillEmpty(await client.request(readSingleton("home")), FALLBACK_HOME);
   } catch {
     return FALLBACK_HOME;
+  }
+}
+
+export async function getPrivacy(): Promise<Privacy> {
+  try {
+    return fillEmpty(await client.request(readSingleton("privacy")), FALLBACK_PRIVACY);
+  } catch {
+    return FALLBACK_PRIVACY;
   }
 }
 

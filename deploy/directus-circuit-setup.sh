@@ -95,6 +95,62 @@ create_field services body text input-multiline 'null' \
 create_field services benefits json list "${LIST_VALUE_OPTIONS}" \
   "Bénéfices concrets affichés en liste (page service + overlay)"
 
+echo "── Collection singleton \`privacy\` (politique de confidentialité — Loi 25) ──"
+# PK integer auto-increment : évite le piège UUID (meta.special obligatoire).
+if curl -sf "${auth[@]}" "${DIRECTUS_URL}/collections/privacy" > /dev/null 2>&1; then
+  echo "  = collection privacy existe déjà — sautée"
+else
+  curl -sf "${auth[@]}" -X POST "${DIRECTUS_URL}/collections" -d '{
+    "collection": "privacy",
+    "meta": {
+      "singleton": true,
+      "icon": "admin_panel_settings",
+      "note": "Politique de confidentialité (Loi 25) — page /confidentialite/",
+      "display_template": "{{title}}"
+    },
+    "schema": {},
+    "fields": [
+      {
+        "field": "id",
+        "type": "integer",
+        "meta": { "hidden": true, "readonly": true },
+        "schema": { "is_primary_key": true, "has_auto_increment": true }
+      }
+    ]
+  }' > /dev/null
+  echo "  + collection privacy créée"
+fi
+create_field privacy title string input 'null' \
+  "Titre de la page (ex. « Politique de confidentialité »)"
+create_field privacy updated string input 'null' \
+  "Date de dernière mise à jour, affichée telle quelle (ex. « 11 juin 2026 »)"
+create_field privacy body text input-multiline 'null' \
+  "Corps : blocs séparés par une ligne vide · « ## Titre » = intertitre · lignes « - » = liste à puces"
+
+# ⚠️ Toute nouvelle collection lue au build → permission read pour la policy
+# « Build — lecture seule » (voir CLAUDE.md), sinon fallback silencieux au build.
+policy_id=$(curl -sfg "${auth[@]}" \
+  "${DIRECTUS_URL}/policies?filter[name][_eq]=Build%20%E2%80%94%20lecture%20seule&fields=id" \
+  | sed -n 's/.*"id":"\([^"]*\)".*/\1/p')
+if [ -z "${policy_id}" ]; then
+  echo "  ⚠ policy « Build — lecture seule » introuvable — ajouter la permission read sur privacy À LA MAIN"
+else
+  has_perm=$(curl -sfg "${auth[@]}" \
+    "${DIRECTUS_URL}/permissions?filter[policy][_eq]=${policy_id}&filter[collection][_eq]=privacy&filter[action][_eq]=read&fields=id" \
+    | sed -n 's/.*"id":\([0-9]*\).*/\1/p')
+  if [ -n "${has_perm}" ]; then
+    echo "  = permission read(privacy) existe déjà pour la policy de build — sautée"
+  else
+    curl -sf "${auth[@]}" -X POST "${DIRECTUS_URL}/permissions" -d "{
+      \"policy\": \"${policy_id}\",
+      \"collection\": \"privacy\",
+      \"action\": \"read\",
+      \"fields\": [\"*\"]
+    }" > /dev/null
+    echo "  + permission read(privacy) ajoutée à la policy de build"
+  fi
+fi
+
 echo "── Champs CIRCUIT sur \`site_settings\` ──"
 create_field site_settings cities json list "${LIST_VALUE_OPTIONS}" \
   "Villes desservies (bandeau ancrage local). La 1re est mise en gras"
@@ -112,6 +168,14 @@ create_field site_settings nav_cta_label string input 'null' \
   "Libellé du bouton CTA de l'en-tête (ex. « Parler à Alexandre »)"
 create_field site_settings nav_cta_href string input 'null' \
   "Lien du bouton CTA de l'en-tête (ex. #contact)"
+create_field site_settings privacy_link_label string input 'null' \
+  "Libellé du lien footer vers /confidentialite/"
+create_field site_settings notfound_title string input 'null' \
+  "Page 404 — titre (ex. « Page introuvable »)"
+create_field site_settings notfound_body text input-multiline 'null' \
+  "Page 404 — texte explicatif"
+create_field site_settings notfound_cta_label string input 'null' \
+  "Page 404 — libellé du bouton retour (ex. « Retour à l'accueil »)"
 
 echo "── Flush du cache Directus (CACHE_AUTO_PURGE absent) ──"
 curl -sf "${auth[@]}" -X POST "${DIRECTUS_URL}/utils/cache/clear" > /dev/null \
@@ -132,7 +196,10 @@ for spec in \
   site_settings:cities site_settings:google_rating \
   site_settings:google_reviews_count site_settings:coordinates \
   site_settings:status_message site_settings:nav_links \
-  site_settings:nav_cta_label site_settings:nav_cta_href; do
+  site_settings:nav_cta_label site_settings:nav_cta_href \
+  site_settings:privacy_link_label site_settings:notfound_title \
+  site_settings:notfound_body site_settings:notfound_cta_label \
+  privacy:title privacy:updated privacy:body; do
   collection="${spec%%:*}"; field="${spec##*:}"
   if field_exists "$collection" "$field"; then
     echo "  ✓ ${collection}.${field}"

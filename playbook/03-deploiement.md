@@ -58,7 +58,13 @@ journal JSONL de secours → un lead n'est JAMAIS perdu. Sans JS : 303 → /merc
    n'oublie pas ; si ça arrive, révoquer la clé).
 3. crontab + premier run du watchdog, `curl http://127.0.0.1:<port>/healthz` → `ok`.
 4. CloudPanel → Vhost Editor :
-   `location /api/lead { proxy_pass http://127.0.0.1:<port>/lead; }`
+   ```nginx
+   location /api/lead {
+     proxy_pass http://127.0.0.1:<port>/lead;
+     proxy_set_header X-Forwarded-For $remote_addr;
+   }
+   ```
+   (sans X-Forwarded-For, le rate-limit voit tout le monde en 127.0.0.1)
    ⚠️ Si `EADDRINUSE` ou `connection reset` : le port par défaut (8788) est
    peut-être déjà pris par un service invisible d'un autre user → change
    `LEAD_PORT` ET le vhost (vécu : 8791).

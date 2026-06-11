@@ -14,9 +14,17 @@
 
 1. Créer le site `<client>.ca` dans CloudPanel (SSL), avec dans le vhost :
    ```nginx
-   location /api/lead { proxy_pass http://127.0.0.1:<LEAD_PORT>/lead; }
+   location /api/lead {
+     proxy_pass http://127.0.0.1:<LEAD_PORT>/lead;
+     proxy_set_header X-Forwarded-For $remote_addr;
+   }
    error_page 404 /404.html;
    ```
+   ⚠️ Sans `X-Forwarded-For`, le rate-limit du relais voit tous les visiteurs
+   comme 127.0.0.1 — un seul spammeur bloque les leads de tout le monde.
+   `$remote_addr` (et non `$proxy_add_x_forwarded_for`) : écrase un en-tête
+   forgé par le client. Le certificat doit couvrir apex ET www (le bloc www
+   termine le TLS avant de rediriger).
    + redirection www → apex.
 2. Pointer le DNS du client vers le VPS.
 3. Dans `deploy/deploy.sh` : `VPS_WEBROOT` → webroot du nouveau site (commit).

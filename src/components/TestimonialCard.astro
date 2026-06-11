@@ -6,12 +6,15 @@ interface Props {
   role?: string;
   index?: number;
   rating?: number | null;
+  /* Carte rendue mais masquée — le script de shuffle côté client (index.astro)
+     décide lesquelles montrer à chaque visite. */
+  hidden?: boolean;
 }
-const { quote, author, role, index, rating } = Astro.props;
+const { quote, author, role, index, rating, hidden } = Astro.props;
 const mark = index != null ? `// TÉMOIN ${String(index).padStart(2, "0")}` : "//";
 ---
 
-<figure class="rt-testim">
+<figure class="rt-testim" hidden={hidden}>
   <div class="rt-testim-head">
     <span class="rt-testim-mark">{mark}</span>
     {rating != null && rating > 0 && (
@@ -40,6 +43,10 @@ const mark = index != null ? `// TÉMOIN ${String(index).padStart(2, "0")}` : "/
   }
   .rt-testim:hover {
     border-color: var(--border-accent);
+  }
+  /* display:flex écraserait le display:none du [hidden] natif. */
+  .rt-testim[hidden] {
+    display: none;
   }
   .rt-testim-head {
     display: flex;

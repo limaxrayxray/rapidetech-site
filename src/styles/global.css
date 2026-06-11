@@ -133,6 +133,7 @@
   --text-body-sm: 15px;
   --text-label: 12px;
   --text-micro: 11px;
+  --text-ui: 13px; /* mono d'interface : boutons, CTA, formulaire, puces */
   --tracking-display: -0.02em;
   --tracking-label: 0.12em;
   --tracking-eyebrow: 0.22em;
@@ -161,6 +162,19 @@
   :root {
     --gutter-page: 20px;
     --section-pad: 64px var(--gutter-page) 72px;
+  }
+}
+
+/* Sur grand écran, l'échelle de lecture prend un cran de plus (retour
+   visiteurs : correct sur mobile, encore petit sur ordinateur). */
+@media (min-width: 1100px) {
+  :root {
+    --text-heading: 22px;
+    --text-body: 19px;
+    --text-body-sm: 16.5px;
+    --text-label: 13px;
+    --text-micro: 12px;
+    --text-ui: 14px;
   }
 }
 
@@ -197,6 +211,8 @@
 
 html {
   scroll-behavior: smooth;
+  /* Header sticky : les ancres (#services…) ne doivent pas finir dessous. */
+  scroll-padding-top: 84px;
 }
 
 body {
@@ -364,7 +380,7 @@ html.js body.loaded .rt-hero-sub {
   background: var(--accent);
   color: var(--text-on-accent);
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: var(--text-ui);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;

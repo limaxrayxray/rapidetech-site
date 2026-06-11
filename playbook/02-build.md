@@ -60,6 +60,37 @@ n'interviens que pour créer les tokens Directus et valider le rendu.
 - Formulaires : `data-astro-reload` + listener submit en phase CAPTURE
   (sinon le ClientRouter d'Astro intercepte le submit).
 
+## Échelle typographique responsive (système éprouvé — vécu Rapidetech)
+
+**Toutes** les tailles de texte passent par des tokens centralisés dans
+`global.css` (`--text-body`, `--text-body-sm`, `--text-heading`, `--text-ui`,
+`--text-label`, `--text-micro`…) — JAMAIS de `font-size` en px dur dans un
+composant : le jour où le client trouve « le texte trop petit » (ça arrive),
+l'ajustement se fait à UN endroit au lieu d'une chasse dans 10 fichiers.
+
+Trois paliers :
+
+| Palier | Unités | Pourquoi |
+|---|---|---|
+| Base (mobile/tablette) | px fixes | lisibilité d'abord, écran tenu près |
+| `≥1100px` (desktop) | px fixes, un cran plus gros | à faire **valider par le client sur SON écran** |
+| `≥2000px` (2K/4K/télé) | `vw` : chaque valeur = taille validée à 1920 ÷ 1920 | un grand écran garde exactement les proportions d'un 1080p |
+
+Les tailles display (titre de hero) : `clamp(min_mobile, Xvw, max_4K)` avec
+**X = taille voulue sur 1080p ÷ 1920** (ex. 106px → 5.5vw).
+
+⚠️ **Piège vécu — calibration sur fenêtre rétrécie** : une taille « mesurée »
+par le client peut venir d'une fenêtre CSS réduite (DevTools ouvert, zoom
+navigateur, échelle d'affichage Windows). Un coefficient `vw` calibré
+là-dessus rend DEUX FOIS trop gros en vrai plein écran. Toujours ancrer les
+coefficients sur un vrai 1920 et confronter à des captures plein écran du
+client avant de fixer quoi que ce soit.
+
+Validation headless (Playwright) : largeurs 390 / 1440 / 1920 / 2560 / 3840
+avec des hauteurs RÉALISTES (un 1080p avec barre de navigateur ≈ 937px
+utiles) — hero complet au-dessus du pli (sous-titre + CTA visibles), aucun
+débordement horizontal, tailles calculées conformes au tableau.
+
 ## 👤 Toi — boucle de validation
 
 - [ ] `bash deploy/directus-setup.sh` (token admin) sur la machine Directus

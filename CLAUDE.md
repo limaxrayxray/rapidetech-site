@@ -108,6 +108,7 @@ Réflexe : après création de collection(s)/champ(s) via API, flush le cache ; 
 ### Direction artistique CIRCUIT (en vigueur)
 Le style du site = design system `design_handoff_site_rapidetech/` (tokens, composants, readme = source de vérité). Points clés :
 - Tokens CSS CIRCUIT dans `src/styles/global.css` (`--rt-*` + alias sémantiques), pontés vers les alias shadcn via `@theme inline` — les composants 21st.dev se thèment seuls.
+- **Échelle typo : 3 paliers, tout en tokens** (`--text-body`, `--text-ui`, `--text-label`, `--text-micro`…) — JAMAIS de `font-size` en px dur dans un composant. Base px (mobile) → `≥1100px` px plus gros (validés client) → `≥2000px` tout en vw (= taille à 1920 ÷ 1920 : un 2K/4K garde les proportions d'un 1080p). Hero : `clamp(52px, 5.5vw, 212px)` = 106px sur 1080p. ⚠️ Ne jamais calibrer un coefficient vw sur une mesure rapportée (fenêtre possiblement rétrécie par DevTools/zoom/échelle Windows) : ancrer sur un vrai 1920 plein écran.
 - Fonts auto-hébergées dans `public/fonts/` (Clash Display, General Sans, Space Mono). Pas de CDN.
 - Composants `.astro` purs (zéro JS) : `Logo`, `Button`, `SectionHeader`, `ServiceRow`, `TestimonialCard`, `Marquee` (piste dupliquée côté serveur). Seul îlot React : `Hero.tsx` (scramble, horloge, ping, CTA magnétique), monté `client:idle`.
 - Reveals d'entrée : CSS pur, gated par `html.js` (posé dans `<head>`) + `body.loaded` (script inline de `Base.astro`, rejoué sur `astro:page-load`) → no-JS safe, indépendant de l'hydratation.

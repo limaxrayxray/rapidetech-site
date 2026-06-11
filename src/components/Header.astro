@@ -20,14 +20,19 @@ const { settings } = Astro.props;
 
 <style>
   .rt-nav {
-    position: relative;
-    z-index: 10;
+    position: sticky;
+    top: 0;
+    z-index: 40; /* au-dessus du contenu ; le <dialog> des services est dans
+                    le top layer natif, donc toujours par-dessus le header. */
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 var(--gutter-page);
     height: 68px;
     border-bottom: 1px solid var(--border-default);
+    background: rgba(10, 10, 10, 0.88);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
   }
   .rt-nav-links {
     display: flex;

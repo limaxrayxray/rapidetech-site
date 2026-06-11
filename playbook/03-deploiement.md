@@ -65,7 +65,14 @@ journal JSONL de secours → un lead n'est JAMAIS perdu. Sans JS : 303 → /merc
 5. ✅ Test de bout en bout : formulaire sur dev.* → courriel reçu (vérifier
    aussi le dossier indésirable).
 
-## D. Avis Google → Directus (`deploy/sync-google-reviews.mjs`)
+## D. Note Google → Directus (`deploy/sync-google-reviews.mjs`)
+
+Par défaut le script ne synchronise QUE la note + le nombre d'avis
+(bandeau « 4,9 ★ — N avis » + JSON-LD AggregateRating). Les témoignages
+affichés se saisissent à la main dans Directus : l'API publique est limitée
+à ~5 avis « pertinents », alors que le client peut piocher dans TOUS ses
+avis — rotation plus riche. `GOOGLE_IMPORT_REVIEWS=1` réactive l'import
+auto des ~5 avis (dédupliqué, ne touche jamais les témoignages manuels).
 
 🤖 Adapter `GOOGLE_PLACE_QUERY` (« <Client> <Ville> QC »).
 
@@ -83,8 +90,9 @@ journal JSONL de secours → un lead n'est JAMAIS perdu. Sans JS : 303 → /merc
    15 6 * * * cd /opt/<client>-site && set -a && . ./.env && set +a && node deploy/sync-google-reviews.mjs >> /var/log/<client>-reviews.log 2>&1
    ```
 
-Le script déduplique par `google_review_id`, ne touche jamais aux témoignages
-manuels, et met à jour note + nombre d'avis (affichés + JSON-LD).
+Le script met à jour note + nombre d'avis (affichés + JSON-LD) ; en mode
+import (`GOOGLE_IMPORT_REVIEWS=1`) il déduplique par `google_review_id` et ne
+touche jamais aux témoignages manuels.
 
 ## Sortie de phase
 

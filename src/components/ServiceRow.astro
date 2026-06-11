@@ -119,9 +119,16 @@ const numLabel = `/ ${String(num).padStart(2, "0")}`;
   }
   @media (max-width: 720px) {
     .rt-svc {
-      grid-template-columns: 44px minmax(0, 1fr) 32px;
+      grid-template-columns: 36px minmax(0, 1fr) 24px;
       padding: 28px 12px;
-      gap: 16px;
+      gap: 12px;
+    }
+    /* La colonne titre fait ~250px sur un téléphone : à 34px (min du token
+       display), « INFRASTRUCTURE » déborde et se fait rogner par
+       l'overflow:hidden de la rangée. Taille fluide calibrée pour que le
+       mot le plus long tienne dès 360px de large. */
+    .rt-svc-title {
+      font-size: clamp(17px, 5.6vw, 30px);
     }
     .rt-svc-desc { grid-column: 1 / -1; }
   }

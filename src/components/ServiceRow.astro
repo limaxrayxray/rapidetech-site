@@ -82,6 +82,11 @@ const numLabel = `/ ${String(num).padStart(2, "0")}`;
   .rt-svc-arr {
     font-family: var(--font-display);
     font-size: 30px;
+  }
+  @media (min-width: 2000px) {
+    .rt-svc-arr { font-size: 1.56vw; }
+  }
+  .rt-svc-arr {
     color: var(--rt-line-hi);
     justify-self: end;
     transition: color 0.25s, transform var(--dur-base) var(--ease-out-expo);

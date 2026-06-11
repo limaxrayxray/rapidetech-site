@@ -61,6 +61,10 @@ const { items } = Astro.props;
     color: var(--accent);
     font-size: 13px;
   }
+  @media (min-width: 2000px) {
+    .rt-marquee-item { font-size: 0.78vw; }
+    .rt-marquee-item::after { font-size: 0.68vw; }
+  }
 
   @media (prefers-reduced-motion: reduce) {
     .rt-marquee-track { animation: none; }

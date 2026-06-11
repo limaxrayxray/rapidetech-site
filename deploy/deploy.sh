@@ -3,8 +3,8 @@
 set -euo pipefail
 
 REPO_DIR="/opt/rapidetech-site"      # le clone git du site
-VPS_SSH="galx-dev-ssh@138.197.137.205"          # user SSH du site CloudPanel
-VPS_WEBROOT="/home/galx-dev/htdocs/dev.galx.ca"  # root du site statique CloudPanel (via le symlink htdocs/)
+VPS_SSH="rapidetech-ssh@138.197.137.205"        # user SSH du site CloudPanel (site user: rapidetech)
+VPS_WEBROOT="/home/rapidetech/htdocs/rapidetech.ca"  # root du site statique CloudPanel
 SSH_KEY="$HOME/.ssh/galx_deploy"     # clé de déploiement dédiée (nom non standard → à préciser explicitement)
 
 cd "$REPO_DIR"

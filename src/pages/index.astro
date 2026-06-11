@@ -61,8 +61,10 @@ const scrambleWords = home.hero_scramble_words.map((w) => w.value);
 const marqueeItems = home.marquee_items.map((m) => m.value);
 const cities = siteSettings.cities.map((c) => c.value);
 
-// Témoignages randomisés À CHAQUE BUILD (Fisher-Yates) — et chaque sauvegarde
-// Directus redéclenche un build via le Flow, donc l'ordre tourne réellement.
+// Témoignages randomisés À CHAQUE BUILD (Fisher-Yates) — et re-mélangés côté
+// client À CHAQUE VISITE (script en bas de page). On rend TOUTES les cartes ;
+// celles au-delà de TESTIMONIALS_SHOWN sont masquées (hidden) — sans JS, les
+// premières du shuffle de build restent affichées.
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -71,7 +73,8 @@ function shuffle<T>(arr: T[]): T[] {
   }
   return a;
 }
-const displayedTestimonials = shuffle(testimonials).slice(0, 6);
+const TESTIMONIALS_SHOWN = 6;
+const displayedTestimonials = shuffle(testimonials);
 
 const phoneHref = siteSettings.phone
   ? `tel:${siteSettings.phone.replace(/[^0-9+]/g, "")}`
@@ -204,7 +207,7 @@ const jsonLd = {
   {/* ── TÉMOIGNAGES ── */}
   <section class="rt-section">
     <SectionHeader title={home.testimonials_title} count={testimonials.length} />
-    <div class="rt-testim-grid">
+    <div class="rt-testim-grid" data-shown={TESTIMONIALS_SHOWN}>
       {displayedTestimonials.map((t, i) => (
         <TestimonialCard
           quote={t.quote}
@@ -212,6 +215,7 @@ const jsonLd = {
           role={t.detail}
           index={i + 1}
           rating={t.rating}
+          hidden={i >= TESTIMONIALS_SHOWN}
         />
       ))}
     </div>
@@ -373,6 +377,37 @@ const jsonLd = {
       });
     })();
   </script>
+
+  {/* Témoignages re-mélangés à CHAQUE visite (le shuffle de build ne tourne
+      qu'au redéploiement). Sans JS : l'ordre du build reste affiché. */}
+  <script is:inline>
+    (function () {
+      function rtShuffleTestim() {
+        const grid = document.querySelector(".rt-testim-grid");
+        if (!grid) return;
+        const cards = Array.from(grid.querySelectorAll(".rt-testim"));
+        if (cards.length < 2) return;
+        const shown = parseInt(grid.dataset.shown, 10) || cards.length;
+        for (let i = cards.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const tmp = cards[i];
+          cards[i] = cards[j];
+          cards[j] = tmp;
+        }
+        cards.forEach(function (card, i) {
+          card.hidden = i >= shown;
+          const mark = card.querySelector(".rt-testim-mark");
+          if (mark) mark.textContent = "// TÉMOIN " + String(i + 1).padStart(2, "0");
+          grid.append(card);
+        });
+      }
+      rtShuffleTestim();
+      if (!window.__rtTestimShuffle) {
+        window.__rtTestimShuffle = true;
+        document.addEventListener("astro:page-load", rtShuffleTestim);
+      }
+    })();
+  </script>
 </Base>
 
 <style>
@@ -449,7 +484,7 @@ const jsonLd = {
     flex-wrap: wrap;
     gap: 8px 0;
     font-family: var(--font-body);
-    font-size: 14px;
+    font-size: 15px;
     color: var(--text-secondary);
     line-height: 1.6;
     margin: 0;
@@ -594,7 +629,7 @@ const jsonLd = {
     align-items: baseline;
     gap: 12px;
     font-family: var(--font-mono);
-    font-size: 12px;
+    font-size: 13px;
     letter-spacing: 0.06em;
     color: var(--text-secondary);
   }
@@ -723,7 +758,7 @@ const jsonLd = {
   }
   .rt-contact-email {
     font-family: var(--font-mono);
-    font-size: 13px;
+    font-size: 14px;
     letter-spacing: 0.04em;
     color: var(--text-secondary);
     text-decoration: none;

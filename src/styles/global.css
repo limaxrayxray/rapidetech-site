@@ -178,6 +178,23 @@
   }
 }
 
+/* Au-delà de 2000px (démo télé 2K/4K), toute l'échelle devient
+   proportionnelle à la fenêtre : chaque valeur = sa taille à 1920px ÷ 1920.
+   Un 2K/4K plein écran a donc exactement les proportions d'un 1080p. */
+@media (min-width: 2000px) {
+  :root {
+    --text-display: 2.8vw;
+    --text-title: 1.77vw;
+    --text-heading: 1.46vw;
+    --text-body: 1.25vw;
+    --text-body-sm: 1.04vw;
+    --text-label: 0.73vw;
+    --text-micro: 0.68vw;
+    --text-ui: 0.73vw;
+    --gutter-page: 2.5vw;
+  }
+}
+
 /* ── Pont Tailwind v4 / shadcn ──
    Les composants 21st.dev référencent bg-background, text-foreground, etc.
    On mappe ces alias sur les tokens CIRCUIT : tout composant ajouté via
@@ -378,6 +395,11 @@ html.js body.loaded .rt-h1 .rt-line > span {
 @media (min-width: 1100px) {
   .rt-hero-sub {
     max-width: 620px;
+  }
+}
+@media (min-width: 2000px) {
+  .rt-hero-sub {
+    max-width: 32vw;
   }
 }
 html.js .rt-hero-sub {

@@ -23,6 +23,13 @@ const css = `
 }
 `;
 
+// Identité officielle : carré vert #6BC31A + RAPIDETECH en Clash Display 600.
+// Ce composant texte est réservé aux interfaces où Clash Display est chargée.
+// Pour un export autonome, utiliser les SVG horizontaux du dossier brand/svg :
+// leur mot-symbole est converti en tracés et ne dépend d'aucune police installée.
+// Pour le courriel, ne pas charger Clash Display : utiliser la pile de repli
+// Aptos Display, Century Gothic, Trebuchet MS, Arial, sans-serif.
+
 function inject() {
   if (typeof document !== 'undefined' && !document.getElementById(cssId)) {
     const el = document.createElement('style');

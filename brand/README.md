@@ -31,8 +31,14 @@ Le symbole officiel est un carré charbon contenant un carré vert centré.
 
 ## Signature horizontale
 
-Le mot-symbole horizontal est entièrement vectoriel et dessiné sur une grille
-géométrique. Il ne dépend d'aucune police externe et peut être agrandi sans perte.
+Le mot-symbole horizontal utilise **Clash Display Semibold**, comme le composant
+`Logo` du site. Les lettres sont converties en tracés dans les SVG : les fichiers
+ne dépendent donc d'aucune police installée et peuvent être agrandis sans perte.
+
+Dans les interfaces Web, recomposer le mot-symbole en Clash Display 600,
+majuscules, avec un espacement de `0.04em`. Dans les signatures courriel, où les
+polices Web ne sont pas fiables, utiliser la pile `Aptos Display`, `Century Gothic`,
+`Trebuchet MS`, `Arial`, `sans-serif`.
 
 ## Apple Business
 

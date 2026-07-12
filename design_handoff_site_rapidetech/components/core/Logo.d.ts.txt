@@ -1,4 +1,8 @@
-/** Mot-symbole RAPIDETECH : carré vert + Clash Display uppercase. */
+/**
+ * Mot-symbole d'interface RAPIDETECH.
+ * Carré #6BC31A + Clash Display 600 uppercase, tracking 0.04em.
+ * Pour les exports autonomes, préférer les SVG vectorisés du kit de marque.
+ */
 export interface LogoProps {
   href?: string;
   style?: React.CSSProperties;

@@ -272,5 +272,10 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, BIND, () =>
-  log(`relais leads à l'écoute sur http://${BIND}:${PORT} → ${TO}`)
+  log(
+    `relais leads à l'écoute sur http://${BIND}:${PORT} → ${TO}`,
+    TURNSTILE_SECRET
+      ? `· turnstile ACTIF (hostnames: ${TURNSTILE_HOSTNAMES.join(", ") || "tous"})`
+      : "· turnstile inactif"
+  )
 );

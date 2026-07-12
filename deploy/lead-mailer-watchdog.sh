@@ -28,7 +28,11 @@ APP_LOG="$HOME/lead-mailer.log"
 SCRIPT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lead-mailer.mjs"
 
 # Déjà en marche → rien à faire.
-if pgrep -f "node .*lead-mailer\.mjs" >/dev/null 2>&1; then
+# ⚠️ -u "$(id -u)" : sur ce VPS partagé, un AUTRE user fait tourner un processus
+# qui matche aussi le motif — sans le scope utilisateur, le watchdog croirait
+# notre relais vivant et ne le relancerait jamais (et pkill -f échouerait en
+# « Operation not permitted » sur le processus d'autrui).
+if pgrep -u "$(id -u)" -f "node .*lead-mailer\.mjs" >/dev/null 2>&1; then
   exit 0
 fi
 

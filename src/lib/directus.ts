@@ -138,6 +138,13 @@ export interface Service {
   body: string;
   /** Bénéfices concrets (interface "list"). */
   benefits: { value: string }[];
+  /** Métadonnées distinctes du titre et du résumé visibles dans les cartes. */
+  seo_title?: string | null;
+  seo_description?: string | null;
+  /** Questions fréquentes affichées sur la page et dans l'overlay. */
+  faq?: { question: string; answer: string }[] | null;
+  /** Permet de conserver une page indexable sans forcément créer une carte. */
+  show_on_home?: boolean;
   sort: number;
 }
 

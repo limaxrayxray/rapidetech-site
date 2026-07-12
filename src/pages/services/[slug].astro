@@ -17,10 +17,11 @@ export async function getStaticPaths() {
 const { service, num } = Astro.props;
 const home = await getHome();
 const settings = await getSiteSettings();
-const title = `${service.title} — ${settings.company_name}`;
+const title = service.seo_title || `${service.title} — ${settings.company_name}`;
+const description = service.seo_description || service.description;
 ---
 
-<Base title={title} description={service.description}>
+<Base title={title} description={description}>
   <main class="rt-svcpage">
     <nav class="rt-svcpage-back" aria-label="Fil d'Ariane">
       <a href="/">← {settings.company_name}</a>

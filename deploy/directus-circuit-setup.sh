@@ -23,6 +23,8 @@ auth=(-H "Authorization: Bearer ${TOKEN}" -H "Content-Type: application/json")
 LIST_VALUE_OPTIONS='{"fields":[{"field":"value","name":"Valeur","type":"string","meta":{"field":"value","type":"string","interface":"input","width":"full"}}]}'
 # Interface "list" label+href (→ JSON [{ "label": "...", "href": "..." }])
 LIST_LINK_OPTIONS='{"fields":[{"field":"label","name":"Libellé","type":"string","meta":{"field":"label","type":"string","interface":"input","width":"half"}},{"field":"href","name":"Lien","type":"string","meta":{"field":"href","type":"string","interface":"input","width":"half"}}]}'
+# Interface "list" question+réponse pour les FAQ des services.
+LIST_FAQ_OPTIONS='{"fields":[{"field":"question","name":"Question","type":"string","meta":{"field":"question","type":"string","interface":"input","width":"full"}},{"field":"answer","name":"Réponse","type":"text","meta":{"field":"answer","type":"text","interface":"input-multiline","width":"full"}}]}'
 
 field_exists() { # collection field
   curl -sf "${auth[@]}" "${DIRECTUS_URL}/fields/$1/$2" > /dev/null 2>&1
@@ -94,6 +96,14 @@ create_field services body text input-multiline 'null' \
   "Corps long de la page service — paragraphes séparés par une ligne vide"
 create_field services benefits json list "${LIST_VALUE_OPTIONS}" \
   "Bénéfices concrets affichés en liste (page service + overlay)"
+create_field services seo_title string input 'null' \
+  "Titre Google distinct du titre visible dans la carte"
+create_field services seo_description text input-multiline 'null' \
+  "Description Google — idéalement 140 à 160 caractères"
+create_field services faq json list "${LIST_FAQ_OPTIONS}" \
+  "Questions fréquentes affichées sur la page service et dans l'overlay"
+create_field services show_on_home boolean boolean 'null' \
+  "Afficher cette page dans la liste de services de l'accueil"
 
 echo "── Collection singleton \`privacy\` (politique de confidentialité — Loi 25) ──"
 # PK integer auto-increment : évite le piège UUID (meta.special obligatoire).
@@ -192,7 +202,8 @@ for spec in \
   home:contact_message_label home:contact_submit_label \
   home:contact_success_message home:contact_error_message \
   home:contact_direct_title \
-  services:slug services:body services:benefits \
+  services:slug services:body services:benefits services:seo_title \
+  services:seo_description services:faq services:show_on_home \
   site_settings:cities site_settings:google_rating \
   site_settings:google_reviews_count site_settings:coordinates \
   site_settings:status_message site_settings:nav_links \

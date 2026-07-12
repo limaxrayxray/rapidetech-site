@@ -23,6 +23,7 @@ import {
 // Runs at BUILD time. Content is baked into static HTML.
 const home = await getHome();
 const services = await getServices();
+const visibleServices = services.filter((service) => service.show_on_home !== false);
 const differentiators = await getDifferentiators();
 const about = await getAbout();
 const testimonials = await getTestimonials();
@@ -130,8 +131,8 @@ const jsonLd = {
 
   {/* ── SERVICES ── */}
   <section class="rt-section" id="services">
-    <SectionHeader title={home.services_title} count={services.length} />
-    {services.map((s, i) => (
+    <SectionHeader title={home.services_title} count={visibleServices.length} />
+    {visibleServices.map((s, i) => (
       <ServiceRow
         num={i + 1}
         title={s.title}
@@ -146,7 +147,7 @@ const jsonLd = {
       (ServicePanel partagé), déjà dans le HTML au build. Le clic sur une
       rangée ouvre le <dialog> (fond flouté, clic extérieur/Échap pour fermer)
       et pousse l'URL réelle dans l'historique → partageable, indexable. */}
-  {services.map((s, i) => (
+  {visibleServices.map((s, i) => (
     <dialog
       class="rt-svc-dialog"
       data-slug={s.slug}

@@ -39,6 +39,18 @@ const paragraphs = (service.body || "")
     </ul>
   )}
 
+  {service.faq && service.faq.length > 0 && (
+    <section class="rt-svcpanel-faq" aria-labelledby={`faq-title-${service.slug}`}>
+      <h2 id={`faq-title-${service.slug}`}>Questions fréquentes</h2>
+      {service.faq.map((item) => (
+        <details>
+          <summary>{item.question}</summary>
+          <p>{item.answer}</p>
+        </details>
+      ))}
+    </section>
+  )}
+
   <a href={ctaHref} class="rt-svcpanel-cta">
     {ctaLabel} <span aria-hidden="true">→</span>
   </a>
@@ -103,6 +115,37 @@ const paragraphs = (service.body || "")
     background: var(--accent);
     flex-shrink: 0;
     transform: translateY(-1px);
+  }
+  .rt-svcpanel-faq {
+    margin-top: 44px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border-default);
+    max-width: 680px;
+  }
+  .rt-svcpanel-faq h2 {
+    margin: 0 0 18px;
+    font-family: var(--font-display);
+    font-size: var(--text-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+  .rt-svcpanel-faq details {
+    border-bottom: 1px solid var(--border-default);
+    padding: 16px 0;
+  }
+  .rt-svcpanel-faq summary {
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: var(--text-body-sm);
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .rt-svcpanel-faq p {
+    margin: 12px 0 0;
+    font-family: var(--font-body);
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-body);
+    color: var(--text-secondary);
   }
   .rt-svcpanel-cta {
     margin-top: 40px;

@@ -351,17 +351,9 @@ body::after {
 .rt-h1 .rt-line > span {
   display: block;
 }
-/* Reveal masqué : l'état caché n'existe QUE si JS est là (html.js),
-   sinon le titre est visible d'emblée (no-JS safe). */
-html.js .rt-h1 .rt-line > span {
-  transform: translateY(110%);
-  transition: transform var(--dur-reveal) var(--ease-out-expo);
-}
-html.js body.loaded .rt-h1 .rt-line > span {
-  transform: translateY(0);
-}
-.rt-h1 .rt-line:nth-child(2) > span { transition-delay: 0.08s; }
-.rt-h1 .rt-line:nth-child(3) > span { transition-delay: 0.16s; }
+/* Le H1 est le Largest Contentful Paint : il doit être visible dès le premier
+   rendu. Les animations du sous-titre, du CTA et du statut conservent le reveal
+   du hero sans retarder artificiellement le LCP. */
 
 .rt-h1 .rt-ghost {
   color: transparent;
@@ -510,12 +502,6 @@ html.js body.loaded .rt-status { opacity: 1; }
 @media (prefers-reduced-motion: reduce) {
   body::after { display: none; }            /* grain */
   .rt-dot::after { animation: none; opacity: 0; }
-  html.js .rt-h1 .rt-line > span {
-    transform: none;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-  }
-  html.js body.loaded .rt-h1 .rt-line > span { opacity: 1; }
   html.js .rt-hero-sub,
   html.js .rt-hero-cta {
     transform: none;

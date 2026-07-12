@@ -175,17 +175,18 @@ const client = createDirectus<Schema>(DIRECTUS_URL).with(
  * pas encore été rempli (le fallback global ne s'active, lui, que si toute la
  * requête échoue — Directus hors ligne). Le contenu réel saisi a priorité.
  */
-function fillEmpty<T extends Record<string, unknown>>(data: T, fallback: T): T {
+function fillEmpty<T extends object>(data: T, fallback: T): T {
   const out = { ...data };
+  const values = out as Record<keyof T, unknown>;
   for (const key in fallback) {
-    const v = out[key];
+    const v = values[key];
     if (
       v === null ||
       v === undefined ||
       v === "" ||
       (Array.isArray(v) && v.length === 0)
     )
-      out[key] = fallback[key];
+      values[key] = fallback[key];
   }
   return out;
 }

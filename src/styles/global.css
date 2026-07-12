@@ -394,15 +394,7 @@ body::after {
     max-width: 32vw;
   }
 }
-html.js .rt-hero-sub {
-  opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 0.8s ease 0.5s, transform 0.8s ease 0.5s;
-}
-html.js body.loaded .rt-hero-sub {
-  opacity: 1;
-  transform: none;
-}
+/* Le sous-titre peut devenir le LCP sur mobile : aucun délai d'affichage. */
 
 .rt-hero-cta {
   position: relative;
@@ -502,7 +494,6 @@ html.js body.loaded .rt-status { opacity: 1; }
 @media (prefers-reduced-motion: reduce) {
   body::after { display: none; }            /* grain */
   .rt-dot::after { animation: none; opacity: 0; }
-  html.js .rt-hero-sub,
   html.js .rt-hero-cta {
     transform: none;
     transition: opacity 0.5s ease 0.3s;

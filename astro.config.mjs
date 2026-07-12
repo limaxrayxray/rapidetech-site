@@ -9,6 +9,11 @@ export default defineConfig({
   // Static output: built to ./dist and served by CloudPanel's Nginx.
   // No Node runtime needed to *serve* the site — rebuild on content change.
   output: "static",
+  // Les deux feuilles du site totalisent ~11 Ko compressés. Les intégrer au
+  // HTML supprime deux allers-retours bloquant le rendu et accélère le LCP.
+  build: {
+    inlineStylesheets: "always",
+  },
   // Autorise Astro à RAPATRIER + optimiser les images Directus AU BUILD.
   // Le build tape Directus en localhost → les images deviennent des fichiers
   // locaux dans dist/. Aucune URL Directus/privée ne fuit dans le HTML public.

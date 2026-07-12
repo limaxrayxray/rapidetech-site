@@ -16,6 +16,9 @@ export default defineConfig({
   // l'hôte Tailscale correspondant.
   image: {
     domains: ["localhost"],
+    // Les logos partenaires SVG viennent de notre Directus privé et sont
+    // rasterisés en WebP au build. Astro 6 exige cet opt-in explicite.
+    dangerouslyProcessSVG: true,
   },
   integrations: [
     react(),

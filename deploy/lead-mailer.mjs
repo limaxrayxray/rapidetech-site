@@ -6,6 +6,11 @@
 //
 // Solidité :
 //  - honeypot « entreprise » : rempli = bot → on répond succès sans envoyer ;
+//  - Turnstile (si TURNSTILE_SECRET est défini) : le jeton « cf-turnstile-response »
+//    est vérifié via siteverify ; TURNSTILE_HOSTNAMES restreint aux hostnames
+//    autorisés (le root seulement — un jeton résolu sur un autre host est rejeté).
+//    Si siteverify est injoignable, on laisse passer (fail-open) pour ne pas
+//    perdre de vrais leads sur une panne Cloudflare.
 //  - validation des champs + limite de taille de corps (32 Ko) ;
 //  - rate-limit en mémoire : 5 envois / heure / IP ;
 //  - 3 tentatives d'envoi (backoff 2 s/4 s) ; si tout échoue, le lead est
@@ -30,6 +35,14 @@ const REDIRECT = process.env.LEAD_REDIRECT || "/merci/";
 const MAX_BODY = 32 * 1024;
 const RATE_MAX = 5; // envois / fenêtre / IP
 const RATE_WINDOW_MS = 60 * 60 * 1000;
+// Anti-spam Cloudflare Turnstile (optionnel — vide = désactivé, comportement
+// identique à avant). TURNSTILE_HOSTNAMES : liste séparée par virgules des
+// hostnames où le défi doit avoir été résolu (ex.: rapidetech.ca,www.rapidetech.ca).
+const TURNSTILE_SECRET = process.env.TURNSTILE_SECRET || "";
+const TURNSTILE_HOSTNAMES = (process.env.TURNSTILE_HOSTNAMES || "")
+  .split(",")
+  .map((h) => h.trim().toLowerCase())
+  .filter(Boolean);
 
 if (!SMTP2GO_API_KEY || !TO || !FROM) {
   console.error("FATAL: SMTP2GO_API_KEY, LEAD_TO et LEAD_FROM sont requis");
@@ -71,6 +84,41 @@ function validate(d) {
 
 const esc = (s) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+// Vérifie le jeton Turnstile. Retourne "ok", "fail" (jeton absent/invalide ou
+// résolu sur un hostname non autorisé) ou "error" (siteverify injoignable —
+// l'appelant décide ; ici on fail-open pour ne pas perdre de leads légitimes).
+async function verifyTurnstile(token, ip) {
+  if (!token) return "fail";
+  try {
+    const res = await fetch(
+      "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+      {
+        method: "POST",
+        headers: { "content-type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          secret: TURNSTILE_SECRET,
+          response: String(token),
+          remoteip: ip,
+        }),
+      }
+    );
+    const body = await res.json();
+    if (!body.success) {
+      log("· turnstile refusé:", JSON.stringify(body["error-codes"] || []));
+      return "fail";
+    }
+    const host = String(body.hostname || "").toLowerCase();
+    if (TURNSTILE_HOSTNAMES.length && !TURNSTILE_HOSTNAMES.includes(host)) {
+      log(`· turnstile résolu sur hostname non autorisé: ${host}`);
+      return "fail";
+    }
+    return "ok";
+  } catch (err) {
+    log("⚠ siteverify injoignable:", err.message);
+    return "error";
+  }
+}
 
 async function sendEmail(lead, ip) {
   const payload = {
@@ -193,6 +241,16 @@ const server = http.createServer((req, res) => {
       if (!lead) {
         respond(res, req, 400, { ok: false, error: "invalid" });
         return;
+      }
+
+      if (TURNSTILE_SECRET) {
+        const verdict = await verifyTurnstile(data["cf-turnstile-response"], ip);
+        if (verdict === "fail") {
+          log(`✗ turnstile invalide (${ip}) — rejeté`);
+          respond(res, req, 403, { ok: false, error: "turnstile" });
+          return;
+        }
+        // "error" (siteverify down) → fail-open : le lead continue.
       }
 
       const sent = await sendEmail(lead, ip);

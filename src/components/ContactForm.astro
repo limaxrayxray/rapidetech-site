@@ -3,6 +3,9 @@
 // - Sans JS : POST classique vers /api/lead → redirection /merci/.
 // - Avec JS : envoi fetch + état inline (succès/erreur), sans rechargement.
 // - Honeypot « entreprise » : un humain ne le voit pas, un bot le remplit.
+// - Turnstile (anti-spam Cloudflare) : rendu SEULEMENT si PUBLIC_TURNSTILE_SITE_KEY
+//   est défini au build → le build du root (prod) l'a, les autres hosts non.
+//   Le jeton est vérifié côté relais (TURNSTILE_SECRET dans lead-mailer.mjs).
 // Le relais courriel tourne sur le VPS : deploy/lead-mailer.mjs derrière
 // Nginx (/api/lead). Tous les libellés viennent de Directus (home).
 import type { HomeContent } from "@/lib/directus";
@@ -11,6 +14,7 @@ interface Props {
   home: HomeContent;
 }
 const { home } = Astro.props;
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "";
 ---
 
 {/* data-astro-reload : le ClientRouter ne doit PAS intercepter ce submit
@@ -51,12 +55,33 @@ const { home } = Astro.props;
     <textarea class="rt-input" name="message" required minlength="10" maxlength="5000" rows="5"></textarea>
   </label>
 
+  {
+    turnstileSiteKey && (
+      <div
+        class="cf-turnstile"
+        data-sitekey={turnstileSiteKey}
+        data-theme="auto"
+      />
+    )
+  }
+
   <button class="rt-form-submit" type="submit">
     {home.contact_submit_label} <span aria-hidden="true">→</span>
   </button>
 
   <p class="rt-form-status" role="status" hidden></p>
 </form>
+
+{
+  turnstileSiteKey && (
+    <script
+      is:inline
+      async
+      defer
+      src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+    />
+  )
+}
 
 <script>
   // Délégué au document : survit aux transitions du ClientRouter sans ré-init.
@@ -90,8 +115,18 @@ const { home } = Astro.props;
       } finally {
         status.hidden = false;
         button.disabled = false;
+        // Jeton Turnstile à usage unique : reset pour permettre un 2e envoi.
+        (window as any).turnstile?.reset?.();
       }
     }, true);
+
+    // ClientRouter : après une navigation soft, api.js (déjà chargé) ne
+    // re-scanne pas le DOM → rendre explicitement le widget réinséré.
+    document.addEventListener("astro:page-load", () => {
+      const ts = (window as any).turnstile;
+      const el = document.querySelector(".cf-turnstile");
+      if (ts && el && !el.hasChildNodes()) ts.render(el as HTMLElement);
+    });
   }
 </script>
 

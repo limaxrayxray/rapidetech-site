@@ -228,7 +228,7 @@ const FALLBACK_HOME: HomeContent = {
   cta_final_body:
     "Parlez-moi de votre situation. Sans engagement, sans jargon — juste un vrai diagnostic et des réponses claires.",
   cta_final_label: "Réservez un appel",
-  cta_final_href: "/contact/",
+  cta_final_href: "/#contact",
   contact_name_label: "Votre nom",
   contact_email_label: "Courriel",
   contact_phone_label: "Téléphone (optionnel)",

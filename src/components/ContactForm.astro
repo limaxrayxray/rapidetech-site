@@ -72,22 +72,10 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "";
   <p class="rt-form-status" role="status" hidden></p>
 </form>
 
-{
-  turnstileSiteKey && (
-    <script
-      is:inline
-      async
-      defer
-      src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-    />
-  )
-}
-
 <script>
-  // Délégué au document : survit aux transitions du ClientRouter sans ré-init.
+  // Délégué au document : un seul listener, même si le composant évolue.
   if (!(window as any).__rtFormWired) {
     (window as any).__rtFormWired = true;
-    // Phase capture : on passe AVANT le routeur d'Astro (ClientRouter).
     document.addEventListener("submit", async (e) => {
       const form = e.target as HTMLFormElement;
       if (!form.classList.contains("rt-form")) return;
@@ -120,13 +108,32 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "";
       }
     }, true);
 
-    // ClientRouter : après une navigation soft, api.js (déjà chargé) ne
-    // re-scanne pas le DOM → rendre explicitement le widget réinséré.
-    document.addEventListener("astro:page-load", () => {
-      const ts = (window as any).turnstile;
-      const el = document.querySelector(".cf-turnstile");
-      if (ts && el && !el.hasChildNodes()) ts.render(el as HTMLElement);
-    });
+  }
+
+  // Turnstile est loin sous le pli : ne charger son script que lorsque le
+  // formulaire approche de l'écran, afin de libérer le chemin critique/LCP.
+  const turnstileEl = document.querySelector(".cf-turnstile");
+  if (turnstileEl) {
+    const loadTurnstile = () => {
+      if ((window as any).turnstile || document.querySelector('script[data-rt-turnstile]')) return;
+      const script = document.createElement("script");
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+      script.async = true;
+      script.defer = true;
+      script.dataset.rtTurnstile = "";
+      document.head.appendChild(script);
+    };
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver((entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          observer.disconnect();
+          loadTurnstile();
+        }
+      }, { rootMargin: "500px" });
+      observer.observe(turnstileEl);
+    } else {
+      loadTurnstile();
+    }
   }
 </script>
 

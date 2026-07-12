@@ -413,15 +413,7 @@ body::after {
   white-space: nowrap;
   will-change: transform;
 }
-html.js .rt-hero-cta {
-  opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 0.8s ease 0.65s, transform 0.8s ease 0.65s, background var(--dur-fast);
-}
-html.js body.loaded .rt-hero-cta {
-  opacity: 1;
-  transform: none;
-}
+.rt-hero-cta { transition: background var(--dur-fast); }
 .rt-hero-cta:hover { background: var(--accent-hover); }
 .rt-hero-cta .rt-arr {
   display: inline-block;
@@ -494,8 +486,4 @@ html.js body.loaded .rt-status { opacity: 1; }
 @media (prefers-reduced-motion: reduce) {
   body::after { display: none; }            /* grain */
   .rt-dot::after { animation: none; opacity: 0; }
-  html.js .rt-hero-cta {
-    transform: none;
-    transition: opacity 0.5s ease 0.3s;
-  }
 }

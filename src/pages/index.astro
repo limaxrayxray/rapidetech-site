@@ -81,31 +81,8 @@ const phoneHref = siteSettings.phone
   ? `tel:${siteSettings.phone.replace(/[^0-9+]/g, "")}`
   : null;
 
-// Données structurées LocalBusiness — le levier « map pack » local.
-// AggregateRating seulement si le nombre d'avis est connu (sinon invalide).
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "ProfessionalService",
-  name: siteSettings.company_name,
-  description: siteSettings.meta_description,
-  url: Astro.site?.href,
-  ...(siteSettings.phone && { telephone: siteSettings.phone }),
-  ...(siteSettings.email && { email: siteSettings.email }),
-  address: {
-    "@type": "PostalAddress",
-    addressLocality: siteSettings.city,
-    addressRegion: "QC",
-    addressCountry: "CA",
-  },
-  areaServed: cities.map((c) => ({ "@type": "City", name: c })),
-  ...(siteSettings.google_reviews_count != null && {
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: siteSettings.google_rating.replace(",", "."),
-      reviewCount: siteSettings.google_reviews_count,
-    },
-  }),
-};
+// Les données structurées (ProfessionalService + FAQPage) sont émises par le
+// layout (SchemaOrg.astro dans Base) — plus rien à injecter ici.
 ---
 
 <Base>
@@ -312,8 +289,6 @@ const jsonLd = {
       </aside>
     </div>
   </section>
-
-  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
 
   {/* Overlay services — progressive enhancement. Sans JS : navigation
       normale vers la page service. Avec JS : <dialog> modal + URL réelle

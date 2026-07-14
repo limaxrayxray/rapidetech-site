@@ -3,13 +3,16 @@ import "@/styles/global.css";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import SEO from "@/components/SEO.astro";
-import { getSiteSettings } from "@/lib/directus";
+import SchemaOrg from "@/components/SchemaOrg.astro";
+import { getSiteSettings, getFaq } from "@/lib/directus";
 
 interface Props {
   title?: string;
   description?: string;
   /** true → meta robots noindex (pages utilitaires, ex. /merci/). */
   noindex?: boolean;
+  /** Q/R propres à la page (JSON-LD FAQPage) — ex. le champ faq d'un service. */
+  faq?: { question: string; answer: string }[];
 }
 
 // Réglages globaux (build time). meta_title / meta_description pilotent le SEO
@@ -20,7 +23,12 @@ const {
   title = settings.meta_title,
   description = settings.meta_description,
   noindex = false,
+  faq,
 } = Astro.props;
+
+// FAQPage : la page fournit ses Q/R en prop ; sinon l'accueil prend la
+// collection Directus `faq` (fallback silencieux [] tant qu'elle n'existe pas).
+const faqItems = faq ?? (Astro.url.pathname === "/" ? await getFaq() : []);
 ---
 
 <!doctype html>
@@ -35,6 +43,7 @@ const {
       noindex={noindex}
     />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <SchemaOrg settings={settings} faq={faqItems} />
     <!-- Fonts display critiques (le hero est above-the-fold). -->
     <link
       rel="preload"

@@ -1,0 +1,63 @@
+---
+// Données structurées Schema.org (JSON-LD), rendues dans le <head> du layout.
+// - ProfessionalService (sous-type de LocalBusiness) sur TOUTES les pages :
+//   le levier « map pack » local + la fiche d'identité que citent les IA.
+//   Toutes les valeurs viennent de Directus (site_settings) — nom, description,
+//   téléphone, courriel, villes desservies. Un champ vide est simplement omis
+//   (jamais de placeholder dans le HTML public) : remplir site_settings.phone
+//   et site_settings.email dans Directus pour qu'ils apparaissent.
+// - FAQPage seulement quand des Q/R sont fournies (collection Directus `faq`
+//   sur l'accueil, champ `faq` du service sur les pages services). Collection
+//   absente → getFaq() retourne [] → aucun bloc émis, build OK.
+import type { SiteSettings } from "@/lib/directus";
+
+interface Props {
+  settings: SiteSettings;
+  faq?: { question: string; answer: string }[];
+}
+
+const { settings, faq = [] } = Astro.props;
+const cities = settings.cities.map((c) => c.value);
+
+const business = {
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  name: settings.company_name,
+  description: settings.meta_description,
+  url: Astro.site?.href,
+  ...(settings.phone && { telephone: settings.phone }),
+  ...(settings.email && { email: settings.email }),
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: settings.city,
+    addressRegion: "QC",
+    addressCountry: "CA",
+  },
+  areaServed: cities.map((c) => ({ "@type": "City", name: c })),
+  // AggregateRating seulement si le nombre d'avis est connu (sinon invalide).
+  ...(settings.google_reviews_count != null && {
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: settings.google_rating.replace(",", "."),
+      reviewCount: settings.google_reviews_count,
+    },
+  }),
+};
+
+const faqPage = faq.length
+  ? {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: faq.map((item) => ({
+        "@type": "Question",
+        name: item.question,
+        acceptedAnswer: { "@type": "Answer", text: item.answer },
+      })),
+    }
+  : null;
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(business)} is:inline />
+{faqPage && (
+  <script type="application/ld+json" set:html={JSON.stringify(faqPage)} is:inline />
+)}

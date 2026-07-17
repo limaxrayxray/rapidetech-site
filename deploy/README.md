@@ -42,6 +42,14 @@ Manuel :
 chmod +x deploy/deploy.sh
 ./deploy/deploy.sh
 ```
+Après le rsync, `deploy.sh` soumet automatiquement toutes les URLs du sitemap
+à **IndexNow** (indexation rapide Bing → ChatGPT search). La clé publique est
+`INDEXNOW_KEY` en haut du script et doit correspondre au fichier
+`public/<clé>.txt` du repo. Jamais bloquant : un ping raté n'échoue pas le
+déploiement. Test à sec (extraction des URLs sans POST) :
+```bash
+INDEXNOW_DRY_RUN=1 ./deploy/deploy.sh
+```
 Automatique (optionnel) : un **Flow Directus** (déclencheur sur create/update de `home`/`services`)
 → webhook vers un petit listener local qui lance `deploy.sh`. Tout reste dans ton réseau.
 

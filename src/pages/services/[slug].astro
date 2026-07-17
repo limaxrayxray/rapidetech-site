@@ -21,7 +21,9 @@ const title = service.seo_title || `${service.title} — ${settings.company_name
 const description = service.seo_description || service.description;
 ---
 
-<Base title={title} description={description}>
+{/* faq → JSON-LD FAQPage émis par le layout (les Q/R sont déjà visibles
+    dans ServicePanel — le balisage structuré reflète le contenu réel). */}
+<Base title={title} description={description} faq={service.faq ?? []}>
   <main class="rt-svcpage">
     <nav class="rt-svcpage-back" aria-label="Fil d'Ariane">
       <a href="/">← {settings.company_name}</a>

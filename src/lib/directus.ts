@@ -109,6 +109,19 @@ export interface Privacy {
   body: string;
 }
 
+/**
+ * Collection `faq` (question/réponse, triée par `sort`) — alimente le JSON-LD
+ * FAQPage de l'accueil (GEO : les moteurs IA adorent les Q/R structurées).
+ * La collection peut ne pas exister encore dans Directus : getFaq() dégrade
+ * silencieusement en liste vide et aucun bloc FAQPage n'est émis.
+ */
+export interface FaqItem {
+  id: string;
+  question: string;
+  answer: string;
+  sort: number;
+}
+
 export interface Partner {
   id: string;
   name: string;
@@ -157,6 +170,7 @@ interface Schema {
   site_settings: SiteSettings;
   partners: Partner[];
   privacy: Privacy;
+  faq: FaqItem[];
 }
 
 const DIRECTUS_URL = import.meta.env.DIRECTUS_URL ?? "http://localhost:8055";
@@ -494,6 +508,16 @@ export async function getServices(): Promise<Service[]> {
     }));
   } catch {
     return FALLBACK_SERVICES;
+  }
+}
+
+export async function getFaq(): Promise<FaqItem[]> {
+  try {
+    return await client.request(readItems("faq", { sort: ["sort"] }));
+  } catch {
+    // Collection pas encore créée dans Directus (ou permission read absente
+    // de la policy de build) → pas de FAQPage émis, le build reste vert.
+    return [];
   }
 }
 

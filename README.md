@@ -76,3 +76,12 @@ Composants exposés sous `window.RapidetechDesignSystem_5b84d1` ; chaque composa
 - Clash Display et General Sans auto-hébergées ; Space Mono encore en CDN (Google Fonts) — fournir les .woff2 pour auto-hébergement complet si requis.
 - Bandeau « ancrage local » (villes desservies + note Google) inspiré de solutionsm.ca — valider la liste des villes et le nombre d'avis réels.
 - Aucune photo/illustration de marque fournie — à téléverser pour compléter l'imagerie.
+
+## SEO / GEO (référencement classique + moteurs IA)
+
+Mis en place dans le site Astro (détails opérationnels dans `CLAUDE.md`, déploiement dans `deploy/README.md`) :
+
+- **Sitemap** `@astrojs/sitemap` (`site: https://rapidetech.ca`) + **robots.txt dynamique** (`src/pages/robots.txt.ts`) qui autorise explicitement les crawlers IA (GPTBot, OAI-SearchBot, ClaudeBot, PerplexityBot, Bingbot) en prod et bloque tout en préprod.
+- **IndexNow** : clé publique dans `public/<clé>.txt` ; `deploy/deploy.sh` soumet les URLs du sitemap à `api.indexnow.org` après chaque déploiement (Bing indexe vite, ChatGPT search lit l'index Bing). Non bloquant.
+- **Meta head** : composant `src/components/SEO.astro` (title, description, canonical, Open Graph, twitter:card), valeurs Directus (`site_settings.meta_title`/`meta_description`) avec fallbacks.
+- **Données structurées** : composant `src/components/SchemaOrg.astro` dans le layout — JSON-LD ProfessionalService sur toutes les pages (zone desservie = villes de `site_settings.cities`) + FAQPage (collection Directus `faq` sur l'accueil, champ `faq` des services sur leurs pages).

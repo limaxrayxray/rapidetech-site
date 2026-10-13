@@ -74,13 +74,22 @@ indexnow_ping() {
 # ré-exécution de la version fraîchement tirée, qui saute le pull (garde env).
 if [[ "${DEPLOY_PULLED:-}" != "1" ]]; then
   echo "→ pull"
-  git pull --ff-only
+  # Le service tourne en root mais le dépôt appartient à `dev` → depuis git
+  # 2.35.2, « detected dubious ownership » fait échouer le pull (et donc TOUT
+  # le déploiement auto). -c safe.directory est honoré en ligne de commande.
+  git -c safe.directory="$REPO_DIR" pull --ff-only
   DEPLOY_PULLED=1 exec bash "$REPO_DIR/deploy/deploy.sh"
 fi
 
 echo "→ build (lit Directus via .env : DIRECTUS_URL + DIRECTUS_TOKEN)"
 npm ci
 npm run build
+
+# Build lancé en root (service webhook) → rendre dist/ et node_modules au
+# propriétaire du dépôt, sinon les builds manuels de `dev` échouent (EACCES).
+if [[ "$(id -u)" == "0" ]]; then
+  chown -R --reference="$REPO_DIR" dist node_modules .astro 2>/dev/null || true
+fi
 
 echo "→ push du dist/ vers le VPS"
 # --no-perms/owner/group + --omit-dir-times : on ne touche pas aux attributs

@@ -51,6 +51,11 @@ export interface HomeContent {
   faq_title: string;
   /** Intertitre des liens « autres services » en bas des pages services. */
   services_related_title: string;
+  /** Section/page Guides (collection `guides`). */
+  guides_title: string;
+  guides_intro: string;
+  /** Pages services — intertitre des guides liés au service. */
+  guides_related_title: string;
 }
 
 export interface Differentiator {
@@ -129,6 +134,28 @@ export interface FaqItem {
   sort: number;
 }
 
+/**
+ * Collection `guides` — contenu d'entreprise long (pages /guides/<slug>/),
+ * le levier SEO pour les recherches génériques des PME. `body` suit la
+ * convention de lib/richtext.ts. `published: false` = brouillon non publié.
+ */
+export interface Guide {
+  id: number;
+  title: string;
+  slug: string;
+  summary: string;
+  body: string;
+  seo_title?: string | null;
+  seo_description?: string | null;
+  faq?: { question: string; answer: string }[] | null;
+  /** Slug du service lié (lien croisé guide ↔ page service). */
+  related_service?: string | null;
+  published?: boolean | null;
+  date_created?: string | null;
+  date_updated?: string | null;
+  sort?: number | null;
+}
+
 export interface Partner {
   id: string;
   name: string;
@@ -178,6 +205,7 @@ interface Schema {
   partners: Partner[];
   privacy: Privacy;
   faq: FaqItem[];
+  guides: Guide[];
 }
 
 const DIRECTUS_URL = import.meta.env.DIRECTUS_URL ?? "http://localhost:8055";
@@ -274,6 +302,10 @@ const FALLBACK_HOME: HomeContent = {
   contact_callback_label: "Meilleur moment pour vous rappeler (optionnel)",
   faq_title: "Questions fréquentes",
   services_related_title: "Autres services",
+  guides_title: "Guides pour PME",
+  guides_intro:
+    "Des explications claires, sans jargon, sur les sujets TI qui comptent pour une PME : téléphonie, sécurité, sauvegarde et conformité.",
+  guides_related_title: "Pour aller plus loin",
 };
 
 const FALLBACK_SERVICES: Service[] = [
@@ -533,6 +565,21 @@ export async function getFaq(): Promise<FaqItem[]> {
   } catch {
     // Collection pas encore créée dans Directus (ou permission read absente
     // de la policy de build) → pas de FAQPage émis, le build reste vert.
+    return [];
+  }
+}
+
+export async function getGuides(): Promise<Guide[]> {
+  try {
+    const items = await client.request(
+      readItems("guides", { sort: ["sort", "-date_created"] })
+    );
+    // Brouillons exclus ; un guide sans slug ni titre n'est pas publiable.
+    return items
+      .filter((g) => g.published !== false && g.title)
+      .map((g) => ({ ...g, slug: g.slug || slugify(g.title) }));
+  } catch {
+    // Collection absente / permission manquante → aucune page guide, build OK.
     return [];
   }
 }

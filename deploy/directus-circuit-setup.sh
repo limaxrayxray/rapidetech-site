@@ -96,6 +96,12 @@ create_field home faq_title string input 'null' \
   "Titre de la section FAQ visible de l'accueil (questions = collection faq)"
 create_field home services_related_title string input 'null' \
   "Pages services — intertitre des liens vers les autres services (ex. « Autres services »)"
+create_field home guides_title string input 'null' \
+  "Titre de la section/page Guides (ex. « Guides pour PME »)"
+create_field home guides_intro text input-multiline 'null' \
+  "Intro de la page /guides/"
+create_field home guides_related_title string input 'null' \
+  "Pages services — intertitre des guides liés (ex. « Pour aller plus loin »)"
 
 echo "── Champs CIRCUIT sur \`services\` (pages dédiées /services/<slug>/) ──"
 create_field services slug string input 'null' \
@@ -169,6 +175,86 @@ else
   fi
 fi
 
+# Permission read pour la policy de build (idempotent) — sinon le getter
+# retombe silencieusement sur son fallback au build.
+grant_build_read() { # collection
+  local collection="$1" policy_id has_perm
+  policy_id=$(curl -sfg "${auth[@]}" \
+    "${DIRECTUS_URL}/policies?filter[name][_eq]=Build%20%E2%80%94%20lecture%20seule&fields=id" \
+    | sed -n 's/.*"id":"\([^"]*\)".*/\1/p')
+  if [ -z "${policy_id}" ]; then
+    echo "  ⚠ policy « Build — lecture seule » introuvable — permission read(${collection}) À AJOUTER À LA MAIN"
+    return 0
+  fi
+  has_perm=$(curl -sfg "${auth[@]}" \
+    "${DIRECTUS_URL}/permissions?filter[policy][_eq]=${policy_id}&filter[collection][_eq]=${collection}&filter[action][_eq]=read&fields=id" \
+    | sed -n 's/.*"id":\([0-9]*\).*/\1/p')
+  if [ -n "${has_perm}" ]; then
+    echo "  = permission read(${collection}) existe déjà — sautée"
+  else
+    curl -sf "${auth[@]}" -X POST "${DIRECTUS_URL}/permissions" \
+      -d "{\"policy\":\"${policy_id}\",\"collection\":\"${collection}\",\"action\":\"read\",\"fields\":[\"*\"]}" > /dev/null
+    echo "  + permission read(${collection}) ajoutée à la policy de build"
+  fi
+}
+
+# Champ à définition complète (special, hidden, valeur par défaut…).
+create_raw_field() { # collection field json
+  if field_exists "$1" "$2"; then
+    echo "  = $1.$2 existe déjà — sauté"
+  else
+    curl -sf "${auth[@]}" -X POST "${DIRECTUS_URL}/fields/$1" -d "$3" > /dev/null
+    echo "  + $1.$2 créé"
+  fi
+}
+
+echo "── Collection \`guides\` (articles /guides/<slug>/ — contenu d'entreprise SEO) ──"
+# PK integer auto-increment : évite le piège UUID (meta.special obligatoire).
+if curl -sf "${auth[@]}" "${DIRECTUS_URL}/collections/guides" > /dev/null 2>&1; then
+  echo "  = collection guides existe déjà — sautée"
+else
+  curl -sf "${auth[@]}" -X POST "${DIRECTUS_URL}/collections" -d '{
+    "collection": "guides",
+    "meta": {
+      "icon": "bookmark",
+      "note": "Guides pour PME — pages /guides/<slug>/ (SEO). Corps : blocs séparés par une ligne vide, « ## » = intertitre, lignes « - » = liste.",
+      "display_template": "{{title}}",
+      "sort_field": "sort"
+    },
+    "schema": {},
+    "fields": [
+      {
+        "field": "id",
+        "type": "integer",
+        "meta": { "hidden": true, "readonly": true },
+        "schema": { "is_primary_key": true, "has_auto_increment": true }
+      }
+    ]
+  }' > /dev/null
+  echo "  + collection guides créée"
+fi
+create_raw_field guides sort '{"field":"sort","type":"integer","meta":{"interface":"input","hidden":true},"schema":{}}'
+create_raw_field guides published '{"field":"published","type":"boolean","meta":{"interface":"boolean","note":"Décoché = brouillon (pas publié sur le site)","width":"half"},"schema":{"default_value":true}}'
+create_raw_field guides date_created '{"field":"date_created","type":"timestamp","meta":{"special":["date-created"],"interface":"datetime","readonly":true,"hidden":true},"schema":{}}'
+create_raw_field guides date_updated '{"field":"date_updated","type":"timestamp","meta":{"special":["date-updated"],"interface":"datetime","readonly":true,"hidden":true},"schema":{}}'
+create_field guides title string input 'null' \
+  "Titre du guide (H1 de la page)"
+create_field guides slug string input 'null' \
+  "Slug d'URL (ex. reception-telephonique-pme) — minuscules, sans accents"
+create_field guides summary text input-multiline 'null' \
+  "Chapeau : 1-2 phrases (intro de la page + carte dans la liste des guides)"
+create_field guides body text input-multiline 'null' \
+  "Corps : blocs séparés par une ligne vide · « ## Titre » = intertitre · lignes « - » = liste (« Libellé : texte » met le libellé en gras)"
+create_field guides seo_title string input 'null' \
+  "Titre Google (≈ 60 caractères)"
+create_field guides seo_description text input-multiline 'null' \
+  "Description Google — idéalement 140 à 160 caractères"
+create_field guides faq json list "${LIST_FAQ_OPTIONS}" \
+  "Questions fréquentes affichées en bas du guide (+ JSON-LD FAQPage)"
+create_field guides related_service string input 'null' \
+  "Slug du service lié (ex. telephonie-ip) — lien vers le service + le guide apparaît sur la page du service"
+grant_build_read guides
+
 echo "── Champs CIRCUIT sur \`site_settings\` ──"
 create_field site_settings cities json list "${LIST_VALUE_OPTIONS}" \
   "Villes desservies (bandeau ancrage local). La 1re est mise en gras"
@@ -211,6 +297,10 @@ for spec in \
   home:contact_success_message home:contact_error_message \
   home:contact_direct_title home:contact_company_label \
   home:contact_callback_label home:faq_title home:services_related_title \
+  home:guides_title home:guides_intro home:guides_related_title \
+  guides:title guides:slug guides:summary guides:body guides:seo_title \
+  guides:seo_description guides:faq guides:related_service guides:published \
+  guides:date_created guides:date_updated guides:sort \
   services:slug services:body services:benefits services:seo_title \
   services:seo_description services:faq services:show_on_home \
   site_settings:cities site_settings:google_rating \

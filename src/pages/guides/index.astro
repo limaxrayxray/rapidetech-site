@@ -1,0 +1,110 @@
+---
+// Liste des guides (collection Directus `guides`). Tant qu'aucun guide n'est
+// publié, la page reste noindex (pas de page mince dans Google).
+import Base from "@/layouts/Base.astro";
+import { getGuides, getHome, getSiteSettings } from "@/lib/directus";
+
+const [guides, home, settings] = await Promise.all([getGuides(), getHome(), getSiteSettings()]);
+const title = `${home.guides_title} | ${settings.company_name}`;
+---
+
+<Base title={title} description={home.guides_intro} noindex={guides.length === 0}>
+  <main class="rt-guides">
+    <nav class="rt-crumbs" aria-label="Fil d'Ariane">
+      <a href="/">← {settings.company_name}</a>
+    </nav>
+    <h1 class="rt-guides-title">{home.guides_title}</h1>
+    <p class="rt-guides-intro">{home.guides_intro}</p>
+
+    <ul class="rt-guides-list">
+      {guides.map((g, i) => (
+        <li>
+          <a href={`/guides/${g.slug}/`}>
+            <span class="rt-guides-num">/ {String(i + 1).padStart(2, "0")}</span>
+            <span class="rt-guides-t">{g.title} <span aria-hidden="true">→</span></span>
+            {g.summary && <span class="rt-guides-d">{g.summary}</span>}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </main>
+</Base>
+
+<style>
+  .rt-guides {
+    position: relative;
+    z-index: 2;
+    padding: var(--section-pad);
+    max-width: 980px;
+  }
+  .rt-crumbs {
+    margin-bottom: 48px;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+  .rt-crumbs a {
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+  .rt-crumbs a:hover {
+    color: var(--text-primary);
+  }
+  .rt-guides-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(38px, 5vw, 72px);
+    line-height: var(--leading-display);
+    letter-spacing: var(--tracking-display);
+    text-transform: uppercase;
+    color: var(--text-primary);
+    margin: 0 0 20px;
+  }
+  .rt-guides-intro {
+    font-family: var(--font-body);
+    font-size: var(--text-body);
+    line-height: var(--leading-body);
+    color: var(--text-secondary);
+    max-width: 640px;
+    margin: 0 0 56px;
+  }
+  .rt-guides-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--border-default);
+  }
+  .rt-guides-list a {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 28px 0;
+    border-bottom: 1px solid var(--border-default);
+    text-decoration: none;
+  }
+  .rt-guides-num {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: var(--tracking-label);
+    color: var(--accent);
+  }
+  .rt-guides-t {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--text-heading);
+    text-transform: uppercase;
+    color: var(--text-primary);
+    transition: color var(--dur-fast);
+  }
+  .rt-guides-list a:hover .rt-guides-t {
+    color: var(--accent);
+  }
+  .rt-guides-d {
+    font-family: var(--font-body);
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-desc);
+    color: var(--text-secondary);
+    max-width: 720px;
+  }
+</style>

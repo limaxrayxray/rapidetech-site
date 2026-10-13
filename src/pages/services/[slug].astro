@@ -4,7 +4,7 @@
 // Google et les visiteurs directs arrivent ici.
 import Base from "@/layouts/Base.astro";
 import ServicePanel from "@/components/ServicePanel.astro";
-import { getHome, getServices, getSiteSettings } from "@/lib/directus";
+import { getGuides, getHome, getServices, getSiteSettings } from "@/lib/directus";
 import { businessId } from "@/lib/schema";
 
 export async function getStaticPaths() {
@@ -25,6 +25,8 @@ export async function getStaticPaths() {
 const { service, num, related } = Astro.props;
 const home = await getHome();
 const settings = await getSiteSettings();
+// Guides rattachés à ce service (lien croisé guide ↔ service).
+const guides = (await getGuides()).filter((g) => g.related_service === service.slug);
 const title = service.seo_title || `${service.title} — ${settings.company_name}`;
 const description = service.seo_description || service.description;
 const site = Astro.site!;
@@ -70,6 +72,21 @@ const jsonLd = [
       ctaLabel={home.cta_final_label}
       ctaHref="/#contact"
     />
+
+    {guides.length > 0 && (
+      <nav class="rt-svcpage-related" aria-labelledby="guides-title">
+        <h2 id="guides-title">{home.guides_related_title}</h2>
+        <ul>
+          {guides.map((g) => (
+            <li>
+              <a href={`/guides/${g.slug}/`}>
+                {g.title} <span aria-hidden="true">→</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    )}
 
     {related.length > 0 && (
       <nav class="rt-svcpage-related" aria-labelledby="related-title">

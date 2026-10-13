@@ -1,0 +1,93 @@
+---
+// Rendu zéro JS d'un texte long Directus (convention : voir lib/richtext.ts).
+// Dans une liste, « Libellé : texte » met le libellé en gras (lisibilité des
+// listes de fonctionnalités) — seulement si le libellé est court.
+import { parseBlocks } from "@/lib/richtext";
+
+interface Props {
+  body: string | null | undefined;
+}
+const blocks = parseBlocks(Astro.props.body);
+
+function splitLabel(item: string): [string | null, string] {
+  const i = item.indexOf(" : ");
+  return i > 0 && i <= 60 ? [item.slice(0, i), item.slice(i + 3)] : [null, item];
+}
+---
+
+<div class="rt-rich">
+  {
+    blocks.map((block) =>
+      block.kind === "h2" ? (
+        <h2>{block.text}</h2>
+      ) : block.kind === "ul" ? (
+        <ul>
+          {block.items.map((item) => {
+            const [label, text] = splitLabel(item);
+            return (
+              <li>
+                <span class="rt-square" aria-hidden="true" />
+                <span>
+                  {label && <strong>{label} : </strong>}
+                  {text}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <p>{block.text}</p>
+      )
+    )
+  }
+</div>
+
+<style>
+  .rt-rich h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--text-heading);
+    line-height: 1.15;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    margin: 56px 0 18px;
+  }
+  .rt-rich p {
+    font-family: var(--font-body);
+    font-size: var(--text-body);
+    line-height: var(--leading-body);
+    color: var(--text-secondary);
+    margin: 0 0 20px;
+    max-width: 720px;
+  }
+  .rt-rich ul {
+    list-style: none;
+    margin: 0 0 24px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-width: 720px;
+  }
+  .rt-rich li {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    font-family: var(--font-body);
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-desc);
+    color: var(--text-secondary);
+  }
+  .rt-rich strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+  .rt-square {
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    flex-shrink: 0;
+    transform: translateY(-1px);
+  }
+</style>

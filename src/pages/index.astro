@@ -18,6 +18,7 @@ import {
   getSiteSettings,
   getPartners,
   getFaq,
+  getGuides,
   assetUrl,
 } from "@/lib/directus";
 
@@ -33,6 +34,7 @@ const partners = await getPartners();
 // FAQ VISIBLE : le JSON-LD FAQPage (émis par le layout depuis la même
 // collection) doit refléter du contenu réellement affiché — exigence Google.
 const faq = await getFaq();
+const guides = await getGuides();
 
 // IMAGE: on RAPATRIE + optimise l'asset Directus AU BUILD via getImage() — le
 // HTML final ne contient qu'un chemin LOCAL (dist/_astro/...), jamais l'URL
@@ -268,6 +270,21 @@ const phoneHref = siteSettings.phone
             </div>
           );
         })}
+      </div>
+    </section>
+  )}
+
+  {/* ── GUIDES (maillage interne vers le contenu d'entreprise) ── */}
+  {guides.length > 0 && (
+    <section class="rt-section" id="guides">
+      <SectionHeader title={home.guides_title} count={guides.length} />
+      <div class="rt-guide-cards">
+        {guides.slice(0, 4).map((g) => (
+          <a class="rt-guide-card" href={`/guides/${g.slug}/`}>
+            <span class="rt-guide-card-t">{g.title} <span aria-hidden="true">→</span></span>
+            {g.summary && <span class="rt-guide-card-d">{g.summary}</span>}
+          </a>
+        ))}
       </div>
     </section>
   )}
@@ -694,6 +711,49 @@ const phoneHref = siteSettings.phone
   @media (max-width: 720px) {
     .rt-partners-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* ── Guides ── */
+  .rt-guide-cards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--border-default);
+    border: 1px solid var(--border-default);
+  }
+  .rt-guide-card {
+    background: var(--surface-card);
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    text-decoration: none;
+    transition: background 0.25s;
+  }
+  .rt-guide-card:hover {
+    background: #1a1a19;
+  }
+  .rt-guide-card-t {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 22px;
+    line-height: 1.15;
+    text-transform: uppercase;
+    color: var(--text-primary);
+  }
+  .rt-guide-card-d {
+    font-family: var(--font-body);
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-desc);
+    color: var(--text-secondary);
+  }
+  @media (min-width: 2000px) {
+    .rt-guide-card-t { font-size: 1.15vw; }
+  }
+  @media (max-width: 720px) {
+    .rt-guide-cards {
+      grid-template-columns: 1fr;
     }
   }
 

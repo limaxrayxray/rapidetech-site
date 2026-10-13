@@ -15,6 +15,8 @@ interface Props {
   faq?: { question: string; answer: string }[];
   /** Blocs JSON-LD propres à la page (ex. Service + BreadcrumbList). */
   jsonLd?: Record<string, unknown>[];
+  /** og:type (« article » pour les guides). */
+  ogType?: string;
 }
 
 // Réglages globaux (build time). meta_title / meta_description pilotent le SEO
@@ -27,6 +29,7 @@ const {
   noindex = false,
   faq,
   jsonLd = [],
+  ogType,
 } = Astro.props;
 
 // Fiche entreprise JSON-LD : catalogue des services + fondateur.
@@ -48,6 +51,7 @@ const faqItems = faq ?? (Astro.url.pathname === "/" ? await getFaq() : []);
       description={description}
       siteName={settings.company_name}
       noindex={noindex}
+      type={ogType}
     />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <SchemaOrg

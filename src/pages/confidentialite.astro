@@ -5,6 +5,7 @@
 // par « - » = liste à puces ; sinon paragraphe. Zéro JS.
 import Base from "@/layouts/Base.astro";
 import { getPrivacy, getSiteSettings } from "@/lib/directus";
+import { parseBlocks } from "@/lib/richtext";
 
 const privacy = await getPrivacy();
 const settings = await getSiteSettings();
@@ -12,22 +13,7 @@ const title = `${privacy.title} — ${settings.company_name}`;
 const description =
   "Comment Rapidetech recueille, utilise et protège vos renseignements personnels (Loi 25).";
 
-type Block =
-  | { kind: "h2"; text: string }
-  | { kind: "ul"; items: string[] }
-  | { kind: "p"; text: string };
-
-const blocks: Block[] = (privacy.body || "")
-  .split(/\n\s*\n/)
-  .map((b) => b.trim())
-  .filter(Boolean)
-  .map((b) => {
-    if (b.startsWith("## ")) return { kind: "h2", text: b.slice(3).trim() };
-    const lines = b.split("\n").map((l) => l.trim());
-    if (lines.every((l) => l.startsWith("- ")))
-      return { kind: "ul", items: lines.map((l) => l.slice(2).trim()) };
-    return { kind: "p", text: lines.join(" ") };
-  });
+const blocks = parseBlocks(privacy.body);
 ---
 
 <Base title={title} description={description}>

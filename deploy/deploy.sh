@@ -16,6 +16,15 @@ SITE_HOST="rapidetech.ca"
 
 cd "$REPO_DIR"
 
+# Journal du dernier déploiement, lisible SANS root (le service webhook tourne
+# en root et `journalctl -u rapidetech-deploy` exige les droits adm). Tronqué
+# au 1er passage, complété après la ré-exécution qui suit le pull.
+LOG_FILE="$REPO_DIR/deploy/last-deploy.log"
+[[ "${DEPLOY_PULLED:-}" == "1" ]] || : > "$LOG_FILE"
+chmod 644 "$LOG_FILE" 2>/dev/null || true
+exec > >(tee -a "$LOG_FILE") 2>&1
+echo "── $(date -Is) · deploy.sh ($(whoami)) · pulled=${DEPLOY_PULLED:-0}"
+
 # ── IndexNow ─────────────────────────────────────────────────────────────────
 # Extrait toutes les URLs du sitemap (index + sitemaps enfants, fichiers LOCAUX
 # de dist/) et les soumet en UN SEUL POST JSON à api.indexnow.org. Bing indexe

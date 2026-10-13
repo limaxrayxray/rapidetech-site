@@ -9,24 +9,41 @@
 // - FAQPage seulement quand des Q/R sont fournies (collection Directus `faq`
 //   sur l'accueil, champ `faq` du service sur les pages services). Collection
 //   absente → getFaq() retourne [] → aucun bloc émis, build OK.
-import type { SiteSettings } from "@/lib/directus";
+// - `extra` : blocs propres à la page (ex. Service + BreadcrumbList sur les
+//   pages services), qui référencent l'entreprise par son @id.
+import type { SiteSettings, Service } from "@/lib/directus";
+import { businessId } from "@/lib/schema";
 
 interface Props {
   settings: SiteSettings;
   faq?: { question: string; answer: string }[];
+  /** Services publiés → OfferCatalog (liens vers les pages dédiées). */
+  services?: Pick<Service, "title" | "slug">[];
+  /** Nom du fondateur (singleton about). */
+  founder?: string;
+  extra?: Record<string, unknown>[];
 }
 
-const { settings, faq = [] } = Astro.props;
+const { settings, faq = [], services = [], founder, extra = [] } = Astro.props;
 const cities = settings.cities.map((c) => c.value);
+const site = Astro.site!;
+const sameAs = /^https?:\/\//.test(settings.google_reviews_url)
+  ? [settings.google_reviews_url]
+  : [];
 
 const business = {
   "@context": "https://schema.org",
   "@type": "ProfessionalService",
+  "@id": businessId(site),
   name: settings.company_name,
   description: settings.meta_description,
-  url: Astro.site?.href,
+  url: site.href,
+  logo: new URL("/branding/rapidetech-symbol-256.png", site).href,
+  image: new URL("/og.png", site).href,
   ...(settings.phone && { telephone: settings.phone }),
   ...(settings.email && { email: settings.email }),
+  ...(sameAs.length && { sameAs }),
+  ...(founder && { founder: { "@type": "Person", name: founder } }),
   address: {
     "@type": "PostalAddress",
     addressLocality: settings.city,
@@ -34,6 +51,20 @@ const business = {
     addressCountry: "CA",
   },
   areaServed: cities.map((c) => ({ "@type": "City", name: c })),
+  ...(services.length && {
+    hasOfferCatalog: {
+      "@type": "OfferCatalog",
+      name: "Services informatiques pour PME",
+      itemListElement: services.map((s) => ({
+        "@type": "Offer",
+        itemOffered: {
+          "@type": "Service",
+          name: s.title,
+          url: new URL(`/services/${s.slug}/`, site).href,
+        },
+      })),
+    },
+  }),
   // AggregateRating seulement si le nombre d'avis est connu (sinon invalide).
   ...(settings.google_reviews_count != null && {
     aggregateRating: {
@@ -61,3 +92,6 @@ const faqPage = faq.length
 {faqPage && (
   <script type="application/ld+json" set:html={JSON.stringify(faqPage)} is:inline />
 )}
+{extra.map((block) => (
+  <script type="application/ld+json" set:html={JSON.stringify(block)} is:inline />
+))}

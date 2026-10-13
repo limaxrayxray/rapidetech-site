@@ -17,6 +17,7 @@ import {
   getTestimonials,
   getSiteSettings,
   getPartners,
+  getFaq,
   assetUrl,
 } from "@/lib/directus";
 
@@ -29,6 +30,9 @@ const about = await getAbout();
 const testimonials = await getTestimonials();
 const siteSettings = await getSiteSettings();
 const partners = await getPartners();
+// FAQ VISIBLE : le JSON-LD FAQPage (émis par le layout depuis la même
+// collection) doit refléter du contenu réellement affiché — exigence Google.
+const faq = await getFaq();
 
 // IMAGE: on RAPATRIE + optimise l'asset Directus AU BUILD via getImage() — le
 // HTML final ne contient qu'un chemin LOCAL (dist/_astro/...), jamais l'URL
@@ -139,6 +143,7 @@ const phoneHref = siteSettings.phone
           heading="h2"
           ctaLabel={home.cta_final_label}
           ctaHref="/#contact"
+          showFaq={false}
         />
       </div>
     </dialog>
@@ -263,6 +268,21 @@ const phoneHref = siteSettings.phone
             </div>
           );
         })}
+      </div>
+    </section>
+  )}
+
+  {/* ── FAQ (visible ; même source que le JSON-LD FAQPage du layout) ── */}
+  {faq.length > 0 && (
+    <section class="rt-section" id="faq">
+      <SectionHeader title={home.faq_title} count={faq.length} />
+      <div class="rt-faq">
+        {faq.map((item) => (
+          <details>
+            <summary>{item.question}</summary>
+            <p>{item.answer}</p>
+          </details>
+        ))}
       </div>
     </section>
   )}
@@ -675,6 +695,48 @@ const phoneHref = siteSettings.phone
     .rt-partners-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+  }
+
+  /* ── FAQ ── */
+  .rt-faq {
+    max-width: 860px;
+    border-top: 1px solid var(--border-default);
+  }
+  .rt-faq details {
+    border-bottom: 1px solid var(--border-default);
+    padding: 22px 0;
+  }
+  .rt-faq summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 24px;
+    font-family: var(--font-body);
+    font-size: var(--text-body);
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+  .rt-faq summary::-webkit-details-marker {
+    display: none;
+  }
+  .rt-faq summary::after {
+    content: "+";
+    font-family: var(--font-mono);
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+  .rt-faq details[open] summary::after {
+    content: "−";
+  }
+  .rt-faq p {
+    margin: 14px 0 0;
+    max-width: 720px;
+    font-family: var(--font-body);
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-body);
+    color: var(--text-secondary);
   }
 
   /* ── Contact (CTA final + formulaire) ── */

@@ -88,6 +88,14 @@ create_field home contact_error_message string input 'null' \
   "Formulaire — message en cas d'échec d'envoi"
 create_field home contact_direct_title string input 'null' \
   "Contact — intertitre de la colonne tel/courriel (ex. « Vous préférez parler à quelqu'un ? »)"
+create_field home contact_company_label string input 'null' \
+  "Formulaire — libellé du champ facultatif Entreprise"
+create_field home contact_callback_label string input 'null' \
+  "Formulaire — libellé du champ facultatif « meilleur moment pour vous rappeler »"
+create_field home faq_title string input 'null' \
+  "Titre de la section FAQ visible de l'accueil (questions = collection faq)"
+create_field home services_related_title string input 'null' \
+  "Pages services — intertitre des liens vers les autres services (ex. « Autres services »)"
 
 echo "── Champs CIRCUIT sur \`services\` (pages dédiées /services/<slug>/) ──"
 create_field services slug string input 'null' \
@@ -201,7 +209,8 @@ for spec in \
   home:contact_name_label home:contact_email_label home:contact_phone_label \
   home:contact_message_label home:contact_submit_label \
   home:contact_success_message home:contact_error_message \
-  home:contact_direct_title \
+  home:contact_direct_title home:contact_company_label \
+  home:contact_callback_label home:faq_title home:services_related_title \
   services:slug services:body services:benefits services:seo_title \
   services:seo_description services:faq services:show_on_home \
   site_settings:cities site_settings:google_rating \

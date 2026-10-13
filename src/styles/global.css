@@ -320,6 +320,8 @@ body::after {
   letter-spacing: var(--tracking-eyebrow);
   color: var(--accent);
   text-transform: uppercase;
+  font-weight: 400; /* c'est le <h1> de l'accueil (SEO) — garder le look eyebrow */
+  margin-top: 0;
   margin-bottom: 36px;
   display: flex;
   align-items: center;

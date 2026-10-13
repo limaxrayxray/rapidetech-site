@@ -11,8 +11,11 @@ interface Props {
   heading?: "h1" | "h2";
   ctaLabel: string;
   ctaHref: string;
+  /** false dans l'overlay de l'accueil : la FAQ du service ne vit que sur sa
+   *  page dédiée (évite 7 blocs « Questions fréquentes » en double sur /). */
+  showFaq?: boolean;
 }
-const { service, num, heading = "h1", ctaLabel, ctaHref } = Astro.props;
+const { service, num, heading = "h1", ctaLabel, ctaHref, showFaq = true } = Astro.props;
 const H = heading;
 const numLabel = `/ ${String(num).padStart(2, "0")}`;
 const paragraphs = (service.body || "")
@@ -39,7 +42,7 @@ const paragraphs = (service.body || "")
     </ul>
   )}
 
-  {service.faq && service.faq.length > 0 && (
+  {showFaq && service.faq && service.faq.length > 0 && (
     <section class="rt-svcpanel-faq" aria-labelledby={`faq-title-${service.slug}`}>
       <h2 id={`faq-title-${service.slug}`}>Questions fréquentes</h2>
       {service.faq.map((item) => (

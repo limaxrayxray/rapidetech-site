@@ -4,7 +4,7 @@ import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import SEO from "@/components/SEO.astro";
 import SchemaOrg from "@/components/SchemaOrg.astro";
-import { getSiteSettings, getFaq } from "@/lib/directus";
+import { getSiteSettings, getFaq, getServices, getAbout } from "@/lib/directus";
 
 interface Props {
   title?: string;
@@ -13,6 +13,8 @@ interface Props {
   noindex?: boolean;
   /** Q/R propres à la page (JSON-LD FAQPage) — ex. le champ faq d'un service. */
   faq?: { question: string; answer: string }[];
+  /** Blocs JSON-LD propres à la page (ex. Service + BreadcrumbList). */
+  jsonLd?: Record<string, unknown>[];
 }
 
 // Réglages globaux (build time). meta_title / meta_description pilotent le SEO
@@ -24,7 +26,12 @@ const {
   description = settings.meta_description,
   noindex = false,
   faq,
+  jsonLd = [],
 } = Astro.props;
+
+// Fiche entreprise JSON-LD : catalogue des services + fondateur.
+const schemaServices = (await getServices()).map(({ title, slug }) => ({ title, slug }));
+const founder = (await getAbout()).name;
 
 // FAQPage : la page fournit ses Q/R en prop ; sinon l'accueil prend la
 // collection Directus `faq` (fallback silencieux [] tant qu'elle n'existe pas).
@@ -43,7 +50,13 @@ const faqItems = faq ?? (Astro.url.pathname === "/" ? await getFaq() : []);
       noindex={noindex}
     />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <SchemaOrg settings={settings} faq={faqItems} />
+    <SchemaOrg
+      settings={settings}
+      faq={faqItems}
+      services={schemaServices}
+      founder={founder}
+      extra={jsonLd}
+    />
     <!-- Fonts display critiques (le hero est above-the-fold). -->
     <link
       rel="preload"

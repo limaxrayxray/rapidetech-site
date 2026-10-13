@@ -34,21 +34,33 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "";
     </label>
   </p>
 
-  <label class="rt-field">
-    <span class="rt-field-label">{home.contact_name_label} <span class="req">*</span></span>
-    <input class="rt-input" type="text" name="nom" required minlength="2" maxlength="120" />
-  </label>
+  {/* `organisation` (et non `entreprise`) : `entreprise` est le honeypot. */}
+  <div class="rt-form-row">
+    <label class="rt-field">
+      <span class="rt-field-label">{home.contact_name_label} <span class="req">*</span></span>
+      <input class="rt-input" type="text" name="nom" required minlength="2" maxlength="120" autocomplete="name" />
+    </label>
+    <label class="rt-field">
+      <span class="rt-field-label">{home.contact_company_label}</span>
+      <input class="rt-input" type="text" name="organisation" maxlength="160" autocomplete="organization" />
+    </label>
+  </div>
 
   <div class="rt-form-row">
     <label class="rt-field">
       <span class="rt-field-label">{home.contact_email_label} <span class="req">*</span></span>
-      <input class="rt-input" type="email" name="courriel" required maxlength="200" />
+      <input class="rt-input" type="email" name="courriel" required maxlength="200" autocomplete="email" />
     </label>
     <label class="rt-field">
       <span class="rt-field-label">{home.contact_phone_label}</span>
-      <input class="rt-input" type="tel" name="telephone" maxlength="40" />
+      <input class="rt-input" type="tel" name="telephone" maxlength="40" autocomplete="tel" />
     </label>
   </div>
+
+  <label class="rt-field">
+    <span class="rt-field-label">{home.contact_callback_label}</span>
+    <input class="rt-input" type="text" name="rappel" maxlength="160" />
+  </label>
 
   <label class="rt-field">
     <span class="rt-field-label">{home.contact_message_label} <span class="req">*</span></span>

@@ -44,6 +44,13 @@ export interface HomeContent {
   contact_error_message: string;
   /** Intertitre de la colonne « contact direct » (tel/courriel/heures). */
   contact_direct_title: string;
+  /** Champs facultatifs du formulaire (modèle « on vous rappelle »). */
+  contact_company_label: string;
+  contact_callback_label: string;
+  /** Titre de la section FAQ visible de l'accueil (collection `faq`). */
+  faq_title: string;
+  /** Intertitre des liens « autres services » en bas des pages services. */
+  services_related_title: string;
 }
 
 export interface Differentiator {
@@ -214,53 +221,59 @@ function fillEmpty<T extends object>(data: T, fallback: T): T {
 
 /** Static fallbacks: the build never fails just because Directus is down. */
 const FALLBACK_HOME: HomeContent = {
-  hero_eyebrow: "MSP — Rive-Nord de Montréal & Laurentides",
+  hero_eyebrow: "Services informatiques pour PME · Rive-Nord, Laval & Laurentides",
   hero_title: "L'infrastructure IT de vos PME, sans le casse-tête.",
   hero_title_line1: "Votre TI,",
   hero_title_ghost: "sans",
   hero_scramble_words: [
     { value: "surprise" },
+    { value: "urgence" },
     { value: "jargon" },
     { value: "stress" },
-    { value: "détour" },
   ],
   hero_title_line3: "Point final.",
   hero_subtitle:
-    "Gestion TI, cybersécurité et développement web pour les PME. Un seul interlocuteur, qui connaît votre infrastructure par cœur — et qui répond quand vous appelez.",
-  hero_cta_label: "Parlons de votre projet",
-  hero_cta_href: "#contact",
+    "Un conseiller TI qui connaît votre entreprise, planifie votre informatique au lieu d'éteindre des feux et explique sans jargon. Plus de 20 ans d'expérience, toujours la même personne à votre dossier.",
+  hero_cta_label: "Décrivez votre besoin",
+  hero_cta_href: "/#contact",
   hero_image: null,
   marquee_items: [
-    { value: "Gestion TI" },
+    { value: "Gestion TI planifiée" },
     { value: "Cybersécurité" },
-    { value: "Développement web" },
     { value: "Microsoft 365" },
-    { value: "Support local" },
+    { value: "Sauvegarde testée" },
+    { value: "Réseau & Wi-Fi" },
+    { value: "Téléphonie IP" },
+    { value: "Projets TI" },
     { value: "Sans surprise" },
   ],
   differentiators_title: "Fini les mauvaises surprises",
   services_title: "Nos services",
   testimonials_title: "Ce que nos clients disent",
-  local_title: "Fièrement local — Rive-Nord & Laurentides",
+  local_title: "Entreprises desservies — Rive-Nord, Laval & Laurentides",
   about_title: "Qui je suis",
   partners_title: "Nos partenaires",
   partners_intro:
     "On s'appuie sur des technologies éprouvées et des partenaires de confiance pour livrer un service fiable.",
-  cta_final_title: "Prêt à simplifier votre informatique ?",
+  cta_final_title: "Décrivez votre besoin. On vous rappelle.",
   cta_final_body:
-    "Parlez-moi de votre situation. Sans engagement, sans jargon — juste un vrai diagnostic et des réponses claires.",
-  cta_final_label: "Réservez un appel",
+    "Un projet, une migration, une inquiétude côté sécurité ou l'envie de faire le point sur votre informatique : décrivez votre situation en quelques lignes. On vous rappelle d'ici la fin du prochain jour ouvrable pour en discuter, sans pression et sans jargon.",
+  cta_final_label: "Décrivez votre besoin",
   cta_final_href: "/#contact",
   contact_name_label: "Votre nom",
   contact_email_label: "Courriel",
-  contact_phone_label: "Téléphone (optionnel)",
-  contact_message_label: "Décrivez votre situation",
-  contact_submit_label: "Envoyer",
+  contact_phone_label: "Téléphone (recommandé pour le rappel)",
+  contact_message_label: "Décrivez votre besoin",
+  contact_submit_label: "Demander un rappel",
   contact_success_message:
-    "Message reçu. On vous revient rapidement — promis.",
+    "Demande reçue. On vous rappelle d'ici la fin du prochain jour ouvrable.",
   contact_error_message:
     "L'envoi a échoué. Réessayez, ou écrivez-nous directement par courriel.",
-  contact_direct_title: "Vous préférez parler à quelqu'un ?",
+  contact_direct_title: "Vous préférez téléphoner ? Laissez un message, on vous rappelle.",
+  contact_company_label: "Entreprise (optionnel)",
+  contact_callback_label: "Meilleur moment pour vous rappeler (optionnel)",
+  faq_title: "Questions fréquentes",
+  services_related_title: "Autres services",
 };
 
 const FALLBACK_SERVICES: Service[] = [
@@ -271,7 +284,7 @@ const FALLBACK_SERVICES: Service[] = [
       "Supervision, maintenance et support proactif de votre environnement Microsoft 365 et Windows. On voit les problèmes avant vous.",
     icon: "server",
     slug: "gestion-ti",
-    body: "Votre informatique devrait travailler pour vous, pas l'inverse. On prend en charge la supervision complète de votre parc : postes, serveurs, Microsoft 365, sauvegardes. Les mises à jour se font en arrière-plan, les problèmes sont détectés avant qu'ils vous arrêtent, et quand vous appelez, c'est la même personne qui répond — quelqu'un qui connaît votre infrastructure par cœur.\n\nPas de contrat piège, pas de jargon. Un forfait clair, des rapports que vous comprenez, et la tranquillité de savoir que quelqu'un veille.",
+    body: "Votre informatique devrait travailler pour vous, pas l'inverse. On prend en charge la supervision complète de votre parc : postes, serveurs, Microsoft 365, sauvegardes. Les mises à jour se font en arrière-plan, les problèmes sont détectés avant qu'ils vous arrêtent, et votre dossier reste entre les mains de la même personne — quelqu'un qui connaît votre infrastructure par cœur.\n\nPas de contrat piège, pas de jargon. Un forfait clair, des rapports que vous comprenez, et la tranquillité de savoir que quelqu'un veille.",
     benefits: [
       { value: "Surveillance continue de vos postes et serveurs" },
       { value: "Mises à jour et correctifs appliqués sans vous interrompre" },
@@ -315,21 +328,21 @@ const FALLBACK_SERVICES: Service[] = [
 ];
 
 const FALLBACK_DIFFERENTIATORS: Differentiator[] = [
-  { id: "1", title: "Des factures honnêtes.", description: "Vous savez exactement ce que vous payez. Aucun service ajouté sans votre accord — et rien qu'on vous facture sans que ça fonctionne.", sort: 1 },
-  { id: "2", title: "Toujours la même personne.", description: "Quelqu'un qui connaît votre infrastructure par cœur, pas un billet anonyme dans une file d'attente.", sort: 2 },
-  { id: "3", title: "Des explications claires.", description: "On vous dit ce qu'on fait et pourquoi, en mots simples. Vous gardez le contrôle.", sort: 3 },
-  { id: "4", title: "Une vraie réponse, vite.", description: "Quand quelque chose brise, vous parlez à quelqu'un, pas à un répondeur.", sort: 4 },
+  { id: "1", title: "On planifie, on n'éteint pas des feux.", description: "Entretien préventif, mises à jour et projets préparés d'avance : moins de pannes, moins d'urgences et des coûts prévisibles.", sort: 1 },
+  { id: "5", title: "Des factures honnêtes.", description: "Chaque mandat est estimé avant de commencer. Aucun service ajouté sans votre accord — et rien qu'on vous facture sans que ça fonctionne.", sort: 2 },
+  { id: "2", title: "Toujours la même personne.", description: "Quelqu'un qui connaît votre infrastructure par cœur, pas un billet anonyme dans une file d'attente. C'est aussi elle qui vous rappelle.", sort: 3 },
+  { id: "3", title: "Des explications claires.", description: "On vous dit ce qu'on fait et pourquoi, en mots simples. Vous gardez le contrôle.", sort: 4 },
 ];
 
 const FALLBACK_ABOUT: About = {
   name: "Alexandre Martin",
-  role: "Fondateur & consultant TI",
+  role: "Fondateur de Rapidetech · Conseiller TI pour PME",
   bio: "Passionné de technologie depuis toujours, j'ai fondé Rapidetech pour offrir aux PME de la Rive-Nord un service TI humain et sans surprise. Je gère votre infrastructure comme si c'était la mienne.",
   photo: null,
   values: [
     { value: "10+ ans d'expérience en infrastructure Microsoft" },
     { value: "Certifié sécurité et cloud" },
-    { value: "Toujours joignable, toujours la même personne" },
+    { value: "Toujours la même personne à votre dossier" },
     { value: "Basé sur la Rive-Nord, disponible dans les Laurentides" },
   ],
 };
@@ -344,26 +357,28 @@ const FALLBACK_SITE_SETTINGS: SiteSettings = {
   company_name: "Rapidetech",
   phone: "",
   email: "",
-  hours: "Lun.–Ven. 8 h à 17 h",
-  city: "Blainville, QC",
-  service_area: "Rive-Nord & Basses-Laurentides",
+  hours: "Sur rendez-vous",
+  city: "Lorraine",
+  service_area: "Rive-Nord, Laval et Laurentides",
   google_reviews_url: "#",
   footer_tagline:
-    "Partenaire TI pour les PME de la Rive-Nord et des Laurentides.",
-  meta_title: "Rapidetech — Gestion TI, cybersécurité et dev web",
+    "Conseiller TI pour les PME de la Rive-Nord, de Laval et des Laurentides depuis plus de 20 ans.",
+  meta_title: "Services informatiques pour PME — Rive-Nord et Laval | Rapidetech",
   meta_description:
-    "MSP pour PME sur la Rive-Nord de Montréal et dans les Laurentides.",
+    "Conseiller TI pour les PME de la Rive-Nord, de Laval et des Laurentides : gestion TI planifiée, cybersécurité, sauvegarde et Microsoft 365. On vous rappelle.",
   cities: [
+    { value: "Lorraine" },
+    { value: "Terrebonne" },
+    { value: "Mascouche" },
+    { value: "Laval" },
     { value: "Blainville" },
     { value: "Sainte-Thérèse" },
     { value: "Boisbriand" },
     { value: "Rosemère" },
-    { value: "Lorraine" },
     { value: "Bois-des-Filion" },
     { value: "Mirabel" },
     { value: "Saint-Eustache" },
     { value: "Deux-Montagnes" },
-    { value: "Terrebonne" },
     { value: "Saint-Jérôme" },
     { value: "Sainte-Anne-des-Plaines" },
   ],
@@ -372,12 +387,13 @@ const FALLBACK_SITE_SETTINGS: SiteSettings = {
   coordinates: "45.6°N — 73.8°O",
   status_message: "Tous systèmes opérationnels",
   nav_links: [
-    { label: "Services", href: "#services" },
-    { label: "Approche", href: "#approche" },
-    { label: "À propos", href: "#a-propos" },
+    { label: "Services", href: "/#services" },
+    { label: "Approche", href: "/#approche" },
+    { label: "À propos", href: "/#a-propos" },
+    { label: "FAQ", href: "/#faq" },
   ],
-  nav_cta_label: "Parler à Alexandre",
-  nav_cta_href: "#contact",
+  nav_cta_label: "Demander un rappel",
+  nav_cta_href: "/#contact",
   privacy_link_label: "Politique de confidentialité",
   notfound_title: "Page introuvable",
   notfound_body:

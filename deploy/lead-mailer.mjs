@@ -74,12 +74,17 @@ function validate(d) {
   const courriel = String(d.courriel || "").trim();
   const telephone = String(d.telephone || "").trim();
   const message = String(d.message || "").trim();
+  // Facultatifs (ajoutés au repositionnement « on vous rappelle ») — le nom
+  // `organisation` évite le honeypot `entreprise`.
+  const organisation = String(d.organisation || "").trim();
+  const rappel = String(d.rappel || "").trim();
   if (nom.length < 2 || nom.length > 120) return null;
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(courriel) || courriel.length > 200)
     return null;
   if (message.length < 10 || message.length > 5000) return null;
   if (telephone.length > 40) return null;
-  return { nom, courriel, telephone, message };
+  if (organisation.length > 160 || rappel.length > 160) return null;
+  return { nom, courriel, telephone, organisation, rappel, message };
 }
 
 const esc = (s) =>
@@ -124,7 +129,7 @@ async function sendEmail(lead, ip) {
   const payload = {
     sender: `${FROM_NAME} <${FROM}>`,
     to: [TO],
-    subject: `Nouveau lead — ${lead.nom}`,
+    subject: `Nouveau lead — ${lead.nom}${lead.organisation ? ` (${lead.organisation})` : ""}`,
     custom_headers: [
       { header: "Reply-To", value: `${lead.nom} <${lead.courriel}>` },
     ],
@@ -133,6 +138,8 @@ async function sendEmail(lead, ip) {
 Nom : ${lead.nom}
 Courriel : ${lead.courriel}
 Téléphone : ${lead.telephone || "—"}
+Entreprise : ${lead.organisation || "—"}
+Meilleur moment pour rappeler : ${lead.rappel || "—"}
 
 ${lead.message}
 
@@ -141,7 +148,9 @@ IP : ${ip} · ${new Date().toISOString()}`,
     html_body: `<h2>Nouveau message du site</h2>
 <p><b>Nom :</b> ${esc(lead.nom)}<br>
 <b>Courriel :</b> ${esc(lead.courriel)}<br>
-<b>Téléphone :</b> ${esc(lead.telephone) || "—"}</p>
+<b>Téléphone :</b> ${esc(lead.telephone) || "—"}<br>
+<b>Entreprise :</b> ${esc(lead.organisation) || "—"}<br>
+<b>Meilleur moment pour rappeler :</b> ${esc(lead.rappel) || "—"}</p>
 <p><b>Message :</b></p>
 <p>${esc(lead.message).replace(/\n/g, "<br>")}</p>
 <hr><p style="color:#888;font-size:12px">IP : ${esc(ip)} · ${new Date().toISOString()}</p>`,

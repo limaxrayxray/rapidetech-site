@@ -5,28 +5,63 @@
 import Base from "@/layouts/Base.astro";
 import ServicePanel from "@/components/ServicePanel.astro";
 import { getHome, getServices, getSiteSettings } from "@/lib/directus";
+import { businessId } from "@/lib/schema";
 
 export async function getStaticPaths() {
   const services = await getServices();
   return services.map((service, i) => ({
     params: { slug: service.slug },
-    props: { service, num: i + 1 },
+    props: {
+      service,
+      num: i + 1,
+      // Maillage interne : chaque page service pointe vers les autres.
+      related: services
+        .filter((s) => s.slug !== service.slug)
+        .map(({ title, slug }) => ({ title, slug })),
+    },
   }));
 }
 
-const { service, num } = Astro.props;
+const { service, num, related } = Astro.props;
 const home = await getHome();
 const settings = await getSiteSettings();
 const title = service.seo_title || `${service.title} — ${settings.company_name}`;
 const description = service.seo_description || service.description;
+const site = Astro.site!;
+const pageUrl = new URL(`/services/${service.slug}/`, site).href;
+
+// JSON-LD propre à la page : le Service (rattaché à l'entreprise par @id)
+// et le fil d'Ariane (affiché tel quel dans les résultats Google).
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: service.title,
+    serviceType: service.title,
+    description: service.description,
+    url: pageUrl,
+    provider: { "@id": businessId(site) },
+    areaServed: settings.cities.map((c) => ({ "@type": "City", name: c.value })),
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: settings.company_name, item: site.href },
+      { "@type": "ListItem", position: 2, name: service.title, item: pageUrl },
+    ],
+  },
+];
 ---
 
 {/* faq → JSON-LD FAQPage émis par le layout (les Q/R sont déjà visibles
     dans ServicePanel — le balisage structuré reflète le contenu réel). */}
-<Base title={title} description={description} faq={service.faq ?? []}>
+<Base title={title} description={description} faq={service.faq ?? []} jsonLd={jsonLd}>
   <main class="rt-svcpage">
     <nav class="rt-svcpage-back" aria-label="Fil d'Ariane">
       <a href="/">← {settings.company_name}</a>
+      <span aria-hidden="true">/</span>
+      <span aria-current="page">{service.title}</span>
     </nav>
     <ServicePanel
       service={service}
@@ -35,6 +70,21 @@ const description = service.seo_description || service.description;
       ctaLabel={home.cta_final_label}
       ctaHref="/#contact"
     />
+
+    {related.length > 0 && (
+      <nav class="rt-svcpage-related" aria-labelledby="related-title">
+        <h2 id="related-title">{home.services_related_title}</h2>
+        <ul>
+          {related.map((r) => (
+            <li>
+              <a href={`/services/${r.slug}/`}>
+                {r.title} <span aria-hidden="true">→</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    )}
   </main>
 </Base>
 
@@ -47,6 +97,14 @@ const description = service.seo_description || service.description;
   }
   .rt-svcpage-back {
     margin-bottom: 48px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-tertiary);
   }
   .rt-svcpage-back a {
     font-family: var(--font-mono);
@@ -59,5 +117,51 @@ const description = service.seo_description || service.description;
   }
   .rt-svcpage-back a:hover {
     color: var(--text-primary);
+  }
+
+  /* Autres services (maillage interne) */
+  .rt-svcpage-related {
+    margin-top: 72px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border-default);
+  }
+  .rt-svcpage-related h2 {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    font-weight: 400;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 20px;
+  }
+  .rt-svcpage-related ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--border-default);
+    border: 1px solid var(--border-default);
+  }
+  .rt-svcpage-related a {
+    display: block;
+    height: 100%;
+    background: var(--surface-card);
+    padding: 20px 24px;
+    font-family: var(--font-body);
+    font-size: var(--text-body-sm);
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color var(--dur-fast), background var(--dur-fast);
+  }
+  .rt-svcpage-related a:hover {
+    color: var(--text-primary);
+    background: var(--surface-raised);
+  }
+  @media (max-width: 720px) {
+    .rt-svcpage-related ul {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

@@ -163,18 +163,23 @@ export default function Hero({
     <header className="rt-hero">
       <div className="rt-hero-grid" aria-hidden="true" />
 
-      <p className="rt-hero-eyebrow">
+      {/* SEO : le H1 = l'eyebrow (mots-clés « services informatiques PME +
+          région »). Le slogan display reste un <p> stylé .rt-h1 — même rendu,
+          mais Google ne lit plus « S U R P R I S E » comme titre de page.
+          Le scramble est aria-hidden ; son mot de repos est doublé en sr-only. */}
+      <h1 className="rt-hero-eyebrow">
         <span>{eyebrow}</span>
-      </p>
+      </h1>
 
-      <h1 className="rt-h1">
+      <p className="rt-h1">
         <span className="rt-line">
           <span>{titleLine1}</span>
         </span>
         <span className="rt-line">
           <span>
             <span className="rt-ghost">{titleGhost}</span>{" "}
-            <span className="rt-scramble">
+            <span className="sr-only">{scrambleWords[0] ?? ""}</span>
+            <span className="rt-scramble" aria-hidden="true">
               {cells.map((c, i) =>
                 c.noise ? (
                   <span key={i} className="rt-scramble-noise">
@@ -190,7 +195,7 @@ export default function Hero({
         <span className="rt-line">
           <span>{titleLine3}</span>
         </span>
-      </h1>
+      </p>
 
       <div className="rt-hero-foot">
         <p className="rt-hero-sub">{subtitle}</p>
